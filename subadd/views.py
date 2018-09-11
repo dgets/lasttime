@@ -13,4 +13,7 @@ def subadd(request):
 
     return render(request, 'subadd/index.html', context)
 
+def add(request):
+    return render(request, 'subadd/add.html')
+
 
