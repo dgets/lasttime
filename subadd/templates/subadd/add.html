@@ -3,12 +3,13 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p> {% endif %}
 
 <form action="{% url 'subadd:addentry' %}" method="post">
+
   {% csrf_token %}
 
   <table>
    <tr>
-    <td>Field:</td>
-    <td>Content:</td>
+    <td><b>Field</b></td>
+    <td><b>Content</b></td>
    </tr>
    <tr>
     <td>Common Name:</td>

@@ -1,15 +1,22 @@
 <h2>Substance List</h2>
 
 {% if all_subs %}
+
   <ul>
+
     {% for sub in all_subs %}
+
       <li>
         <a href="{% url 'subadd:detail' sub.id %}">{{ sub.common_name }}
         </a>
       </li>
+
     {% endfor %}
-{% else %}
+
+ {% else %}
+
   <h3>There are no database entries</h3>
+
 {% endif %}
 
   <p><a href="{% url 'subadd:add' %}">Add new substance entry</a>

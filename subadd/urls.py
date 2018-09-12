@@ -2,7 +2,10 @@ from django.urls import path
 
 from . import views
 
+app_name = "subadd"
 urlpatterns = [
-    path('', views.subadd, name='subadd'),
+    path('', views.index, name='index'),
+    path('add', views.add, name='add'),
+    path('addentry', views.addentry, name='addentry'),
 ]
 
