@@ -1,0 +1,25 @@
+<h2>
+  {{ substance.sci_name }} ({{ substance.common_name }})
+</h2>
+
+<table>
+  <tr>
+    <td>[Active] Half-life:</td>
+    <td>{{ substance.active_half_life }}</td>
+  </tr>
+  <tr>
+    <td>Metabolic Half-life:</td>
+    <td>{{ substance.half_life }}</td>
+  </tr>
+  <tr>
+    <td>Lipid (fat) soluble?</td>
+    <td>
+      {% if substance.lipid_solubility %}
+        Yes
+      {% else %}
+        No
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
