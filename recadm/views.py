@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
-from .models import Usage, Substance
+from .models import Usage
 
 # Create your views here.
 
@@ -14,6 +15,9 @@ def index(request):
 
 def add(request):
     return HttpResponse("Soon there will be shit here...")
+
+def add_new(request):
+    return HttpResponse("AhDittoThayat")
 
 def detail(request, usage_id):
     return HttpResponse("Soon there will be code doing shit here, also...")
