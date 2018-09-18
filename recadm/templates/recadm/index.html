@@ -1,12 +1,9 @@
-{% if recent_administrations %}
+{% if mydata %}
   <ul>
-    {% for admin_details in recent_administrations %}
+    {% for admin_details in mydata %}
       <li><a href="{% url 'recadm:detail' admin_details.id %}">
-	{{ admin_details.timestamp }}: {{ admin_details.dosage }}mg
-	{{ <!-- 
-		here I need to snag the Substance's name via the 'sub'
-		field of the record found in admin_details
-	     --> }}
+        {{ admin_details.timestamp }}: {{ admin_details.dosage }}mg
+        {{ admin_details.substance_name }}
       </a></li>
     {% endfor %}
   </ul>
