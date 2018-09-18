@@ -27,7 +27,19 @@ def index(request):
     return render(request, 'recadm/index.html', context)
 
 def add(request):
-    return HttpResponse("Soon there will be shit here...")
+    substances = Substance.objects.all()
+    mydata = [ ] #what the hell is different here compared to above w/my
+                      #data structure, construction, and access/storing
+                      #logic?!?
+
+    for sub in substances:
+        mydata.add({'name': sub.common_name, 'id': sub.id, })
+
+    context = {
+        'my_sub_data': mydata,
+    }
+
+    return render(request, 'recadm/add_entry.html', context)
 
 def add_new(request):
     return HttpResponse("AhDittoThayat")
