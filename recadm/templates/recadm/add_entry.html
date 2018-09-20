@@ -1,5 +1,11 @@
 <h2>Record Medication Administration</h2>
 
+{% if error_message %}
+ <div name="err">
+  {{ error_message }}
+ </div>
+{% endif %}
+
 <form action="{% url 'recadm:save_admin' %}" method="post">
   {% csrf_token %}
 
@@ -9,24 +15,32 @@
       Medication:
     </td>
     <td>
-      {% if my_sub_data %}
-        {% for sub_data in my_sub_data %}
+      {% if mydata %}
+        {% for sub_data in mydata %}
           <input type="radio" name="substance" value="{{ sub_data.id }}">
             {{ sub_data.name }}
-          </input>
+          </input><br />
         {% endfor %}
       {% endif %}
-    </td>
-    <td>
-      <input type="text" name="dosage" value="0" />
     </td>
    </tr>
    <tr>
     <td>
+      Dosage:
+    </td>
+    <td>
+      <input type="text" name="dosage" value="{{ administration.dosage }}" />
+    </td>
+   </tr>
+   <tr>
+    <td>
+      Administration &nbsp;Notes:
+    </td>
+    <td>
       <textarea name="notes" maxlength="160" cols="40" rows="4">
+{{ administration.notes }}
       </textarea>
     </td>
-    <td></td>
    </tr>
   </table>
 

@@ -33,16 +33,39 @@ def add(request):
                       #logic?!?
 
     for sub in substances:
-        mydata.add({'name': sub.common_name, 'id': sub.id, })
+        mydata.append({'name': sub.common_name, 'id': sub.id, })
 
     context = {
-        'my_sub_data': mydata,
+        'mydata': mydata,
     }
 
     return render(request, 'recadm/add_entry.html', context)
 
-def add_new(request):
-    return HttpResponse("AhDittoThayat")
+def save_admin(request):
+    #administration = Usage('sub': request.POST['substance'],
+    #    'dosage': request.POST['dosage'], 'notes': request.POST['notes'], )
+    administration = Usage({'sub': request.POST['substance'],
+        'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
+
+    try:
+        administration.save()
+    except:
+        substances = Substance.objects.all()
+        mydata = [ ]
+
+        for sub in substances: 
+            mydata.append({'name': sub.common_name, 'id': sub.id, })
+
+        error_message = "Unable to save to db for unknown reason!"
+        context = {
+            'mydata': mydata,
+            'administration': administration,
+            'error_message': error_message,
+        }
+
+        return render(request, 'recadm/add_entry.html', context)
+
+    return render(request, 'recadm/index.html')
 
 def detail(request, usage_id):
     return HttpResponse("Soon there will be code doing shit here, also...")
