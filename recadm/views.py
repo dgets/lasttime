@@ -49,14 +49,14 @@ def save_admin(request):
 
     try:
         administration.save()
-    except:
+    except Exception as e:
         substances = Substance.objects.all()
         mydata = [ ]
 
         for sub in substances: 
             mydata.append({'name': sub.common_name, 'id': sub.id, })
 
-        error_message = "Unable to save to db for unknown reason!"
+        error_message = "Unable to save to db: " + str(e)
         context = {
             'mydata': mydata,
             'administration': administration,
