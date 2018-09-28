@@ -42,8 +42,6 @@ def add(request):
     return render(request, 'recadm/add_entry.html', context)
 
 def save_admin(request):
-    #administration = Usage('sub': request.POST['substance'],
-    #    'dosage': request.POST['dosage'], 'notes': request.POST['notes'], )
     administration = Usage({'sub': request.POST['substance'],
         'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
 
@@ -61,6 +59,7 @@ def save_admin(request):
             'mydata': mydata,
             'administration': administration,
             'error_message': error_message,
+            'dosage': request.POST['dosage'], #debugging
         }
 
         return render(request, 'recadm/add_entry.html', context)
