@@ -32,16 +32,26 @@ def add(request):
                       #data structure, construction, and access/storing
                       #logic?!?
 
+    add_administration_form = UsageForm()
+
     for sub in substances:
         mydata.append({'name': sub.common_name, 'id': sub.id, })
 
     context = {
         'mydata': mydata,
+        'add_admin_form': add_administration_form,
     }
 
     return render(request, 'recadm/add_entry.html', context)
 
 def save_admin(request):
+    context = request.POST['context']
+    mydata = context['mydata']
+
+    sub = context['substance']
+    dosage = context['dosage']
+    notes = context['notes']
+
     administration = Usage({'sub': request.POST['substance'],
         'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
 
@@ -49,12 +59,14 @@ def save_admin(request):
         administration.save()
     except Exception as e:
         substances = Substance.objects.all()
-        mydata = [ ]
+        #mydata = [ ]
 
         for sub in substances: 
             mydata.append({'name': sub.common_name, 'id': sub.id, })
 
-        error_message = "Unable to save to db: " + str(e)
+        error_message = "Unable to save to db: " + str(e) + \
+            "<br>sub: " + sub + " dose: " + dosage + " notes: " + notes
+
         context = {
             'mydata': mydata,
             'administration': administration,
