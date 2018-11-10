@@ -33,6 +33,7 @@ class Substance(models.Model):
 
         return return_text
 
+
 class SubstanceForm(ModelForm):
     class Meta:
         model = Substance
