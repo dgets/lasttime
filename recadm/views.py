@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 #from .models import Usage
-from .forms import UsageForm
+from .forms import Usage, UsageForm
 
 from subadd.models import Substance
 
 # Create your views here.
+
 
 def index(request):
     recent_administrations = Usage.objects.all()
@@ -28,6 +29,7 @@ def index(request):
 
     return render(request, 'recadm/index.html', context)
 
+
 def add(request):
     substances = Substance.objects.all()
     mydata = [ ] #what the hell is different here compared to above w/my
@@ -46,39 +48,72 @@ def add(request):
 
     return render(request, 'recadm/add_entry.html', context)
 
+# def save_admin(request):
+#     context = request.POST['context']
+#     mydata = context['mydata']
+#
+#     sub = context['substance']
+#     dosage = context['dosage']
+#     notes = context['notes']
+#
+#     administration = Usage({'sub': request.POST['substance'],
+#         'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
+#
+#     try:
+#         administration.save()
+#     except Exception as e:
+#         substances = Substance.objects.all()
+#         #mydata = [ ]
+#
+#         for sub in substances:
+#             mydata.append({'name': sub.common_name, 'id': sub.id, })
+#
+#         error_message = "Unable to save to db: " + str(e) + \
+#             "<br>sub: " + sub + " dose: " + dosage + " notes: " + notes
+#
+#         context = {
+#             'mydata': mydata,
+#             'administration': administration,
+#             'error_message': error_message,
+#             'dosage': request.POST['dosage'], #debugging
+#         }
+#
+#         return render(request, 'recadm/add_entry.html', context)
+#
+#     return render(request, 'recadm/index.html')
+
+
 def save_admin(request):
-    context = request.POST['context']
-    mydata = context['mydata']
+    # administration = Usage({'sub': request.POST['sub'],
+    #                         'dosage': request.POST['dosage'],
+    #                         'notes': request.POST['notes']})
 
-    sub = context['substance']
-    dosage = context['dosage']
-    notes = context['notes']
-
-    administration = Usage({'sub': request.POST['substance'],
-        'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
+    add_administration_form = UsageForm({'sub': request.POST['sub'],
+                                         'dosage': request.POST['dosage'],
+                                         'notes': request.POST['notes']})
 
     try:
-        administration.save()
+        #administration.save()
+        add_administration_form.save()
     except Exception as e:
         substances = Substance.objects.all()
-        #mydata = [ ]
 
-        for sub in substances: 
-            mydata.append({'name': sub.common_name, 'id': sub.id, })
+        for sub in substances:
+            mydata.append({'name': sub.common_name,
+                           'id': sub.id,})
 
-        error_message = "Unable to save to db: " + str(e) + \
-            "<br>sub: " + sub + " dose: " + dosage + " notes: " + notes
+            error_message = "Unable to save to db: " + str(e) + "<br>sub: " + sub + " dose: " + dosage + " notes: " +\
+                notes
 
-        context = {
-            'mydata': mydata,
-            'administration': administration,
-            'error_message': error_message,
-            'dosage': request.POST['dosage'], #debugging
-        }
+            context = {'mydata': mydata,
+                       #'administration', administration,
+                       'add_admin_form': add_administration_form,
+                       'error_message': error_message,}
 
-        return render(request, 'recadm/add_entry.html', context)
+            return render(request, 'recadm/add_entry.html', context)
 
     return render(request, 'recadm/index.html')
+
 
 def detail(request, usage_id):
     return HttpResponse("Soon there will be code doing shit here, also...")

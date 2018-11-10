@@ -12,6 +12,9 @@ class Usage(models.Model):
     timestamp = models.DateTimeField('time administered', default=timezone.now)
     notes = models.CharField(max_length=160)
 
+    def __str__(self):
+        return str(self.sub) + " (" + str(self.dosage) + ") administered at " + str(self.timestamp)
+
 
 class UsageForm(ModelForm):
     class Meta:

@@ -5,6 +5,7 @@ from .models import Substance
 
 # Create your views here.
 
+
 def index(request):
     all_subs = Substance.objects.all()
     context = {
@@ -13,8 +14,10 @@ def index(request):
 
     return render(request, 'subadd/index.html', context)
 
+
 def add(request):
     return render(request, 'subadd/add.html', {'substance': None})
+
 
 def addentry(request):
     substance = Substance(common_name = request.POST['common_name'],
@@ -33,6 +36,7 @@ def addentry(request):
 
     return render(request, 'subadd/index.html', {'all_subs':
         Substance.objects.all()})
+
 
 def detail(request, substance_id):
     try:
