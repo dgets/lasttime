@@ -1,0 +1,48 @@
+<h2>Record Medication Administration</h2>
+
+{% if error_message %}
+ <div name="err">
+  {{ error_message }}
+ </div>
+{% endif %}
+
+<form action="{% url 'recadm:save_admin' %}" method="post">
+  {% csrf_token %}
+
+  <table>
+   <tr>
+    <td>
+      Medication:
+    </td>
+    <td>
+      {% if mydata %}
+        {% for sub_data in mydata %}
+          <input type="radio" name="substance" value="{{ sub_data.id }}">
+            {{ sub_data.name }}
+          </input><br />
+        {% endfor %}
+      {% endif %}
+    </td>
+   </tr>
+   <tr>
+    <td>
+      Dosage: ({{ dosage }})
+    </td>
+    <td>
+      <input type="text" name="dosage" value="{{ administration.dosage }}" />mg
+    </td>
+   </tr>
+   <tr>
+    <td>
+      Administration &nbsp;Notes:
+    </td>
+    <td>
+      <textarea name="notes" maxlength="160" cols="40" rows="4">{{ administration.notes }}</textarea>
+    </td>
+   </tr>
+  </table>
+
+  <input type="submit" value="Add Administration Record" />
+
+</form>
+
