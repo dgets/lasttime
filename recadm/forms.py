@@ -1,16 +1,21 @@
 from django import forms
+from django.db import models
 from django.utils import timezone
-#from django.forms import ModelForms
+from django.forms import ModelForm
 
 from subadd.models import Substance
 
-class UsageForm(forms.Form):
-    #sub = forms.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
-    #switching this out for the new ModelForms 'Substance'
-    sub = forms.ModelChoiceField(queryset=Substance.objects.all())
-    dosage = forms.IntegerField()
-    #not completely sure, but I don't think this is needed for the form, it
-    #should just be the model, I think
-    #timestamp = forms.DataTimeField('time administered', default=timezone.now)
-    notes = forms.CharField(max_length=160)
+
+class Usage(models.Model):
+    sub = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
+    dosage = models.IntegerField()
+    timestamp = models.DateTimeField('time administered', default=timezone.now)
+    notes = models.CharField(max_length=160)
+
+
+class UsageForm(ModelForm):
+    class Meta:
+        model = Usage
+        fields = ['sub', 'dosage', 'notes']
+
 

@@ -3,6 +3,7 @@ from django.utils import timezone
 
 # Create your models here.
 
+
 class Substance(models.Model):
     common_name = models.CharField(max_length=40)
     sci_name = models.CharField(max_length=60)

@@ -1,5 +1,5 @@
 from django.db import models
-from django.forms import ModelForms
+from django.forms import ModelForm
 
 DOSAGE_CHOICES = (
     ('MCG', 'mcg'),
@@ -14,6 +14,7 @@ DURATION_CHOICES = (
     ('HRS', 'hrs'),
     ('DAYS', 'days'),
 )
+
 
 class Substance(models.Model):
     common_name = models.CharField(max_length=40)

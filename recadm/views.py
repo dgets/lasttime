@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .models import Usage
+#from .models import Usage
 from .forms import UsageForm
 
 from subadd.models import Substance

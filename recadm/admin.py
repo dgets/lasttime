@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Usage
+from .forms import Usage
 
 # Register your models here.
 
