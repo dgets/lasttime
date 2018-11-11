@@ -4,7 +4,7 @@ from django.http import HttpResponse
 #from .models import Usage
 from .forms import Usage, UsageForm
 
-from subadd.models import Substance
+from subadd.forms import Substance
 
 # Create your views here.
 
@@ -16,10 +16,10 @@ def index(request):
 
     for administration in recent_administrations:
         #we only need admin timestamp, dosage, and substance name
-        mydata.add({'ts': administration.timestamp,
+        mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
-            'substance_name': substances.object.get(pk=administration.sub),})
+            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
 
     context = {
         #'substances': substances,
@@ -112,7 +112,23 @@ def save_admin(request):
 
             return render(request, 'recadm/add_entry.html', context)
 
-    return render(request, 'recadm/index.html')
+    mydata = []
+
+    recent_administrations = Usage.objects.all()
+    for administration in recent_administrations:
+        #we only need admin timestamp, dosage, and substance name
+        mydata.append({'ts': administration.timestamp,
+            'id': administration.id,
+            'dosage': administration.dosage,
+            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
+
+    context = {
+        #'substances': substances,
+        #'recent_administrations': recent_administrations,
+        'mydata': mydata,
+    }
+
+    return render(request, 'recadm/index.html', context)
 
 
 def detail(request, usage_id):

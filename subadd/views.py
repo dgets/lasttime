@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
-from .models import Substance
+#from .models import Substance
+from .forms import Substance, SubstanceForm
 
 # Create your views here.
 
@@ -16,7 +17,9 @@ def index(request):
 
 
 def add(request):
-    return render(request, 'subadd/add.html', {'substance': None})
+    add_sub_form = SubstanceForm()
+
+    return render(request, 'subadd/add.html', {'substance': None, 'add_sub_form': add_sub_form})
 
 
 def addentry(request):
