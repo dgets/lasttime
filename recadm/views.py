@@ -131,6 +131,14 @@ def save_admin(request):
     return render(request, 'recadm/index.html', context)
 
 
-def detail(request, usage_id):
-    return HttpResponse("Soon there will be code doing shit here, also...")
+def detail(request, topic_id):
+    admin_details = Usage.objects.get(id=topic_id)
 
+    context = {
+        'sub': admin_details.sub,
+        'dosage': admin_details.dosage,
+        'timestamp': admin_details.timestamp,
+        'notes': admin_details.notes,
+    }
+
+    return render(request, 'recadm/details.html', context)

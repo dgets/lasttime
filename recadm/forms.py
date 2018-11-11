@@ -13,12 +13,6 @@ DOSAGE_CHOICES = (
     ('TSP', 'tsp'),
 )
 
-DURATION_CHOICES = (
-    ('MIN', 'min'),
-    ('HRS', 'hrs'),
-    ('DAYS', 'days'),
-)
-
 
 class Usage(models.Model):
     sub = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
