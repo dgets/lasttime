@@ -1,0 +1,59 @@
+/* main body */
+body {
+        background-color: #00cc99;
+}
+
+/* heading levels */
+h1 {
+        color: black;
+
+}
+
+h2 {
+        color: black;
+
+}
+
+/* standard text paragraphs */
+p {
+        color: white;
+
+}
+
+/* header (container) */
+.header {
+	background-color: #339933;
+	text-align: center;
+	padding: 20px;
+}
+
+/* navbar (container) */
+.topnav {
+	overflow: hidden;
+	background-color: #b30000;
+}
+
+/* navbar links */
+.topnav a {
+    float: left;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* change color on hover */
+.topnav a:hover {
+    background-color: #ff0000;
+    color: black;
+}
+
+/* visited link default is an eyesore on our scheme */
+.topnav a:visited {
+    color: #003300;
+}
+
+/* 'sales pitch' area */
+
+.pitch {
+    text-align: center;
+}
