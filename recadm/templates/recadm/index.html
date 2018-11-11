@@ -29,7 +29,7 @@
   <ul>
     {% for admin_details in mydata %}
       <li><a href="{% url 'recadm:detail' admin_details.id %}">
-        {{ admin_details.timestamp }}: {{ admin_details.dosage }}mg
+        {{ admin_details.ts }}: {{ admin_details.dosage }}mg
         {{ admin_details.substance_name }}
       </a></li>
     {% endfor %}
