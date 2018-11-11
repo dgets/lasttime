@@ -22,7 +22,8 @@ DURATION_CHOICES = (
 
 class Usage(models.Model):
     sub = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
-    dosage = models.IntegerField()
+    #dosage = models.IntegerField()
+    dosage = models.DecimalField(max_digits=7, decimal_places=3)
     timestamp = models.DateTimeField('time administered', default=timezone.now)
     notes = models.CharField(max_length=160)
 
