@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Substance
+from .forms import Substance
 
 # Register your models here.
 

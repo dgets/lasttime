@@ -37,7 +37,6 @@ class Substance(models.Model):
 class SubstanceForm(ModelForm):
     class Meta:
         model = Substance
-        fields = ['common_name', 'sci_name', 'half_life', 'active_half_life', \
-                  'lipid_solubility']
+        fields = ['common_name', 'sci_name', 'half_life', 'active_half_life', 'lipid_solubility']
 
 

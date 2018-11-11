@@ -4,7 +4,7 @@ from django.http import HttpResponse
 #from .models import Usage
 from .forms import Usage, UsageForm
 
-from subadd.models import Substance
+from subadd.forms import Substance
 
 # Create your views here.
 

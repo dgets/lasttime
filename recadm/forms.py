@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.forms import ModelForm
 
-from subadd.models import Substance
+from subadd.forms import Substance
 
 
 class Usage(models.Model):
