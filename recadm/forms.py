@@ -5,6 +5,20 @@ from django.forms import ModelForm
 
 from subadd.forms import Substance
 
+DOSAGE_CHOICES = (
+    ('MCG', 'mcg'),
+    ('MG', 'mg'),
+    ('OZ', 'oz'),
+    ('ML', 'ml'),
+    ('TSP', 'tsp'),
+)
+
+DURATION_CHOICES = (
+    ('MIN', 'min'),
+    ('HRS', 'hrs'),
+    ('DAYS', 'days'),
+)
+
 
 class Usage(models.Model):
     sub = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
