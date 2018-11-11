@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-#from .models import Usage
 from .forms import Usage, UsageForm
 
 from subadd.forms import Substance
@@ -10,20 +9,29 @@ from subadd.forms import Substance
 
 
 def index(request):
+    """
+    View shows the details of administrations; it will, at some point,
+    obviously have to be chopped down for a reasonable subset of the
+    list, but it's good for testing purposes.  Passes the view off via
+    the recadm/index template.
+
+    :param request:
+    :return:
+    """
+
     recent_administrations = Usage.objects.all()
-    substances = Substance.objects.all()
-    mydata = [ ] #this can no doubt be handled better via the db
+    # substances = Substance.objects.all()
+    mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
         #we only need admin timestamp, dosage, and substance name
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
-            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
+            'substance_name': administration.sub,})
 
     context = {
-        #'substances': substances,
-        #'recent_administrations': recent_administrations,
+        # not sure why I did things this way, but we'll leave it for now
         'mydata': mydata,
     }
 
@@ -31,10 +39,19 @@ def index(request):
 
 
 def add(request):
+    """
+    View for adding a particular administration record.  Passes the view off
+    to the add_entry template.
+
+    TODO: check which particular views are vestigial and remove them
+
+    :param request:
+    :return:
+    """
+
     substances = Substance.objects.all()
-    mydata = [ ] #what the hell is different here compared to above w/my
-                      #data structure, construction, and access/storing
-                      #logic?!?
+    mydata = []  # what the hell is different here compared to above w/my
+    # data structure, construction, and access/storing logic?!?
 
     add_administration_form = UsageForm()
 
@@ -48,52 +65,23 @@ def add(request):
 
     return render(request, 'recadm/add_entry.html', context)
 
-# def save_admin(request):
-#     context = request.POST['context']
-#     mydata = context['mydata']
-#
-#     sub = context['substance']
-#     dosage = context['dosage']
-#     notes = context['notes']
-#
-#     administration = Usage({'sub': request.POST['substance'],
-#         'dosage': request.POST['dosage'], 'notes': request.POST['notes']})
-#
-#     try:
-#         administration.save()
-#     except Exception as e:
-#         substances = Substance.objects.all()
-#         #mydata = [ ]
-#
-#         for sub in substances:
-#             mydata.append({'name': sub.common_name, 'id': sub.id, })
-#
-#         error_message = "Unable to save to db: " + str(e) + \
-#             "<br>sub: " + sub + " dose: " + dosage + " notes: " + notes
-#
-#         context = {
-#             'mydata': mydata,
-#             'administration': administration,
-#             'error_message': error_message,
-#             'dosage': request.POST['dosage'], #debugging
-#         }
-#
-#         return render(request, 'recadm/add_entry.html', context)
-#
-#     return render(request, 'recadm/index.html')
-
 
 def save_admin(request):
-    # administration = Usage({'sub': request.POST['sub'],
-    #                         'dosage': request.POST['dosage'],
-    #                         'notes': request.POST['notes']})
+    """
+    View is called when add_entry is submitted and passes the data off here in
+    order to save it to the database.  It returns the viewer back to the index
+    template, in order to see the results of the database addition at the top
+    of the administration records.
+
+    :param request:
+    :return:
+    """
 
     add_administration_form = UsageForm({'sub': request.POST['sub'],
                                          'dosage': request.POST['dosage'],
                                          'notes': request.POST['notes']})
 
     try:
-        #administration.save()
         add_administration_form.save()
     except Exception as e:
         substances = Substance.objects.all()
@@ -106,9 +94,8 @@ def save_admin(request):
                 notes
 
             context = {'mydata': mydata,
-                       #'administration', administration,
                        'add_admin_form': add_administration_form,
-                       'error_message': error_message,}
+                       'error_message': error_message, }
 
             return render(request, 'recadm/add_entry.html', context)
 
@@ -116,15 +103,14 @@ def save_admin(request):
 
     recent_administrations = Usage.objects.all()
     for administration in recent_administrations:
-        #we only need admin timestamp, dosage, and substance name
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
             'substance_name': administration.sub,})  # .get(pk=administration.sub),})
 
     context = {
-        #'substances': substances,
-        #'recent_administrations': recent_administrations,
+        # can't remember why I did this this way, but it'll stand until I
+        # remember or can't stand it any more
         'mydata': mydata,
     }
 
@@ -132,6 +118,16 @@ def save_admin(request):
 
 
 def detail(request, topic_id):
+    """
+    Provides the details on any particular administration's notes, primarily
+    (or maybe solely) linked via the index page's summary of different
+    administration details.
+
+    :param request:
+    :param topic_id:
+    :return:
+    """
+
     admin_details = Usage.objects.get(id=topic_id)
 
     context = {
