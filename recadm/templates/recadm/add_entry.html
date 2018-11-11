@@ -1,3 +1,29 @@
+{% load static %}
+
+<html>
+ <head>
+     <title>LastTime</title>
+     <link rel="stylesheet" type="text/css"
+        href="{% static 'recadm/lasttime.css' %}">
+ </head>
+ <body>
+  <!--
+  {# NOTE: below is the fragment that will not be changing; above will depend
+	   on what site & layout details on whether or not it includes static
+	   assets, or whether or not this page is an included fragment or
+	   capable of stand-alone usage #}
+    -->
+
+  <div class="header">
+      <h1 class="slogan">We'll keep those damn seizures away!</h1>
+      <h3 class="mission">Our mission is to provide you with a safe and effective way to monitor your medication
+        levels when professional medical care is not available, as seems to happen so often (at least in the USA).</h3>
+  </div>
+
+  <div class="topnav">
+      <a href="{% url 'subadd:index' %}">Substance Index</a>
+  </div>
+
 <h2>Record Medication Administration</h2>
 
 {% if error_message %}
