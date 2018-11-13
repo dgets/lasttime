@@ -16,8 +16,9 @@ class IndexView(generic.ListView):
     [unique] substance's administration details.
     """
 
-    template_name = 'dataview/index.html'
-    context_object_name = 'latest_relevant_admins'
+    template_name = 'dataview/index.html'   # to avoid default
+    context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
+    model = Substance   # ListView needs to know
 
     def get_queryset(self):
         """
@@ -26,6 +27,8 @@ class IndexView(generic.ListView):
 
         :return:
         """
+
+        return Substance.objects.all()[:5]
 
 
 class SubAdminDetailsView(generic.DetailView):
@@ -37,6 +40,6 @@ class SubAdminDetailsView(generic.DetailView):
     particular substance in question.
     """
 
-    model = Usage
-    template_name = 'dataview/details.html'
+    model = Usage   # should've said all generic views need to know
+    template_name = 'dataview/details.html'  # needed to avoid using the default
 
