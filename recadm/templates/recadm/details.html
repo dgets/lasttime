@@ -25,19 +25,42 @@
       <a href="{% url 'subadd:index' %}">Substances List</a>
   </div>
 
-  {% if mydata %}
-  <ul>
-    {% for admin_details in mydata %}
-      <li><a href="{% url 'recadm:detail' admin_details.id %}">
-        {{ admin_details.ts }}: {{ admin_details.dosage }}mg
-        {{ admin_details.substance_name }}
-      </a></li>
-    {% endfor %}
-  </ul>
+  <h3>Administration Details</h3>
 
-{% else %}
+  <table>
+      <tr>
+          <td>
+              Date:
+          </td>
+          <td>
+              {{ timestamp }}
+          </td>
+      </tr>
+      <tr>
+          <td>
+              Substance:
+          </td>
+          <td>
+              {{ sub }}
+          </td>
+      </tr>
+      <tr>
+          <td>
+              Dosage:
+          </td>
+          <td>
+              {{ dosage }}
+          </td>
+      </tr>
+      <tr>
+          <td>
+              Notes:
+          </td>
+          <td>
+              {{ notes }}
+          </td>
+      </tr>
+  </table>
 
-  <p>No administrations have been recorded at this point.</p>
-
-{% endif %}
-
+ </body>
+</html>

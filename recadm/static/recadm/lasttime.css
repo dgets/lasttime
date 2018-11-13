@@ -1,6 +1,6 @@
 /* main body */
 body {
-        background-color: #00cc99;
+        background-color: #C9D5DF;
 }
 
 /* heading levels */
@@ -16,13 +16,13 @@ h2 {
 
 /* standard text paragraphs */
 p {
-        color: white;
+        color: black;
 
 }
 
 /* header (container) */
 .header {
-	background-color: #339933;
+	background-color: #00D4D5;
 	text-align: center;
 	padding: 20px;
 }
@@ -30,7 +30,7 @@ p {
 /* navbar (container) */
 .topnav {
 	overflow: hidden;
-	background-color: #b30000;
+	background-color: #51878F;
 }
 
 /* navbar links */
@@ -43,13 +43,13 @@ p {
 
 /* change color on hover */
 .topnav a:hover {
-    background-color: #ff0000;
+    background-color: #486968;
     color: black;
 }
 
 /* visited link default is an eyesore on our scheme */
 .topnav a:visited {
-    color: #003300;
+    color: #193C46;
 }
 
 /* 'sales pitch' area */
