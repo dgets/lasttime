@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [ '192.168.0.3', '192.168.0.2', '192.168.0.4',
 # Application definition
 
 INSTALLED_APPS = [
+    'dataview.apps.DataviewConfig',
     'recadm.apps.RecadmConfig',
     'subadd.apps.SubaddConfig',
     'django.contrib.admin',
