@@ -25,13 +25,13 @@ class IndexView(generic.ListView):
         Return the last five (or fewer) unique substance administration links
         for viewing the record details of.
 
-        :return:
+        :return: Substance queryset
         """
 
         return Substance.objects.all()[:5]
 
 
-class SubAdminDetailsView(generic.DetailView):
+class SubAdminDataView(generic.DetailView):
     """
     Again, if I'm misunderstanding concepts about class/generic view
     implementation, this may have to be revised, but the idea behind this view/
@@ -41,5 +41,17 @@ class SubAdminDetailsView(generic.DetailView):
     """
 
     model = Usage   # should've said all generic views need to know
-    template_name = 'dataview/details.html'  # needed to avoid using the default
+    template_name = 'dataview/data_summary.html'  # needed to avoid using the default
+    context['sub_data'] = Substance.objects.filter(pk=pk)
 
+    def get_object(self):
+        """
+        Filter down the Usage records so that we only get records for the
+        specific sub.
+
+        :return: object
+        """
+
+        object = super().get_object().filter(sub=pk)
+
+        return object
