@@ -47,18 +47,19 @@ class SubAdminDataView(generic.DetailView):
     def get_queryset(self):
         return Usage.objects.filter(pk=self.kwargs['pk'])
 
-    def get_context_data(self):
-        # page_data = super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        page_data = super().get_context_data(**kwargs)
         usages = Usage.objects.filter(pk=self.kwargs['pk'])
-        usage_count = len(page_data['usages'])
+        usage_count = len(usages)
 
         total_administered = 0
         for use in usages:
             total_administered += use.dosage
 
-        usage_average = total / usage_count
+        usage_average = total_administered / usage_count
 
-        return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average}
+        return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
+                'usage_total': total_administered, 'sub_name': Substance.objects.filter(pk=self.kwargs['pk']),}
 
 
 # def add_header_info(previous_context):

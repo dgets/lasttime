@@ -27,7 +27,7 @@
   {% if relevant_subs %}
     <ul>
     {% for sub in relevant_subs %}
-        <li><a href="">{{ sub.common_name }} ({{ sub.sci_name }})</a></li>
+        <li><a href="{% url 'data_summary' sub.id %}">{{ sub.common_name }} ({{ sub.sci_name }})</a></li>
     {% endfor %}
     </ul>
   {% else %}
