@@ -5,8 +5,6 @@ from .forms import Usage, UsageForm
 
 from subadd.forms import Substance
 
-# Create your views here.
-
 
 def index(request):
     """

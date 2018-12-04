@@ -42,16 +42,24 @@ class SubAdminDataView(generic.DetailView):
 
     model = Usage   # should've said all generic views need to know
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
-    context['sub_data'] = Substance.objects.filter(pk=pk)
+    # context['sub_data'] = Substance.objects.filter(pk=pk)
 
-    def get_object(self):
-        """
-        Filter down the Usage records so that we only get records for the
-        specific sub.
+    def get_queryset(self):
+        return Usage.objects.filter(pk=self.kwargs['pk'])
 
-        :return: object
-        """
+    def get_context_data(self):
+        # page_data = super().get_context_data(**kwargs)
+        usages = Usage.objects.filter(pk=self.kwargs['pk'])
+        usage_count = len(page_data['usages'])
 
-        object = super().get_object().filter(sub=pk)
+        total_administered = 0
+        for use in usages:
+            total_administered += use.dosage
 
-        return object
+        usage_average = total / usage_count
+
+        return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average}
+
+
+# def add_header_info(previous_context):
+

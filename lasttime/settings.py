@@ -26,7 +26,7 @@ SECRET_KEY = 'ip)0nxr=*f^1t7pol5j*eazu9#$ru)e^ru8+hun$suy4dn^#b0'
 DEBUG = True
 
 ALLOWED_HOSTS = [ '192.168.0.3', '192.168.0.2', '192.168.0.4',
-                  '127.0.0.1' ]
+                  '127.0.0.1', 'd-resources.hopto.org' ]
 
 # Application definition
 
