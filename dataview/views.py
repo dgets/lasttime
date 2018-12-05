@@ -44,12 +44,12 @@ class SubAdminDataView(generic.DetailView):
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
     # context['sub_data'] = Substance.objects.filter(pk=pk)
 
-    def get_queryset(self):
-        return Usage.objects.filter(pk=self.kwargs['pk'])
+    # def get_queryset(self):
+    #     return Usage.objects.filter(pk=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
-        page_data = super().get_context_data(**kwargs)
-        usages = Usage.objects.filter(pk=self.kwargs['pk'])
+        # page_data = super().get_context_data(**kwargs)
+        usages = Usage.objects.filter(sub=self.kwargs['pk'])
         usage_count = len(usages)
 
         total_administered = 0
@@ -59,7 +59,8 @@ class SubAdminDataView(generic.DetailView):
         usage_average = total_administered / usage_count
 
         return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
-                'usage_total': total_administered, 'sub_name': Substance.objects.filter(pk=self.kwargs['pk']),}
+                'usage_total': total_administered,
+                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,}
 
 
 # def add_header_info(previous_context):

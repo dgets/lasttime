@@ -28,8 +28,34 @@
   <h2>{{ sub_name }}</h2>
 
   <table>
-      <
+      <tr>
+          <td>Total Administrations:</td>
+          <td>{{ usage_count }}</td>
+          <td>Total Administered:</td>
+          <td>{{ usage_total }}</td>
+      </tr>
+      <tr>
+          <td>Average Administered:</td>
+          <td>{{ usage_average }}</td>
+          <td></td>
+          <td></td>
+      </tr>
   </table>
+
+  <h3>Applicable Administrations Listing</h3>
+
+  {% if usages %}
+   <ol>
+       {% for use in usages %}
+        <li>{{ use.timestamp }}: {{ use.dosage }}</li>
+       {% endfor %}
+   </ol>
+
+  {% else %}
+
+   <p>No administrations have been listed.</p>
+
+  {% endif %}
 
  </body>
 </html>
