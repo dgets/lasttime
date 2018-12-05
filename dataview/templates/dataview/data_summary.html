@@ -37,8 +37,8 @@
       <tr>
           <td>Average Administered:</td>
           <td>{{ usage_average }}</td>
-          <td></td>
-          <td></td>
+          <td>Average Span Between Administrations:</td>
+          <td>{{ average_span }}</td>
       </tr>
   </table>
 
@@ -54,6 +54,19 @@
   {% else %}
 
    <p>No administrations have been listed.</p>
+
+  {% endif %}
+
+  {% if timespans %}
+   <ol>
+       {% for span in timespans %}
+         <li>{{ span }}</li>
+       {% endfor %}
+   </ol>
+
+  {% else %}
+
+   <p>No timespans have been recorded.</p>
 
   {% endif %}
 

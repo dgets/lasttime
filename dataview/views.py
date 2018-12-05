@@ -42,26 +42,36 @@ class SubAdminDataView(generic.DetailView):
 
     model = Usage   # should've said all generic views need to know
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
-    # context['sub_data'] = Substance.objects.filter(pk=pk)
 
-    # def get_queryset(self):
-    #     return Usage.objects.filter(pk=self.kwargs['pk'])
+    # TODO: add calculation of the amount of time between dosages (plus avg)
 
     def get_context_data(self, **kwargs):
-        # page_data = super().get_context_data(**kwargs)
         usages = Usage.objects.filter(sub=self.kwargs['pk'])
         usage_count = len(usages)
 
+        # average & total calculation
         total_administered = 0
         for use in usages:
             total_administered += use.dosage
 
         usage_average = total_administered / usage_count
 
+        # timespan & average calculation
+        timespans = []
+        prev_time = None
+        for use in usages:
+            if prev_time is not None:
+                timespans.append(use.timestamp - prev_time)
+                prev_time = use.timestamp
+
+        total_span = 0
+        for span in timespans:
+            total_span += span
+
+        average_span = total_span / (usage_count - 1)
+
         return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
                 'usage_total': total_administered,
-                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,}
-
-
-# def add_header_info(previous_context):
+                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name, 'timespans': timespans,
+                'average_span': average_span}
 
