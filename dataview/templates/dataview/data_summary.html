@@ -1,0 +1,74 @@
+{% load static %}
+
+<html>
+ <head>
+     <title>LastTime</title>
+     <link rel="stylesheet" type="text/css"
+        href="{% static 'recadm/lasttime.css' %}">
+ </head>
+ <body>
+  <!--
+  {# NOTE: below is the fragment that will not be changing; above will depend
+	   on what site & layout details on whether or not it includes static
+	   assets, or whether or not this page is an included fragment or
+	   capable of stand-alone usage #}
+    -->
+
+  <div class="header">
+      <h1 class="slogan">We'll keep those damn seizures away!</h1>
+      <h3 class="mission">Our mission is to provide you with a safe and effective way to monitor your medication
+        levels when professional medical care is not available, as seems to happen so often (at least in the USA).</h3>
+  </div>
+
+  <div class="topnav">
+      <a href="{% url 'recadm:add' %}">Record Drug Administration</a>
+      <a href="{% url 'subadd:index' %}">Substances List</a>
+  </div>
+
+  <h2>{{ sub_name }}</h2>
+
+  <table>
+      <tr>
+          <td>Total Administrations:</td>
+          <td>{{ usage_count }}</td>
+          <td>Total Administered:</td>
+          <td>{{ usage_total }}</td>
+      </tr>
+      <tr>
+          <td>Average Administered:</td>
+          <td>{{ usage_average }}</td>
+          <td>Average Span Between Administrations:</td>
+          <td>{{ average_span }}</td>
+      </tr>
+  </table>
+
+  <h3>Applicable Administrations Listing</h3>
+
+  {% if usages %}
+   <ol>
+       {% for use in usages %}
+        <li>{{ use.timestamp }}: {{ use.dosage }}</li>
+       {% endfor %}
+   </ol>
+
+  {% else %}
+
+   <p>No administrations have been listed.</p>
+
+  {% endif %}
+
+  {% if timespans %}
+   <ol>
+       {% for span in timespans %}
+         <li>{{ span }}</li>
+       {% endfor %}
+   </ol>
+
+  {% else %}
+
+   <p>No timespans have been recorded.</p>
+
+  {% endif %}
+
+ </body>
+</html>
