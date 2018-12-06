@@ -24,7 +24,7 @@ def add_header_info(page_data):
     :return: new context (dict)
     """
 
-    previous_context['header_info'] = HeaderInfo.objects.first()
-    previous_context['links'] = NavInfo.objects.all()
+    page_data['header_info'] = HeaderInfo.objects.first()
+    page_data['links'] = NavInfo.objects.all()
 
-    return previous_context
+    return page_data
