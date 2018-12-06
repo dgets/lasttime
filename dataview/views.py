@@ -3,8 +3,7 @@ from django.views import generic
 
 from recadm.forms import Usage
 from subadd.forms import Substance
-
-# Create your views here.
+from home.models import NavInfo, HeaderInfo
 
 
 class IndexView(generic.ListView):
@@ -29,6 +28,9 @@ class IndexView(generic.ListView):
         """
 
         return Substance.objects.all()[:5]
+
+    def get_context_data(self, **kwargs):
+        return add_header_info(relevant_subs)
 
 
 class SubAdminDataView(generic.DetailView):
@@ -70,8 +72,23 @@ class SubAdminDataView(generic.DetailView):
 
         average_span = total_span / (usage_count - 1)
 
-        return {'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
-                'usage_total': total_administered,
-                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name, 'timespans': timespans,
-                'average_span': average_span}
+        return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
+                                'usage_total': total_administered,
+                                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                'timespans': timespans, 'average_span': average_span})
 
+
+def add_header_info(page_data):
+    """
+    Method takes whatever (presumably context) dict that is passed to it and
+    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
+    applicable data for the header & footer schitt.
+
+    :param previous_context:
+    :return: new context (dict)
+    """
+
+    page_data['header_info'] = HeaderInfo.objects.first()
+    page_data['links'] = NavInfo.objects.all()
+
+    return page_data
