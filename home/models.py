@@ -10,7 +10,7 @@ class NavInfo(models.Model):
     link_text = models.CharField(max_length=20)
 
     def __str__(self):
-        return link + " with text " + link_text
+        return self.link + " with text: " + self.link_text
 
 
 class HeaderInfo(models.Model):
@@ -22,4 +22,4 @@ class HeaderInfo(models.Model):
     mission = models.CharField(max_length=180)
 
     def __str__(self):
-        return motto + ": " + mission
+        return self.motto + ": " + self.mission
