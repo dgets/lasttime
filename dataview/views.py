@@ -16,7 +16,7 @@ class IndexView(generic.ListView):
     """
 
     template_name = 'dataview/index.html'   # to avoid default
-    context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
+    # context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
     model = Substance   # ListView needs to know
 
     def get_queryset(self):
@@ -30,7 +30,9 @@ class IndexView(generic.ListView):
         return Substance.objects.all()[:5]
 
     def get_context_data(self, **kwargs):
-        return add_header_info(relevant_subs)
+        context = super(IndexView, self).get_context_data(**kwargs)
+
+        return add_header_info(context)
 
 
 class SubAdminDataView(generic.DetailView):

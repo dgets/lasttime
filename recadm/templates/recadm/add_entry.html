@@ -32,7 +32,7 @@
 <h2>Record Medication Administration</h2>
 
 {% if error_message %}
- <div name="err">
+ <div class="err">
   {{ error_message }}
  </div>
 {% endif %}
@@ -48,3 +48,9 @@
 
 </form>
 
+  <div class="botnav">
+      <a href="{% url 'recadm:index' %}">Administration Index</a>
+  </div>
+
+ </body>
+</html>

@@ -8,7 +8,7 @@ class IndexView(generic.ListView):
     model = HeaderInfo
     template_name = 'home/index.html'
 
-    def get_context_data(self):
+    def get_context_data(self, **kwargs):
         page_data = {}
 
         return add_header_info(page_data)
