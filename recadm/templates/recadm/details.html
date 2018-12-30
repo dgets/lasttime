@@ -15,14 +15,18 @@
     -->
 
   <div class="header">
-      <h1 class="slogan">We'll keep those damn seizures away!</h1>
-      <h3 class="mission">Our mission is to provide you with a safe and effective way to monitor your medication
-        levels when professional medical care is not available, as seems to happen so often (at least in the USA).</h3>
+      <h1 class="slogan">{{ header_info.motto }}</h1>
+      <h3 class="mission">{{ header_info.mission }}</h3>
   </div>
 
   <div class="topnav">
-      <a href="{% url 'recadm:add' %}">Record Drug Administration</a>
-      <a href="{% url 'subadd:index' %}">Substances List</a>
+      {% if links %}
+        {% for link in links %}
+        <a href="{% url link.link %}">{{ link.link_text }}</a>
+        {% endfor %}
+      {% else %}
+        No links are configured!
+      {% endif %}
   </div>
 
   <h3>Administration Details</h3>
@@ -61,6 +65,11 @@
           </td>
       </tr>
   </table>
+
+  <div class="botnav">
+      <a href="{% url 'recadm:index' %}">Administration Index</a>
+      <a href="{% url 'recadm:add' %}">Add Administration</a>
+  </div>
 
  </body>
 </html>

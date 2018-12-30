@@ -1,10 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 
-#from .models import Substance
 from .forms import Substance, SubstanceForm
 
-# Create your views here.
+from home.models import NavInfo, HeaderInfo
 
 
 def index(request):
@@ -21,7 +20,7 @@ def index(request):
         'all_subs': all_subs,
     }
 
-    return render(request, 'subadd/index.html', context)
+    return render(request, 'subadd/index.html', add_header_info(context))
 
 
 def add(request):
@@ -36,7 +35,7 @@ def add(request):
 
     add_sub_form = SubstanceForm()
 
-    return render(request, 'subadd/add.html', {'substance': None, 'add_sub_form': add_sub_form})
+    return render(request, 'subadd/add.html', add_header_info({'substance': None, 'add_sub_form': add_sub_form}))
 
 
 def addentry(request):
@@ -69,8 +68,8 @@ def addentry(request):
         error_message = "Unable to save record to database (unknown reason)!"
         return render(request, 'subadd/addentry.html', substance)
 
-    return render(request, 'subadd/index.html', {'all_subs':
-                  Substance.objects.all()})
+    return render(request, 'subadd/index.html', add_header_info({'all_subs':
+                  Substance.objects.all()}))
 
 
 def detail(request, substance_id):
@@ -88,6 +87,20 @@ def detail(request, substance_id):
     except Substance.DoesNotExist:
         raise Http404("Substance does not exist :|")
 
-    return render(request, 'subadd/detail.html', {'substance': substance})
+    return render(request, 'subadd/detail.html', add_header_info({'substance': substance}))
 
 
+def add_header_info(page_data):
+    """
+    Method takes whatever (presumably context) dict that is passed to it and
+    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
+    applicable data for the header & footer schitt.
+
+    :param previous_context:
+    :return: new context (dict)
+    """
+
+    page_data['header_info'] = HeaderInfo.objects.first()
+    page_data['links'] = NavInfo.objects.all()
+
+    return page_data

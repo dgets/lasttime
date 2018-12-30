@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'dataview.apps.DataviewConfig',
     'recadm.apps.RecadmConfig',
     'subadd.apps.SubaddConfig',
+    'home.apps.HomeConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

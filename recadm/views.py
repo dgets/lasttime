@@ -3,6 +3,7 @@ from django.http import HttpResponse
 
 from .forms import Usage, UsageForm
 
+from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 
 
@@ -33,7 +34,7 @@ def index(request):
         'mydata': mydata,
     }
 
-    return render(request, 'recadm/index.html', context)
+    return render(request, 'recadm/index.html', add_header_info(context))
 
 
 def add(request):
@@ -61,7 +62,7 @@ def add(request):
         'add_admin_form': add_administration_form,
     }
 
-    return render(request, 'recadm/add_entry.html', context)
+    return render(request, 'recadm/add_entry.html', add_header_info(context))
 
 
 def save_admin(request):
@@ -95,7 +96,7 @@ def save_admin(request):
                        'add_admin_form': add_administration_form,
                        'error_message': error_message, }
 
-            return render(request, 'recadm/add_entry.html', context)
+            return render(request, 'recadm/add_entry.html', add_header_info(context))
 
     mydata = []
 
@@ -112,7 +113,7 @@ def save_admin(request):
         'mydata': mydata,
     }
 
-    return render(request, 'recadm/index.html', context)
+    return render(request, 'recadm/index.html', add_header_info(context))
 
 
 def detail(request, topic_id):
@@ -135,4 +136,20 @@ def detail(request, topic_id):
         'notes': admin_details.notes,
     }
 
-    return render(request, 'recadm/details.html', context)
+    return render(request, 'recadm/details.html', add_header_info(context))
+
+
+def add_header_info(page_data):
+    """
+    Method takes whatever (presumably context) dict that is passed to it and
+    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
+    applicable data for the header & footer schitt.
+
+    :param previous_context:
+    :return: new context (dict)
+    """
+
+    page_data['header_info'] = HeaderInfo.objects.first()
+    page_data['links'] = NavInfo.objects.all()
+
+    return page_data
