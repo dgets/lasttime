@@ -1,10 +1,9 @@
 {% load static %}
-
 <html>
  <head>
      <title>LastTime</title>
      <link rel="stylesheet" type="text/css"
-        href="{% static 'subadd/lasttime.css' %}">
+        href="{% static 'recadm/lasttime.css' %}">
  </head>
  <body>
   <!--
@@ -27,25 +26,16 @@
       {% endfor %}
   </div>
 
-  <h2>Add Substance</h2>
+  {% if relevant_subs %}
+    <ul>
+    {% for sub in relevant_subs %}
+        <li><a href="{% url 'data_summary' sub.id %}">{{ sub.common_name }} ({{ sub.sci_name }})</a></li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <h3>No relevant records are available</h3>
+  {% endif %}
 
-  {% if error_message %}<p><strong>{{ error_message }}</strong></p> {% endif %}
 
-  <form action="{% url 'subadd:addentry' %}" method="post">
-
-    {% csrf_token %}
-
-   <table>
-
-     {{ add_sub_form.as_table }}
-
-    </table>
-
-    <br>
-
-    <input type="submit" value="Add Substance" />
-
-  </form>
-
- </body>
+  </body>
 </html>

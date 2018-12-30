@@ -27,11 +27,6 @@ p {
 	padding: 20px;
 }
 
-/* error reporting */
-.err {
-    background-color: DodgerBlue;
-}
-
 /* navbar (container) */
 .topnav {
 	overflow: hidden;
@@ -54,31 +49,6 @@ p {
 
 /* visited link default is an eyesore on our scheme */
 .topnav a:visited {
-    color: #193C46;
-}
-
-/* bottom navbar (container) */
-.botnav {
-	overflow: hidden;
-	background-color: #51878F;
-}
-
-/* navbar links */
-.botnav a {
-    float: left;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-}
-
-/* change color on hover */
-.botnav a:hover {
-    background-color: #486968;
-    color: black;
-}
-
-/* visited link default is an eyesore on our scheme */
-.botnav a:visited {
     color: #193C46;
 }
 

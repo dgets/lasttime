@@ -1,10 +1,9 @@
 {% load static %}
-
 <html>
  <head>
      <title>LastTime</title>
      <link rel="stylesheet" type="text/css"
-        href="{% static 'subadd/lasttime.css' %}">
+        href="{% static 'recadm/lasttime.css' %}">
  </head>
  <body>
   <!--
@@ -20,32 +19,20 @@
   </div>
 
   <div class="topnav">
-     {% for nav_item in links %}
+      {% for nav_item in links %}
        <a href="{% url nav_item.link %}">
            {{ nav_item.link_text }}
        </a>
       {% endfor %}
   </div>
 
-  <h2>Add Substance</h2>
+  <!--
+  {# NOTE: Here is where we'll want probably some sort of logo image and some
+       text describing things a little more thoroughly than the slogan and
+       mission statement #}
+    -->
 
-  {% if error_message %}<p><strong>{{ error_message }}</strong></p> {% endif %}
 
-  <form action="{% url 'subadd:addentry' %}" method="post">
-
-    {% csrf_token %}
-
-   <table>
-
-     {{ add_sub_form.as_table }}
-
-    </table>
-
-    <br>
-
-    <input type="submit" value="Add Substance" />
-
-  </form>
 
  </body>
 </html>
