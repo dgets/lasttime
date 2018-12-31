@@ -14,6 +14,11 @@ h2 {
 
 }
 
+/* tables, obviously */
+table, th, td {
+        border: 1px solid black;
+}
+
 /* standard text paragraphs */
 p {
         color: black;
