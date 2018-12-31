@@ -21,8 +21,11 @@
   </div>
 
   <div class="topnav">
-      <a href="{% url 'recadm:add' %}">Record Drug Administration</a>
-      <a href="{% url 'subadd:index' %}">Substances List</a>
+     {% for nav_item in links %}
+       <a href="{% url nav_item.link %}">
+           {{ nav_item.link_text }}
+       </a>
+     {% endfor %}
   </div>
 
   <h2>{{ sub_name }}</h2>
@@ -50,6 +53,8 @@
 
   <h3>Applicable Administrations Listing</h3>
 
+  <h4>Administration Time and Dosage</h4>
+
   {% if usages %}
    <ol>
        {% for use in usages %}
@@ -62,6 +67,11 @@
    <p>No administrations have been listed.</p>
 
   {% endif %}
+
+  <h4>Time Between Subsequent Administrations</h4>
+
+  <p><b>NOTE</b>:  Time span #1 is the duration between administration #1 & #2,
+     span #2 is between administration #2 & #3, etc ad infinitum.
 
   {% if timespans %}
    <ol>

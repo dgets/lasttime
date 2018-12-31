@@ -54,19 +54,30 @@ def addentry(request):
     :return:
     """
 
-    substance = Substance(common_name = request.POST['common_name'],
-        sci_name = request.POST['scientific_name'],
-        half_life = request.POST['half_life'],
-        active_half_life = request.POST['detectable_half_life'],
-        lipid_solubility = request.POST.get('fat_soluble', False))
+    try:
+        substance = Substance(common_name=request.POST['common_name'],
+            sci_name=request.POST['sci_name'],
+            half_life=request.POST['half_life'],
+            active_half_life=request.POST['active_half_life'],
+            lipid_solubility=request.POST.get('lipid_solubility', False))
 
-    # we'll need to do validation here, of course
+        # we'll need to do validation here, of course
+
+    except:
+        context = {}
+        context['error_message'] = "Please navigate to addentry only from here."
+
+        return render(request, 'subadd/add.html', context)
+
 
     try:
         substance.save()
     except:
-        error_message = "Unable to save record to database (unknown reason)!"
-        return render(request, 'subadd/addentry.html', substance)
+        context = {}
+        context['error_message'] = "Unable to save record to database (unknown reason)!"
+        context['substance'] = substance
+
+        return render(request, 'subadd/addentry.html', context)
 
     return render(request, 'subadd/index.html', add_header_info({'all_subs':
                   Substance.objects.all()}))
