@@ -59,8 +59,16 @@ class SubAdminDataView(generic.DetailView):
 
         # average & total calculation
         total_administered = 0
+        highest_administered = 0
+        lowest_administered = None
         for use in usages:
             total_administered += use.dosage
+
+            if use.dosage > highest_administered:
+                highest_administered = use.dosage
+
+            if lowest_administered is None or use.dosage < lowest_administered:
+                lowest_administered = use.dosage
 
         usage_average = total_administered / usage_count
 
@@ -71,11 +79,6 @@ class SubAdminDataView(generic.DetailView):
             if prev_time is not None:
                 current_delta = datetime.timedelta
                 current_delta = use.timestamp - prev_time
-
-                # round it to the previous 15 minute interval
-                # current_delta = current_delta - datetime.timedelta(minutes=current_delta.minutes % 15,
-                #                                                    seconds=current_delta.seconds,
-                #                                                    microseconds=current_delta.microseconds)
                 current_delta = round_timedelta_to_15min_floor(current_delta)
                 timespans.append(current_delta)
 
@@ -88,6 +91,7 @@ class SubAdminDataView(generic.DetailView):
         average_span = round_timedelta_to_15min_floor(total_span / (usage_count - 1))
 
         return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
+                                'usage_high': highest_administered, 'usage_low': lowest_administered,
                                 'usage_total': total_administered,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
                                 'timespans': timespans, 'average_span': average_span})

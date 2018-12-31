@@ -20,6 +20,11 @@ p {
 
 }
 
+/* tables, obviously */
+table, th, td {
+        border: 1px solid black;
+}
+
 /* header (container) */
 .header {
 	background-color: #00D4D5;
