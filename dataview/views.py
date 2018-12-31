@@ -15,22 +15,25 @@ class IndexView(generic.ListView):
     [unique] substance's administration details.
     """
 
+    model = Substance  # ListView needs to know
     template_name = 'dataview/index.html'   # to avoid default
-    # context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
-    model = Substance   # ListView needs to know
+    # paginate_by = 15
+    context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
 
-    def get_queryset(self):
-        """
-        Return the last five (or fewer) unique substance administration links
-        for viewing the record details of.
-
-        :return: Substance queryset
-        """
-
-        return Substance.objects.all()[:5]
+    # def get_queryset(self):
+    #     """
+    #     Return the last five (or fewer) unique substance administration links
+    #     for viewing the record details of.
+    #
+    #     :return: Substance queryset
+    #     """
+    #
+    #     return Substance.objects.all()[:5]
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
+
+        context['sub'] = Substance.objects.all()[:5]
 
         return add_header_info(context)
 
