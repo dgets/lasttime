@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
+import datetime
 
 from recadm.forms import Usage
 from subadd.forms import Substance
@@ -65,17 +66,26 @@ class SubAdminDataView(generic.DetailView):
 
         # timespan & average calculation
         timespans = []
-        prev_time = None
+        prev_time = None    # would we (perhaps optionally) want timezone.now()?
         for use in usages:
             if prev_time is not None:
-                timespans.append(use.timestamp - prev_time)
-                prev_time = use.timestamp
+                current_delta = datetime.timedelta
+                current_delta = use.timestamp - prev_time
 
-        total_span = 0
+                # round it to the previous 15 minute interval
+                # current_delta = current_delta - datetime.timedelta(minutes=current_delta.minutes % 15,
+                #                                                    seconds=current_delta.seconds,
+                #                                                    microseconds=current_delta.microseconds)
+                current_delta = round_timedelta_to_15min_floor(current_delta)
+                timespans.append(current_delta)
+
+            prev_time = use.timestamp
+
+        total_span = datetime.timedelta(0)
         for span in timespans:
             total_span += span
 
-        average_span = total_span / (usage_count - 1)
+        average_span = round_timedelta_to_15min_floor(total_span / (usage_count - 1))
 
         return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
                                 'usage_total': total_administered,
@@ -97,3 +107,18 @@ def add_header_info(page_data):
     page_data['links'] = NavInfo.objects.all()
 
     return page_data
+
+
+def round_timedelta_to_15min_floor(span):
+    """
+    Method takes the timedelta passed and rounds it down to the closest 15min
+    interval.
+
+    :param span: datetime.timedelta
+    :return:
+    """
+
+    fifteen_min = datetime.timedelta(minutes=15)
+    dingleberry = span.total_seconds() % fifteen_min.seconds
+
+    return span - datetime.timedelta(seconds=dingleberry)
