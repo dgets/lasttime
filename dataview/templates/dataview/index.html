@@ -3,7 +3,7 @@
  <head>
      <title>LastTime</title>
      <link rel="stylesheet" type="text/css"
-        href="{% static 'recadm/lasttime.css' %}">
+           href="{% static 'recadm/lasttime.css' %}">
  </head>
  <body>
   <!--
@@ -23,19 +23,20 @@
        <a href="{% url nav_item.link %}">
            {{ nav_item.link_text }}
        </a>
-      {% endfor %}
+     {% endfor %}
   </div>
 
   {% if relevant_subs %}
     <ul>
     {% for sub in relevant_subs %}
-        <li><a href="{% url 'data_summary' sub.id %}">{{ sub.common_name }} ({{ sub.sci_name }})</a></li>
+        <li><a href="{% url 'dataview:data_summary' sub.id %}">
+            {{ sub.common_name }} ({{ sub.sci_name }})
+        </a></li>
     {% endfor %}
     </ul>
   {% else %}
-    <h3>No relevant records are available</h3>
+    <h3>No relevant records are available.</h3>
   {% endif %}
-
 
   </body>
 </html>
