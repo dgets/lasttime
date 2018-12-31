@@ -50,6 +50,8 @@
 
   <h3>Applicable Administrations Listing</h3>
 
+  <h4>Administration Time and Dosage</h4>
+
   {% if usages %}
    <ol>
        {% for use in usages %}
@@ -62,6 +64,11 @@
    <p>No administrations have been listed.</p>
 
   {% endif %}
+
+  <h4>Time Between Subsequent Administrations</h4>
+
+  <p><b>NOTE</b>:  Time span #1 is the duration between administration #1 & #2,
+     span #2 is between administration #2 & #3, etc ad infinitum.
 
   {% if timespans %}
    <ol>
