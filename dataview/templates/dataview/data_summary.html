@@ -21,8 +21,11 @@
   </div>
 
   <div class="topnav">
-      <a href="{% url 'recadm:add' %}">Record Drug Administration</a>
-      <a href="{% url 'subadd:index' %}">Substances List</a>
+     {% for nav_item in links %}
+       <a href="{% url nav_item.link %}">
+           {{ nav_item.link_text }}
+       </a>
+     {% endfor %}
   </div>
 
   <h2>{{ sub_name }}</h2>
