@@ -20,6 +20,7 @@ urlpatterns = [
     path('subadd/', include('subadd.urls')),
     path('recadm/', include('recadm.urls')),
     path('dataview/', include('dataview.urls')),
-    path('home/', include('home.urls')),
+    # path('home/', include('home.urls')),
+    path('', include('home.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -18,8 +18,9 @@ This project is _way_ alpha, and should not be considered even close to how it w
 
 ### App Structure
 
+  * **home**: app that will just handle initial navigation links and a logo/pitch page for people investigating the project
   * **subadd**: app for adding substances and their necessary chemical data to the database
   * **recadm**: app for recording administration data per usage (selecting substances added via **subadd**)
+  * **dataview**: app for displaying detailed data gleaned from different substance administrations (this is where all of the gravy is at)
 
-### Database Structure
 
