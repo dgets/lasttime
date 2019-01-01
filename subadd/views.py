@@ -65,9 +65,9 @@ def addentry(request):
 
     except:
         context = {}
-        context['error_message'] = "Please navigate to addentry only from here."
+        context['error_message'] = "Please navigate to addentry (here) only from the links."
 
-        return render(request, 'subadd/add.html', context)
+        return render(request, 'subadd/add.html', add_header_info(context))
 
 
     try:
