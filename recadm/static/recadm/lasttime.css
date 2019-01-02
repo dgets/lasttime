@@ -1,3 +1,6 @@
+/* load some better, non-mainstream fonts from goog */
+@import url('https://fonts.googleapis.com/css?family=PT+Sans|Raleway|Sarabun');
+
 /* main body */
 body {
         background-color: #C9D5DF;
@@ -6,12 +9,20 @@ body {
 /* heading levels */
 h1 {
         color: black;
-
+        font-family: "PT Sans", "Raleway", "Sarabun", serif;
 }
 
 h2 {
         color: black;
+        font-family: "PT Sans", "Raleway", "Sarabun", serif;
+}
 
+a {
+        font-family: "PT Sans", "Raleway", "Sarabun", serif;
+}
+
+li {
+        font-family: "PT Sans", "Raleway", "Sarabun", serif;
 }
 
 /* tables, obviously */
@@ -22,7 +33,7 @@ table, th, td {
 /* standard text paragraphs */
 p {
         color: black;
-
+        font-family: "PT Sans", "Raleway", "Sarabun", serif;
 }
 
 /* header (container) */
