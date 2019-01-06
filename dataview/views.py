@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
+from django.http import HttpResponse
 import datetime
 import json
 
@@ -98,7 +99,7 @@ class SubAdminDataView(generic.DetailView):
                                 'timespans': timespans, 'average_span': average_span})
 
 
-def dump_graph_data(request):
+def dump_graph_data(request, sub_id):
     """
     This view is a little more interesting than the different flavors of the
     same that we've been working with so far.  This one is going to take our
@@ -114,8 +115,16 @@ def dump_graph_data(request):
     :return:
     """
 
-    usage_sub_id = request.POST['sub']
-    usages = Usage.objects.filter(sub=self.kwargs['pk'])[:20]
+    usage_graph_data = {}
+    # usage_sub_id = request.POST['sub']
+    usages = Usage.objects.filter(sub=sub_id)[:20]   # pk or usage_sub_id?
+
+    for use in usages:
+        usage_graph_data[str(use.timestamp)] = int(use.dosage)
+        # later on we can look at using use.notes as hover-over text for each
+        # graph bar, or something of the like
+
+    return HttpResponse(json.dumps(usage_graph_data), content_type='application/json')
 
 
 def add_header_info(page_data):
