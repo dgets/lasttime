@@ -121,7 +121,6 @@ def dump_graph_data(request, sub_id):
 
     for use in usages:
         usage_graph_data[str(use.timestamp)] = float(use.dosage)
-        # TODO: find a workaround for this only working with integers
         # later on we can look at using use.notes as hover-over text for each
         # graph bar, or something of the like
 
