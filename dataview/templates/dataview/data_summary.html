@@ -95,7 +95,7 @@
   <div class="dose_chart"></div>
   <script src="//d3js.org/d3.v3.min.js"></script>
   <script>
-    let json_src = '{% url 'dataview:dump_graph_data' sub.id %}';
+    let json_src = '{% url 'dataview:dump_graph_data' sub_id %}';
 
     fetch(json_src)
       .then(res => res.json())
