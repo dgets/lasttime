@@ -92,5 +92,27 @@
 
   {% endif %}
 
+  <div class="dose_chart"></div>
+  <script src="//d3js.org/d3.v3.min.js"></script>
+  <script>
+    let json_src = '{% url 'dataview:dump_graph_data' sub.id %}';
+
+    fetch(json_src)
+      .then(res => res.json())
+      .then((out) => {
+        var x = d3.scale.linear()
+            .domain([0, d3.max(out)])
+            .range([0, d3.max(out) * 10]);
+
+        d3.select(".dose_chart")
+          .selectAll("div")
+            .data(data)
+          .enter().append("div")
+            .style("width", function(d) { return x(d) + "px"; })
+            .text(function(d) { return d; });
+      })
+      .catch(err => { throw err });
+  </script>
+
  </body>
 </html>

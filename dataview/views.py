@@ -96,6 +96,7 @@ class SubAdminDataView(generic.DetailView):
                                 'usage_high': highest_administered, 'usage_low': lowest_administered,
                                 'usage_total': total_administered,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                'sub_id': self.kwargs['pk'],
                                 'timespans': timespans, 'average_span': average_span})
 
 
@@ -119,10 +120,16 @@ def dump_graph_data(request, sub_id):
     # usage_sub_id = request.POST['sub']
     usages = Usage.objects.filter(sub=sub_id)[:20]   # pk or usage_sub_id?
 
+    cntr = 0
     for use in usages:
-        usage_graph_data[str(use.timestamp)] = float(use.dosage)
+        # usage_graph_data[str(use.timestamp)] = float(use.dosage)
+        # NOTE: switching to a standard array for now for simplicity in the
+        # template's javascript; we can add more gravy later
+
         # later on we can look at using use.notes as hover-over text for each
         # graph bar, or something of the like
+        usage_graph_data[cntr] = float(use.dosage)
+        cntr += 1
 
     return HttpResponse(json.dumps(usage_graph_data), content_type='application/json')
 
