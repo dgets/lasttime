@@ -58,6 +58,12 @@
           <td>Lowest Dosage:</td>
           <td>{{ usage_low }}</td>
       </tr>
+      <tr>
+          <td>Longest Span Between Intervals:</td>
+          <td>{{ longest_span }}</td>
+          <td>Shortest Span Between Intervals:</td>
+          <td>{{ shortest_span }}</td>
+      </tr>
   </table>
 
   <h3>Applicable Administrations Listing</h3>
@@ -74,7 +80,7 @@
    <div class="dose_chart"></div>
    <script src="//d3js.org/d3.v3.min.js"></script>
    <script>
-    let json_src = '{% url 'dataview:dump_graph_data' sub_id %}';
+    let json_src = '{% url 'dataview:dump_dose_graph_data' sub_id %}';
 
     fetch(json_src)
       .then(res => res.json())
@@ -114,6 +120,7 @@
      span #2 is between administration #2 & #3, etc ad infinitum.
 
   {% if timespans %}
+
    <ol>
        {% for span in timespans %}
          <li>{{ span }}</li>
