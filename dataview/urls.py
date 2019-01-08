@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('<int:pk>/', views.SubAdminDataView.as_view(), name='data_summary'),
     path('dump_dose_graph_data/<int:sub_id>/', views.dump_dose_graph_data, name='dump_dose_graph_data'),
+    path('dump_interval_graph_data/<int:sub_id>/', views.dump_interval_graph_data, name='dump_interval_graph_data'),
 ]

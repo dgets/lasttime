@@ -99,14 +99,16 @@ class SubAdminDataView(generic.DetailView):
 
             total_span += span
 
+        # errors here if there are 0 or 1 usages, obviously
         average_span = round_timedelta_to_15min_floor(total_span / (usage_count - 1))
+        scale_factor = get_graph_normalization_divisor(longest_span.total_seconds(), 600)
 
         return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
                                 'usage_high': highest_administered, 'usage_low': lowest_administered,
                                 'usage_total': total_administered,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
                                 'sub_id': self.kwargs['pk'], 'longest_span': longest_span,
-                                'shortest_span': shortest_span, 'timespans': timespans,
+                                'shortest_span': shortest_span, 'timespans': timespans, 'scale_factor': scale_factor,
                                 'average_span': average_span})
 
 
@@ -126,22 +128,49 @@ def dump_dose_graph_data(request, sub_id):
     :return:
     """
 
-    usage_graph_data = {}
-    # usage_sub_id = request.POST['sub']
-    usages = Usage.objects.filter(sub=sub_id)[:20]   # pk or usage_sub_id?
+    dosage_graph_data = []
+    # dosage_sub_id = request.POST['sub']
+    usages = Usage.objects.filter(sub=sub_id)[:20]
 
-    cntr = 0
+    # cntr = 0
     for use in usages:
-        # usage_graph_data[str(use.timestamp)] = float(use.dosage)
+        # dosage_graph_data[str(use.timestamp)] = float(use.dosage)
         # NOTE: switching to a standard array for now for simplicity in the
         # template's javascript; we can add more gravy later
 
         # later on we can look at using use.notes as hover-over text for each
         # graph bar, or something of the like
-        usage_graph_data[cntr] = float(use.dosage)
-        cntr += 1
+        dosage_graph_data.append(float(use.dosage))
+        # cntr += 1
 
-    return HttpResponse(json.dumps(usage_graph_data), content_type='application/json')
+    return HttpResponse(json.dumps(dosage_graph_data), content_type='application/json')
+
+
+def dump_interval_graph_data(request, sub_id):
+    # interval_graph_data = {}
+    usages = Usage.objects.filter(sub=sub_id)[:20]
+
+    timespans = []
+    prev_time = None  # would we (perhaps optionally) want timezone.now()?
+    max_span = datetime.timedelta(0)
+    for use in usages:
+        if prev_time is not None:
+            current_delta = datetime.timedelta
+            current_delta = use.timestamp - prev_time
+            current_delta = round_timedelta_to_15min_floor(current_delta)
+            timespans.append(current_delta.total_seconds())
+
+            if current_delta > max_span:
+                max_span = current_delta
+
+        prev_time = use.timestamp
+
+    scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 300)
+    for cntr in range(0, len(timespans)):
+        timespans[cntr] = timespans[cntr] * scale_factor
+
+    return HttpResponse(json.dumps({ 'scale_factor': scale_factor, 'timespans': timespans }),
+                        content_type='application/json')
 
 
 def add_header_info(page_data):
@@ -173,3 +202,21 @@ def round_timedelta_to_15min_floor(span):
     dingleberry = span.total_seconds() % fifteen_min.seconds
 
     return span - datetime.timedelta(seconds=dingleberry)
+
+
+def get_graph_normalization_divisor(max_qty, graph_max_boundary):
+    """
+    Method takes the maximum quantity (dimensionless), along with the maximum
+    dimension on the quantity axis, and returns the scale to divide by in
+    order to make things fit properly in the graph.
+
+    :param max_qty:
+    :param graph_max_boundary:
+    :return:
+    """
+
+    scale_factor = 1
+    if max_qty <= (graph_max_boundary / 2) or max_qty > graph_max_boundary:
+        scale_factor = graph_max_boundary / max_qty
+
+    return scale_factor
