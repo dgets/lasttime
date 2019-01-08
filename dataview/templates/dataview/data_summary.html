@@ -7,10 +7,12 @@
      <link rel="stylesheet" type="text/css"
         href="{% static 'recadm/lasttime.css' %}">
 
+     <!--
      <script>
          var getJSON;
      </script>
-     <script src="{% static 'dataview/graphing_internals.js"></script>
+     <script src="{% static 'dataview/graphing_internals.js' %}"></script>
+     -->
  </head>
  <body>
   <!--
@@ -106,7 +108,7 @@
 
         d3.select(".dose_chart")
           .selectAll("div")
-            .data(data)
+            .data(out)
           .enter().append("div")
             .style("width", function(d) { return x(d) + "px"; })
             .text(function(d) { return d; });
