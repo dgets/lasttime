@@ -145,15 +145,15 @@
         //}
 
         var x = d3.scale.linear()
-            .domain([0, d3.max(out)])
-            .range([0, d3.max(out)]);
+            .domain([0, d3.max(out.timespans)])
+            .range([0, d3.max(out.timespans)]);
 
         d3.select(".interval_chart")
           .selectAll("div")
-            .data(out)
+            .data(out.timespans)
           .enter().append("div")
             .style("width", function(d) { return x(d) + "px"; })
-            .text(function(d) { return d; });
+            .text(function(d) { return (d / out.scale_factor); });
       })
       .catch(err => { throw err });
      </script>

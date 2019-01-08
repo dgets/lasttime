@@ -169,7 +169,8 @@ def dump_interval_graph_data(request, sub_id):
     for cntr in range(0, len(timespans)):
         timespans[cntr] = timespans[cntr] * scale_factor
 
-    return HttpResponse(json.dumps(timespans), content_type='application/json')
+    return HttpResponse(json.dumps({ 'scale_factor': scale_factor, 'timespans': timespans }),
+                        content_type='application/json')
 
 
 def add_header_info(page_data):
