@@ -3,8 +3,17 @@
 <html>
  <head>
      <title>LastTime</title>
+
      <link rel="stylesheet" type="text/css"
         href="{% static 'recadm/lasttime.css' %}">
+
+     <!-- unnecessary in this version
+     <script>
+         var getJSON;
+     </script>
+     <script src="{% static 'dataview/graphing_internals.js' %}"></script>
+     -->
+
  </head>
  <body>
   <!--
@@ -61,6 +70,37 @@
         <li>{{ use.timestamp }}: {{ use.dosage }}</li>
        {% endfor %}
    </ol>
+
+   <div class="dose_chart"></div>
+   <script src="//d3js.org/d3.v3.min.js"></script>
+   <script>
+    let json_src = '{% url 'dataview:dump_graph_data' sub_id %}';
+
+    fetch(json_src)
+      .then(res => res.json())
+      .then((out) => {
+        //debugging schitt
+        //out = [ 7, 15, 2, 12, 13 ];
+        console.log(out);
+
+        var data = [];
+        for (var ouah in out) {
+          data.push(out[ouah]);
+        }
+
+        var x = d3.scale.linear()
+            .domain([0, d3.max(data)])
+            .range([0, d3.max(data) * 10]);
+
+        d3.select(".dose_chart")
+          .selectAll("div")
+            .data(data)
+          .enter().append("div")
+            .style("width", function(d) { return x(d) + "px"; })
+            .text(function(d) { return d; });
+      })
+      .catch(err => { throw err });
+     </script>
 
   {% else %}
 
