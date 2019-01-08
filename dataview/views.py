@@ -129,29 +129,34 @@ def dump_dose_graph_data(request, sub_id):
     """
 
     dosage_graph_data = []
-    # dosage_sub_id = request.POST['sub']
     usages = Usage.objects.filter(sub=sub_id)[:20]
 
-    # cntr = 0
+    max_dosage = 0
     for use in usages:
-        # dosage_graph_data[str(use.timestamp)] = float(use.dosage)
-        # NOTE: switching to a standard array for now for simplicity in the
-        # template's javascript; we can add more gravy later
-
         # later on we can look at using use.notes as hover-over text for each
         # graph bar, or something of the like
-        dosage_graph_data.append(float(use.dosage))
-        # cntr += 1
+        # dosage_graph_data.append(float(use.dosage))
 
-    return HttpResponse(json.dumps(dosage_graph_data), content_type='application/json')
+        if max_dosage < use.dosage:
+            max_dosage = use.dosage
+
+    scale_factor = get_graph_normalization_divisor(max_dosage, 300)
+
+    # okay, yeah the 2 for loops is gross, but my brain is fried and I want to
+    # finish this quick; I'll fix it later
+    # TODO: fix the gross 2 for loops issue
+    for use in usages:
+        dosage_graph_data.append(float(use.dosage * scale_factor))
+
+    return HttpResponse(json.dumps({'scale_factor': float(scale_factor), 'dosages': dosage_graph_data}),
+                        content_type='application/json')
 
 
 def dump_interval_graph_data(request, sub_id):
-    # interval_graph_data = {}
     usages = Usage.objects.filter(sub=sub_id)[:20]
 
     timespans = []
-    prev_time = None  # would we (perhaps optionally) want timezone.now()?
+    prev_time = None
     max_span = datetime.timedelta(0)
     for use in usages:
         if prev_time is not None:
@@ -169,7 +174,7 @@ def dump_interval_graph_data(request, sub_id):
     for cntr in range(0, len(timespans)):
         timespans[cntr] = timespans[cntr] * scale_factor
 
-    return HttpResponse(json.dumps({ 'scale_factor': scale_factor, 'timespans': timespans }),
+    return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
 
 

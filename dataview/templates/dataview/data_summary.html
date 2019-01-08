@@ -88,20 +88,20 @@
         console.log(out);
 
         var data = [];
-        for (var ouah in out) {
-          data.push(out[ouah]);
+        for (var ouah in out.dosages) {
+          data.push(out.dosages[ouah]);
         }
 
         var x = d3.scale.linear()
             .domain([0, d3.max(data)])
-            .range([0, d3.max(data) * 10]);
+            .range([0, d3.max(data)]);
 
         d3.select(".dose_chart")
           .selectAll("div")
             .data(data)
           .enter().append("div")
             .style("width", function(d) { return x(d) + "px"; })
-            .text(function(d) { return d; });
+            .text(function(d) { return (d / out.scale_factor); });
       })
       .catch(err => { throw err });
      </script>
@@ -136,11 +136,6 @@
         //debugging schitt
         //out = [ 7, 15, 2, 12, 13 ];
         console.log(out);
-
-        //var data = [];
-        //for (var ouah in out) {
-        //  data.push(out[ouah]);
-        //}
 
         var x = d3.scale.linear()
             .domain([0, d3.max(out.timespans)])
