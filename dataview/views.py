@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views import generic
+from django.http import HttpResponse
 import datetime
+import json
 
 from recadm.forms import Usage
 from subadd.forms import Substance
@@ -94,7 +96,42 @@ class SubAdminDataView(generic.DetailView):
                                 'usage_high': highest_administered, 'usage_low': lowest_administered,
                                 'usage_total': total_administered,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                'sub_id': self.kwargs['pk'],
                                 'timespans': timespans, 'average_span': average_span})
+
+
+def dump_graph_data(request, sub_id):
+    """
+    This view is a little more interesting than the different flavors of the
+    same that we've been working with so far.  This one is going to take our
+    request parameters and use them to determine what subset of administration
+    data to pull out into a JSON string and then return that (alone, not
+    embedded in any HTML or template) to feed to the D3 library for graphing.
+
+    Until we've gotten the basics working here we're going to limit the
+    number of administrations graphed to 20; afterwards we'll add options to
+    the above dataview in order to select how much we're going to graph.
+
+    :param request:
+    :return:
+    """
+
+    usage_graph_data = {}
+    # usage_sub_id = request.POST['sub']
+    usages = Usage.objects.filter(sub=sub_id)[:20]   # pk or usage_sub_id?
+
+    cntr = 0
+    for use in usages:
+        # usage_graph_data[str(use.timestamp)] = float(use.dosage)
+        # NOTE: switching to a standard array for now for simplicity in the
+        # template's javascript; we can add more gravy later
+
+        # later on we can look at using use.notes as hover-over text for each
+        # graph bar, or something of the like
+        usage_graph_data[cntr] = float(use.dosage)
+        cntr += 1
+
+    return HttpResponse(json.dumps(usage_graph_data), content_type='application/json')
 
 
 def add_header_info(page_data):
