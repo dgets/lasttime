@@ -87,7 +87,16 @@ class SubAdminDataView(generic.DetailView):
             prev_time = use.timestamp
 
         total_span = datetime.timedelta(0)
+        longest_span = datetime.timedelta(0)
+        shortest_span = datetime.timedelta.max
+
         for span in timespans:
+            if longest_span < span:
+                longest_span = span
+
+            if shortest_span > span:
+                shortest_span = span
+
             total_span += span
 
         average_span = round_timedelta_to_15min_floor(total_span / (usage_count - 1))
@@ -96,11 +105,12 @@ class SubAdminDataView(generic.DetailView):
                                 'usage_high': highest_administered, 'usage_low': lowest_administered,
                                 'usage_total': total_administered,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
-                                'sub_id': self.kwargs['pk'],
-                                'timespans': timespans, 'average_span': average_span})
+                                'sub_id': self.kwargs['pk'], 'longest_span': longest_span,
+                                'shortest_span': shortest_span, 'timespans': timespans,
+                                'average_span': average_span})
 
 
-def dump_graph_data(request, sub_id):
+def dump_dose_graph_data(request, sub_id):
     """
     This view is a little more interesting than the different flavors of the
     same that we've been working with so far.  This one is going to take our
