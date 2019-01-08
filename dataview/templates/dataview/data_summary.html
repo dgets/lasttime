@@ -7,12 +7,10 @@
      <link rel="stylesheet" type="text/css"
         href="{% static 'recadm/lasttime.css' %}">
 
-     <!-- unnecessary in this version
      <script>
          var getJSON;
      </script>
      <script src="{% static 'dataview/graphing_internals.js' %}"></script>
-     -->
 
  </head>
  <body>
@@ -153,7 +151,7 @@
             .data(out.timespans)
           .enter().append("div")
             .style("width", function(d) { return x(d) + "px"; })
-            .text(function(d) { return (d / out.scale_factor); });
+            .text(function(d) { return (secondsToHms(d / out.scale_factor)); });
       })
       .catch(err => { throw err });
      </script>
