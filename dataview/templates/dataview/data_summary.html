@@ -127,6 +127,37 @@
        {% endfor %}
    </ol>
 
+   <div class="interval_chart"></div>
+   <script src="//d3js.org/d3.v3.min.js"></script>
+   <script>
+    let json_src2 = '{% url 'dataview:dump_interval_graph_data' sub_id %}';
+
+    fetch(json_src2)
+      .then(res => res.json())
+      .then((out) => {
+        //debugging schitt
+        //out = [ 7, 15, 2, 12, 13 ];
+        console.log(out);
+
+        //var data = [];
+        //for (var ouah in out) {
+        //  data.push(out[ouah]);
+        //}
+
+        var x = d3.scale.linear()
+            .domain([0, d3.max(out)])
+            .range([0, d3.max(out)]);
+
+        d3.select(".interval_chart")
+          .selectAll("div")
+            .data(out)
+          .enter().append("div")
+            .style("width", function(d) { return x(d) + "px"; })
+            .text(function(d) { return d; });
+      })
+      .catch(err => { throw err });
+     </script>
+
   {% else %}
 
    <p>No timespans have been recorded.</p>
