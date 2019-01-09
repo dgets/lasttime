@@ -177,8 +177,9 @@ def dump_interval_graph_data(request, sub_id):
         prev_time = use.timestamp
 
     scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 300)
+    # convert this to minutes
     for cntr in range(0, len(timespans)):
-        timespans[cntr] = timespans[cntr] * scale_factor
+        timespans[cntr] = timespans[cntr] / (60 ** 2)
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
