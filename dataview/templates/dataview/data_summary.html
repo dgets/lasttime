@@ -109,22 +109,25 @@
 
         //cntr = 0;
         d3.json(json_src, function(error, data) {
-          //debugging
-          console.log(data);
-
-          ouah = {}
+          ouah = []
           ouah2 = []
           ouah3 = []
           for (var cntr = 0; cntr < data.dosages.length; cntr++) {
-            ouah.date = cntr + 1;
+            ouah[cntr] = {}
             ouah2[cntr] = (cntr + 1);
-            ouah.value = data.dosages[cntr];
             ouah3[cntr] = data.dosages[cntr];
+            ouah[cntr].date = ouah2[cntr]
+            ouah[cntr].value = ouah3[cntr]
           }
 
           console.log(ouah);
 
-          x.domain(data.dosages);
+          ouah.forEach(function(d) {
+              d.date = d.date;
+              d.value = +d.value;
+          });
+
+          x.domain(ouah.map(function(d) { return d.date; }));
           y.domain([0, d3.max(ouah3)]);
 
           svg.append("g")
