@@ -53,8 +53,6 @@ class SubAdminDataView(generic.DetailView):
     model = Usage   # should've said all generic views need to know
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
 
-    # TODO: add calculation of the amount of time between dosages (plus avg)
-
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'])
         usage_count = len(usages)
@@ -146,13 +144,21 @@ def dump_dose_graph_data(request, sub_id):
     # finish this quick; I'll fix it later
     # TODO: fix the gross 2 for loops issue
     for use in usages:
-        dosage_graph_data.append(float(use.dosage * scale_factor))
+        dosage_graph_data.append(float(use.dosage))
 
     return HttpResponse(json.dumps({'scale_factor': float(scale_factor), 'dosages': dosage_graph_data}),
                         content_type='application/json')
 
 
 def dump_interval_graph_data(request, sub_id):
+    """
+    View does the same as the above one, except for the intervals between
+    administrations data subset.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
     usages = Usage.objects.filter(sub=sub_id)[:20]
 
     timespans = []
@@ -171,8 +177,9 @@ def dump_interval_graph_data(request, sub_id):
         prev_time = use.timestamp
 
     scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 300)
+    # convert this to minutes
     for cntr in range(0, len(timespans)):
-        timespans[cntr] = timespans[cntr] * scale_factor
+        timespans[cntr] = timespans[cntr] / (60 ** 2)
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
