@@ -144,7 +144,7 @@ def dump_dose_graph_data(request, sub_id):
     # finish this quick; I'll fix it later
     # TODO: fix the gross 2 for loops issue
     for use in usages:
-        dosage_graph_data.append(float(use.dosage * scale_factor))
+        dosage_graph_data.append(float(use.dosage))
 
     return HttpResponse(json.dumps({'scale_factor': float(scale_factor), 'dosages': dosage_graph_data}),
                         content_type='application/json')
