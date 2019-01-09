@@ -144,7 +144,7 @@ def dump_dose_graph_data(request, sub_id):
     # finish this quick; I'll fix it later
     # TODO: fix the gross 2 for loops issue
     for use in usages:
-        dosage_graph_data.append(float(use.dosage * scale_factor))
+        dosage_graph_data.append(float(use.dosage))
 
     return HttpResponse(json.dumps({'scale_factor': float(scale_factor), 'dosages': dosage_graph_data}),
                         content_type='application/json')
@@ -177,8 +177,9 @@ def dump_interval_graph_data(request, sub_id):
         prev_time = use.timestamp
 
     scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 300)
+    # convert this to minutes
     for cntr in range(0, len(timespans)):
-        timespans[cntr] = timespans[cntr] * scale_factor
+        timespans[cntr] = timespans[cntr] / (60 ** 2)
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
