@@ -53,8 +53,6 @@ class SubAdminDataView(generic.DetailView):
     model = Usage   # should've said all generic views need to know
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
 
-    # TODO: add calculation of the amount of time between dosages (plus avg)
-
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'])
         usage_count = len(usages)
@@ -153,6 +151,14 @@ def dump_dose_graph_data(request, sub_id):
 
 
 def dump_interval_graph_data(request, sub_id):
+    """
+    View does the same as the above one, except for the intervals between
+    administrations data subset.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
     usages = Usage.objects.filter(sub=sub_id)[:20]
 
     timespans = []
