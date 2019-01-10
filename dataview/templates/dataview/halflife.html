@@ -28,10 +28,10 @@
      {% endfor %}
   </div>
 
-  {% if error_message %}
+  {% if error_message is not None %}
     <h1>{{ error_message }}</h1>
   {% else %}
-    <h1>{{ sub_name }}</h1>
+    <h1>{{ sub }}</h1>
 
     <h2>Elimination target:</h2>
     <p>{{ elimination_target }}</p>

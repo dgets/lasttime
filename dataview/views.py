@@ -112,18 +112,21 @@ class SubAdminDataView(generic.DetailView):
 
 def extrapolate_halflife_data(request, sub_id):
     substance = Substance.objects.filter(id=sub_id).first()
-    error_message = None
+    context = {}
+    elimination_datetime = None
 
-    if substance.lipid_solubility is True:
+    if substance.lipid_solubility:
         # we can't process this yet
-        error_message = "We are not able to process half-life extrapolation for lipid soluble metabolites yet, sorry!"
+        context['error_message'] = \
+            "We are not able to process half-life extrapolation for lipid soluble metabolites yet, sorry!"
     else:
         last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
 
-        elimination_datetime = last_usage.timestamp + datetime.timedelta(hours=int(substance.half_life * 5))
+        elimination_datetime = last_usage.timestamp + datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
+        context['error_message'] = None
+        context['sub'] = substance
+        context['elimination_target'] = str(elimination_datetime)
 
-    context = {'sub_name': substance.common_name, 'error_message': error_message,
-               'elimination_target': str(elimination_datetime)}
 
     return render(request, 'dataview/halflife.html', add_header_info(context))
 
