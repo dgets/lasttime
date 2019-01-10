@@ -123,10 +123,8 @@ def extrapolate_halflife_data(request, sub_id):
         last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
 
         elimination_datetime = last_usage.timestamp + datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
-        context['error_message'] = None
-        context['sub'] = substance
-        context['elimination_target'] = str(elimination_datetime)
-
+        context = {'error_message': None, 'sub': substance, 'elimination_target': elimination_datetime,
+                   'last_usage': last_usage.timestamp}
 
     return render(request, 'dataview/halflife.html', add_header_info(context))
 

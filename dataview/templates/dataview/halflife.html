@@ -29,12 +29,20 @@
   </div>
 
   {% if error_message is not None %}
-    <h1>{{ error_message }}</h1>
+
+    <h2>{{ error_message }}</h2>
+
   {% else %}
+
     <h1>{{ sub }}</h1>
 
-    <h2>Elimination target:</h2>
-    <p>{{ elimination_target }}</p>
+    <h2>Elimination Extrapolation</h2>
+
+    <h3>Lipid Insoluble Metabolite Breakdown Information</h3>
+
+    <p>Based on the last usage date of <i>{{ last_usage }}</i>, your estimated time of return to pristine bodily
+       fluids is <i><b>{{ elimination_target }}</b></i></p>
+
   {% endif %}
 
  </body>
