@@ -110,6 +110,25 @@ class SubAdminDataView(generic.DetailView):
                                 'average_span': average_span})
 
 
+def extrapolate_halflife_data(request, sub_id):
+    substance = Substance.objects.filter(id=sub_id).first()
+    context = {}
+    elimination_datetime = None
+
+    if substance.lipid_solubility:
+        # we can't process this yet
+        context['error_message'] = \
+            "We are not able to process half-life extrapolation for lipid soluble metabolites yet, sorry!"
+    else:
+        last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
+
+        elimination_datetime = last_usage.timestamp + datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
+        context = {'error_message': None, 'sub': substance, 'elimination_target': elimination_datetime,
+                   'last_usage': last_usage.timestamp}
+
+    return render(request, 'dataview/halflife.html', add_header_info(context))
+
+
 def dump_dose_graph_data(request, sub_id):
     """
     This view is a little more interesting than the different flavors of the
