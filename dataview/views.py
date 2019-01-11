@@ -115,16 +115,56 @@ def extrapolate_halflife_data(request, sub_id):
     context = {}
     elimination_datetime = None
 
-    if substance.lipid_solubility:
+    if substance.lipid_solubility and ('marijuana' in substance.common_name or 'weed' in substance.common_name):
+        # we're working with weed, let's give this a shot based on the information available at
+        # https://www.mayocliniI sure hope auto-save was keeping upclabs.com/test-info/drug-book/marijuana.html
+        # FWIW we're just going to base our projection on the average of the last 2 weeks of usage
+        weeks_averaged = 2
+        relevant_since_date = datetime.now() - datetime.timedelta(weeks=weeks_averaged)
+        relevant_usages = len(Usage.objects.filter(timestamp__gte=relevant_since_date))
+        most_recent_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
+        full_elimination_duration = int(float(substance.active_half_life) * 5.7)
+
+        # note that half-life durations here (not flat day count) are calculated @ 5.7 * half-life, as in the
+        # standard non-lipid-soluble substances; detectable metabolites will be out of the system sooner (hence
+        # the less precise flat day count)
+        if relevant_usages <= weeks_averaged:
+            # single use: detectable for a standard half-life duration
+            full_elimination_datetime =  most_recent_usage.timestamp + \
+                                         datetime.timedelta(hours=full_elimination_duration)
+            detectable_elimination_datetime = most_recent_usage.timestamp + datetime.timedelta(days=3)
+
+        elif relevant_usages <= (weeks_averaged * 4):
+            # moderate use: detectable for standard half-life * 5/3, _or_ 5 days
+            full_elimination_datetime = most_recent_usage.timestamp + \
+                                        datetime.timedelta(hours=int(full_elimination_duration * (5/3)))
+            detectable_elimination_datetime = most_recent_usage.timestamp + datetime.timedelta(days=5)
+
+        elif relevant_usages <= (weeks_averaged * 7):
+            # heavy use: detectable for standard half-life * 10/3, _or_ 10 days
+            full_elimination_datetime = most_recent_usage.timestamp + \
+                                        datetime.timedelta(hours=int(full_elimination_duration * (10/3)))
+            detectable_elimination_datetime = most_recent_usage.timestamp + datetime.timedelta(days=10)
+
+        else:
+            # chronic heavy use: detectable for standard half-life * 10, _or_ 30 days
+            full_elimination_datetime = most_recent_usage.timestamp + \
+                                        datetime.timedelta(hours=(full_elimination_duration * 10))
+            detectable_elimination_datetime = most_recent_usage.timestamp + datetime.timedelta(days=30)
+
+    elif substance.lipid_solubility:
         # we can't process this yet
         context['error_message'] = \
-            "We are not able to process half-life extrapolation for lipid soluble metabolites yet, sorry!"
+            "We are not able to process half-life extrapolation for non-THC lipid soluble metabolites yet, sorry!"
     else:
         last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
 
-        elimination_datetime = last_usage.timestamp + datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
-        context = {'error_message': None, 'sub': substance, 'elimination_target': elimination_datetime,
-                   'last_usage': last_usage.timestamp}
+        full_elimination_datetime = last_usage.timestamp + \
+                                    datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
+        detectable_elimination_datetime = full_elimination_datetime
+
+        context = {'error_message': None, 'sub': substance, 'elimination_target': full_elimination_datetime,
+                   'undetectable_target': detectable_elimination_datetime, 'last_usage': last_usage.timestamp}
 
     return render(request, 'dataview/halflife.html', add_header_info(context))
 
