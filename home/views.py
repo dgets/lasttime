@@ -24,9 +24,21 @@ def create_user_interface(request):
     :return:
     """
 
-    create_user_form = NewUserForm()
+    if request.method == "POST":
+        context = {}
 
-    return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form}))
+        user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+        user.first_name = request.POST['first_name']
+        user.last_name = request.POST['last_name']
+        user.save()     # this will need to be in an error handling block at some point here
+
+        context['username'] = user.username
+
+        return render(request, 'home/user_created.html', add_header_info(context))
+    else:
+        create_user_form = NewUserForm()
+
+        return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form}))
 
 
 def add_header_info(page_data):

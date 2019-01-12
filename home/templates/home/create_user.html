@@ -14,16 +14,20 @@
 
   <h1>Create New User</h1>
 
-  {% csrf_token %}
+  <form action="{% url 'home:user_created' %}" method="post">
 
-  <table>
+    {% csrf_token %}
 
-    {{ create_user_form.as_table }}
+    <table>
 
-  </table>
+      {{ create_user_form.as_table }}
 
-  <p>
-  <input type="submit" value="Submit User Data" />
+    </table>
+
+    <p>
+    <input type="submit" value="Submit User Data" />
+
+  </form>
 
   <div class="botnav">&nbsp;</p></div>
 
