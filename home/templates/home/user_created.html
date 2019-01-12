@@ -1,0 +1,26 @@
+{% load static %}
+<html>
+ <head>
+     <title>LastTime</title>
+     <link rel="stylesheet" type="text/css"
+           href="{% static 'recadm/lasttime.css' %}">
+ </head>
+ <body>
+  <!--
+  {# NOTE: below is the fragment that will not be changing; above will depend
+	   on what site & layout details on whether or not it includes static
+	   assets, or whether or not this page is an included fragment or
+	   capable of stand-alone usage #}
+    -->
+
+  <div class="header">
+      <h1 class="slogan">{{ header_info.motto }}</h1>
+      <h3 class="mission">{{ header_info.mission }}</h3>
+  </div>
+
+  <h2>User {{ username }} created!</h2>
+
+  <p>Please go ahead and <a href="{% url 'home:index' %}"><i>log in</i></a>.</p>
+
+ </body>
+</html>
