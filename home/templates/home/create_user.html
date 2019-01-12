@@ -1,0 +1,28 @@
+{% load static %}
+<html>
+ <head>
+     <title>LastTime</title>
+     <link rel="stylesheet" type="text/css"
+        href="{% static 'recadm/lasttime.css' %}">
+ </head>
+ <body>
+
+  <div class="header">
+      <h1 class="slogan">{{ header_info.motto }}</h1>
+      <h3 class="mission">{{ header_info.mission }}</h3>
+  </div>
+
+  <h1>Create New User</h1>
+
+  {% csrf_token %}
+
+  <table>
+
+    {{ create_user_form.as_table }}
+
+  </table>
+
+  <p>
+  <input type="submit" value="Submit User Data" />
+ </body>
+</html>

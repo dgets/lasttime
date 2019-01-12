@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.views import generic
+from django.contrib.auth.models import User
 
 from .models import NavInfo, HeaderInfo
+from .forms import NewUserForm
 
 
 class IndexView(generic.ListView):
@@ -12,6 +14,19 @@ class IndexView(generic.ListView):
         page_data = {}
 
         return add_header_info(page_data)
+
+
+def create_user_interface(request):
+    """
+    Method is utilized for the user creation page.
+
+    :param request:
+    :return:
+    """
+
+    create_user_form = NewUserForm()
+
+    return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form}))
 
 
 def add_header_info(page_data):
