@@ -111,6 +111,7 @@ class SubAdminDataView(generic.DetailView):
 
 
 def extrapolate_halflife_data(request, sub_id):
+    # TODO: modularize the lipid_soluble weed block below
     substance = Substance.objects.filter(id=sub_id).first()
     context = {}
     full_elimination_datetime = None
