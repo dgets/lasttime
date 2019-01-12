@@ -126,3 +126,4 @@ STATIC_URL = '/static/'
 # login configuration
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
