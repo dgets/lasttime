@@ -20,7 +20,7 @@ def add_header_info(page_data):
     adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
     applicable data for the header & footer schitt.
 
-    :param previous_context:
+    :param page_data:
     :return: new context (dict)
     """
 
