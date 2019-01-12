@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views import generic
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 from .models import NavInfo, HeaderInfo
 from .forms import NewUserForm
@@ -16,6 +17,7 @@ class IndexView(generic.ListView):
         return add_header_info(page_data)
 
 
+@login_required
 def create_user_interface(request):
     """
     Method is utilized for the user creation page.

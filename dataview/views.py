@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.views import generic
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 import datetime
 import json
 
@@ -9,7 +12,7 @@ from subadd.forms import Substance
 from home.models import NavInfo, HeaderInfo
 
 
-class IndexView(generic.ListView):
+class IndexView(LoginRequiredMixin, generic.ListView):
     """
     I may be over simplifying things here, since I'm learning how to use
     generic/class-based views while implementing these features, but the
@@ -41,7 +44,7 @@ class IndexView(generic.ListView):
         return add_header_info(context)
 
 
-class SubAdminDataView(generic.DetailView):
+class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     """
     Again, if I'm misunderstanding concepts about class/generic view
     implementation, this may have to be revised, but the idea behind this view/
@@ -110,6 +113,7 @@ class SubAdminDataView(generic.DetailView):
                                 'average_span': average_span})
 
 
+@login_required
 def extrapolate_halflife_data(request, sub_id):
     # TODO: modularize the lipid_soluble weed block below
     substance = Substance.objects.filter(id=sub_id).first()

@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from .forms import Substance, SubstanceForm
 
 from home.models import NavInfo, HeaderInfo
 
 
+@login_required
 def index(request):
     """
     View provides a listing of all substances in the database; passes the
@@ -23,6 +25,7 @@ def index(request):
     return render(request, 'subadd/index.html', add_header_info(context))
 
 
+@login_required
 def add(request):
     """
     View provides an empty form with the relevant fields (see forms.py) needing
@@ -38,6 +41,7 @@ def add(request):
     return render(request, 'subadd/add.html', add_header_info({'substance': None, 'add_sub_form': add_sub_form}))
 
 
+@login_required
 def addentry(request):
     """
     Another version of the above substance data entry form, this one is for
@@ -83,6 +87,7 @@ def addentry(request):
                   Substance.objects.all()}))
 
 
+@login_required
 def detail(request, substance_id):
     """
     View provides details on any particular substance record.  Hands things

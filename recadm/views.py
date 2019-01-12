@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from .forms import Usage, UsageForm
 
@@ -7,6 +8,7 @@ from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 
 
+@login_required
 def index(request):
     """
     View shows the details of administrations; it will, at some point,
@@ -37,6 +39,7 @@ def index(request):
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def add(request):
     """
     View for adding a particular administration record.  Passes the view off
@@ -65,6 +68,7 @@ def add(request):
     return render(request, 'recadm/add_entry.html', add_header_info(context))
 
 
+@login_required
 def save_admin(request):
     """
     View is called when add_entry is submitted and passes the data off here in
@@ -116,6 +120,7 @@ def save_admin(request):
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def detail(request, topic_id):
     """
     Provides the details on any particular administration's notes, primarily
