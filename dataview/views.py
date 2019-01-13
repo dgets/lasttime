@@ -49,7 +49,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
 
     def get_context_data(self, **kwargs):
-        usages = Usage.objects.filter(sub=self.kwargs['pk'])
+        usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
         usage_count = len(usages)
 
         # average & total calculation
@@ -126,7 +126,7 @@ def extrapolate_halflife_data(request, sub_id):
     """
 
     # TODO: modularize the lipid_soluble weed block below
-    substance = Substance.objects.filter(id=sub_id).first()
+    substance = Substance.objects.get(id=sub_id)
     context = {}
     full_elimination_datetime = None
 
@@ -136,8 +136,8 @@ def extrapolate_halflife_data(request, sub_id):
         # FWIW we're just going to base our projection on the average of the last 2 weeks of usage
         weeks_averaged = 2
         relevant_since_date = datetime.datetime.now() - datetime.timedelta(weeks=weeks_averaged)
-        relevant_usages = len(Usage.objects.filter(timestamp__gte=relevant_since_date))
-        last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
+        relevant_usages = len(Usage.objects.filter(timestamp__gte=relevant_since_date, user=request.user))
+        last_usage = Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first()
         full_elimination_duration = int(float(substance.active_half_life) * 5.7)
 
         # note that half-life durations here (not flat day count) are calculated @ 5.7 * half-life, as in the
@@ -172,7 +172,7 @@ def extrapolate_halflife_data(request, sub_id):
         context['error_message'] = \
             "We are not able to process half-life extrapolation for non-THC lipid soluble metabolites yet, sorry!"
     else:
-        last_usage = Usage.objects.filter(sub=sub_id).order_by('-timestamp').first()
+        last_usage = Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first()
 
         full_elimination_datetime = last_usage.timestamp + \
                                     datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
@@ -202,7 +202,7 @@ def dump_dose_graph_data(request, sub_id):
     """
 
     dosage_graph_data = []
-    usages = Usage.objects.filter(sub=sub_id)[:20]
+    usages = Usage.objects.filter(sub=sub_id, user=request.user)[:20]
 
     max_dosage = 0
     for use in usages:
@@ -236,7 +236,7 @@ def dump_interval_graph_data(request, sub_id):
     :return:
     """
 
-    usages = Usage.objects.filter(sub=sub_id)[:20]
+    usages = Usage.objects.filter(sub=sub_id, user=request.user)[:20]
 
     timespans = []
     prev_time = None
