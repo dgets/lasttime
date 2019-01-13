@@ -128,7 +128,7 @@ def detail(request, topic_id):
     :return:
     """
 
-    admin_details = Usage.objects.get(id=topic_id)
+    admin_details = Usage.objects.get(id=topic_id, user=request.user)
 
     context = {
         'sub': admin_details.sub,
