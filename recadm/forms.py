@@ -2,6 +2,7 @@ from django import forms
 from django.db import models
 from django.utils import timezone
 from django.forms import ModelForm, Textarea
+from django.contrib.auth.models import User
 
 from subadd.forms import Substance
 
@@ -13,9 +14,10 @@ class Usage(models.Model):
     """
 
     sub = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=6)
     dosage = models.DecimalField(max_digits=7, decimal_places=3)
     timestamp = models.DateTimeField('time administered', default=timezone.now)
-    notes = models.CharField(max_length=160)
+    notes = models.CharField(max_length=512)
 
     def __str__(self):
         return str(self.sub) + " (" + str(self.dosage) + ") administered at " + str(self.timestamp)
@@ -36,7 +38,7 @@ class UsageForm(ModelForm):
             'sub': 'Substance',
         }
         widgets = {
-            'notes': Textarea(attrs={'cols': 60, 'rows': 10})
+            'notes': Textarea(attrs={'cols': 60, 'rows': 9})
         }
 
 

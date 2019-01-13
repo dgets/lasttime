@@ -20,7 +20,7 @@ def index(request):
     :return:
     """
 
-    recent_administrations = Usage.objects.all()
+    recent_administrations = Usage.objects.filter(user=request.user)
     mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
@@ -29,7 +29,7 @@ def index(request):
             'dosage': administration.dosage,
             'substance_name': administration.sub,})
 
-    context = {'mydata': mydata,}
+    context = {'mydata': mydata, 'user': request.user,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
@@ -76,6 +76,7 @@ def save_admin(request):
     """
 
     add_administration_form = UsageForm({'sub': request.POST['sub'],
+                                         'user': request.user,
                                          'dosage': request.POST['dosage'],
                                          'notes': request.POST['notes']})
 
