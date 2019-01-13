@@ -104,7 +104,7 @@ def save_admin(request):
 
     mydata = []
 
-    recent_administrations = Usage.objects.all()
+    recent_administrations = Usage.objects.filter(user=request.user)
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
                        'id': administration.id,
