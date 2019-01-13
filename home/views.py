@@ -21,7 +21,6 @@ class IndexView(generic.ListView):
         return add_header_info(page_data)
 
 
-@login_required
 def create_user_interface(request):
     """
     Method is utilized for the user creation page.
