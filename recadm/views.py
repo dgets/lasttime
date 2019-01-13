@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
 from .forms import Usage, UsageForm
 
@@ -7,6 +8,7 @@ from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 
 
+@login_required
 def index(request):
     """
     View shows the details of administrations; it will, at some point,
@@ -19,24 +21,20 @@ def index(request):
     """
 
     recent_administrations = Usage.objects.all()
-    # substances = Substance.objects.all()
     mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
-        #we only need admin timestamp, dosage, and substance name
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
             'substance_name': administration.sub,})
 
-    context = {
-        # not sure why I did things this way, but we'll leave it for now
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def add(request):
     """
     View for adding a particular administration record.  Passes the view off
@@ -65,6 +63,7 @@ def add(request):
     return render(request, 'recadm/add_entry.html', add_header_info(context))
 
 
+@login_required
 def save_admin(request):
     """
     View is called when add_entry is submitted and passes the data off here in
@@ -90,7 +89,7 @@ def save_admin(request):
                            'id': sub.id,})
 
             error_message = "Unable to save to db: " + str(e) + "<br>sub: " + sub + " dose: " + dosage + " notes: " +\
-                notes
+                            notes
 
             context = {'mydata': mydata,
                        'add_admin_form': add_administration_form,
@@ -103,19 +102,16 @@ def save_admin(request):
     recent_administrations = Usage.objects.all()
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
-            'id': administration.id,
-            'dosage': administration.dosage,
-            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
+                       'id': administration.id,
+                       'dosage': administration.dosage,
+                       'substance_name': administration.sub,})
 
-    context = {
-        # can't remember why I did this this way, but it'll stand until I
-        # remember or can't stand it any more
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def detail(request, topic_id):
     """
     Provides the details on any particular administration's notes, primarily
