@@ -60,10 +60,10 @@ def addentry(request):
 
     try:
         substance = Substance(common_name=request.POST['common_name'],
-            sci_name=request.POST['sci_name'],
-            half_life=request.POST['half_life'],
-            active_half_life=request.POST['active_half_life'],
-            lipid_solubility=request.POST.get('lipid_solubility', False))
+                              sci_name=request.POST['sci_name'],
+                              half_life=request.POST['half_life'],
+                              active_half_life=request.POST['active_half_life'],
+                              lipid_solubility=request.POST.get('lipid_solubility', False))
 
         # we'll need to do validation here, of course
 
@@ -112,7 +112,7 @@ def add_header_info(page_data):
     adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
     applicable data for the header & footer schitt.
 
-    :param previous_context:
+    :param page_data:
     :return: new context (dict)
     """
 

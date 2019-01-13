@@ -26,16 +26,6 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     # paginate_by = 15
     context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
 
-    # def get_queryset(self):
-    #     """
-    #     Return the last five (or fewer) unique substance administration links
-    #     for viewing the record details of.
-    #
-    #     :return: Substance queryset
-    #     """
-    #
-    #     return Substance.objects.all()[:5]
-
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
 
@@ -50,7 +40,9 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     implementation, this may have to be revised, but the idea behind this view/
     class is to provide a view of the data (averages, then eventually plasma
     drop-off graphing, etc) regarding the history of administrations of the
-    particular substance in question.
+    particular substance in question.  It breaks down a lot of the specifics
+    in order to be fed to the D3.js graphing system that is utilized in the
+    applicable template.
     """
 
     model = Usage   # should've said all generic views need to know
@@ -77,7 +69,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
         # timespan & average calculation
         timespans = []
-        prev_time = None    # would we (perhaps optionally) want timezone.now()?
+        prev_time = None
         for use in usages:
             if prev_time is not None:
                 current_delta = datetime.timedelta
@@ -115,6 +107,24 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
 @login_required
 def extrapolate_halflife_data(request, sub_id):
+    """
+    This method has a little more beef to it than most.  First it determines
+    whether or not the substance passed is lipid soluble or not.  If it is,
+    then it tries to determine whether or not it's talking about THC.  If so,
+    it utilizes an algorithm based on the Mayo Clinic labs' standards for the
+    detectability of THC in urine to determine the detectable half-life
+    duration.  If the substance is lipid soluble but not THC, we return an
+    error message due to not having enough specific data to work with that
+    just yet.  If it's only water/plasma soluble, we calculate solely the
+    standard elimination projection (which is done for THC, as well), which is
+    based on the 5.7 * half-life projection that I was quoted by one of my
+    health care professionals.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
+
     # TODO: modularize the lipid_soluble weed block below
     substance = Substance.objects.filter(id=sub_id).first()
     context = {}
@@ -174,6 +184,7 @@ def extrapolate_halflife_data(request, sub_id):
     return render(request, 'dataview/halflife.html', add_header_info(context))
 
 
+@login_required
 def dump_dose_graph_data(request, sub_id):
     """
     This view is a little more interesting than the different flavors of the
@@ -214,6 +225,7 @@ def dump_dose_graph_data(request, sub_id):
                         content_type='application/json')
 
 
+@login_required
 def dump_interval_graph_data(request, sub_id):
     """
     View does the same as the above one, except for the intervals between
@@ -223,6 +235,7 @@ def dump_interval_graph_data(request, sub_id):
     :param sub_id:
     :return:
     """
+
     usages = Usage.objects.filter(sub=sub_id)[:20]
 
     timespans = []

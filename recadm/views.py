@@ -21,20 +21,15 @@ def index(request):
     """
 
     recent_administrations = Usage.objects.all()
-    # substances = Substance.objects.all()
     mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
-        #we only need admin timestamp, dosage, and substance name
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
             'substance_name': administration.sub,})
 
-    context = {
-        # not sure why I did things this way, but we'll leave it for now
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
@@ -94,7 +89,7 @@ def save_admin(request):
                            'id': sub.id,})
 
             error_message = "Unable to save to db: " + str(e) + "<br>sub: " + sub + " dose: " + dosage + " notes: " +\
-                notes
+                            notes
 
             context = {'mydata': mydata,
                        'add_admin_form': add_administration_form,
@@ -107,15 +102,11 @@ def save_admin(request):
     recent_administrations = Usage.objects.all()
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
-            'id': administration.id,
-            'dosage': administration.dosage,
-            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
+                       'id': administration.id,
+                       'dosage': administration.dosage,
+                       'substance_name': administration.sub,})
 
-    context = {
-        # can't remember why I did this this way, but it'll stand until I
-        # remember or can't stand it any more
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 

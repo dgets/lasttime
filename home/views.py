@@ -8,6 +8,10 @@ from .forms import NewUserForm
 
 
 class IndexView(generic.ListView):
+    """
+    Just a simple page giving links for logging in or creating a new user.
+    """
+
     model = HeaderInfo
     template_name = 'home/index.html'
 
