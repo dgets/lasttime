@@ -19,11 +19,15 @@
   </div>
 
   <div class="topnav">
+      {% if user.is_authenticated %}
       {% for nav_item in links %}
        <a href="{% url nav_item.link %}">
            {{ nav_item.link_text }}
        </a>
       {% endfor %}
+      {% else %}
+       <p>&nbsp;
+      {% endif %}
   </div>
 
   <!--
@@ -32,7 +36,18 @@
        mission statement #}
     -->
 
+  {% if not user.is_authenticated %}
 
+  <p><a href="{% url 'login' %}">Log in</a></p>
+  <p><a href="{% url 'home:create_user_interface' %}">Create new user</a></p>
+
+  {% else %}
+
+  <p><a href="{% url 'logout' %}">Log out</a></p>
+
+  {% endif %}
+
+  <div class="botnav">&nbsp;</p></div>
 
  </body>
 </html>

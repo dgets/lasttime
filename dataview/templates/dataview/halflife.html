@@ -38,7 +38,23 @@
 
     <h2>Elimination Extrapolation</h2>
 
-    <h3>Lipid Insoluble Metabolite Breakdown Information</h3>
+    {% if not sub.lipid_solubility %}
+
+      <h3>Lipid Insoluble Metabolite Breakdown Information</h3>
+
+    {% else %}
+
+      <h3>Lipid Soluble Metabolite Breakdown Information</h3>
+
+      <p>Please note that results here should not be used for anything vital, important, or even tangentally
+         useful.  The algorithm implemented is <i>very</i> rough around the edges.  Please feel free to see
+         the <a href="https://www.mayocliniclabs.com/test-info/drug-book/marijuana.html">Mayo Clinic labs'
+         book on THC metabolite testing</a> for more information on the algorithm's basis.</p>
+
+      <p>Based on the last usage date of <i>{{ last_usage }}</i>, your estimated time of return to a negative
+         test result baseline from the most common method of testing is <i><b>{{ undetectable_target }}</b></i></p>
+
+    {% endif %}
 
     <p>Based on the last usage date of <i>{{ last_usage }}</i>, your estimated time of return to pristine bodily
        fluids is <i><b>{{ elimination_target }}</b></i></p>

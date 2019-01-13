@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 
 from .forms import Usage, UsageForm
 
@@ -7,6 +9,7 @@ from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 
 
+@login_required
 def index(request):
     """
     View shows the details of administrations; it will, at some point,
@@ -18,25 +21,21 @@ def index(request):
     :return:
     """
 
-    recent_administrations = Usage.objects.all()
-    # substances = Substance.objects.all()
+    recent_administrations = Usage.objects.filter(user=request.user)
     mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
-        #we only need admin timestamp, dosage, and substance name
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
             'substance_name': administration.sub,})
 
-    context = {
-        # not sure why I did things this way, but we'll leave it for now
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata, 'user': request.user,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def add(request):
     """
     View for adding a particular administration record.  Passes the view off
@@ -65,6 +64,7 @@ def add(request):
     return render(request, 'recadm/add_entry.html', add_header_info(context))
 
 
+@login_required
 def save_admin(request):
     """
     View is called when add_entry is submitted and passes the data off here in
@@ -77,45 +77,46 @@ def save_admin(request):
     """
 
     add_administration_form = UsageForm({'sub': request.POST['sub'],
+                                         # 'user': request.user,  # this won't work, it'll save as default value
                                          'dosage': request.POST['dosage'],
                                          'notes': request.POST['notes']})
+    new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
+                               dosage=request.POST['dosage'], timestamp=timezone.datetime.now(),
+                               notes=request.POST['notes'])
 
     try:
-        add_administration_form.save()
+        # add_administration_form.save()
+        new_administration.save()
     except Exception as e:
-        substances = Substance.objects.all()
+        # substances = Substance.objects.all()
 
-        for sub in substances:
-            mydata.append({'name': sub.common_name,
-                           'id': sub.id,})
+        #for sub in substances:
+            # mydata.append({'name': sub.common_name,
+                           # 'id': sub.id,})
 
-            error_message = "Unable to save to db: " + str(e) + "<br>sub: " + sub + " dose: " + dosage + " notes: " +\
-                notes
+        error_message = "Unable to save to db: " + str(e) + "admin: " + str(new_administration)
 
-            context = {'mydata': mydata,
-                       'add_admin_form': add_administration_form,
-                       'error_message': error_message, }
+        context = {# 'mydata': mydata,
+                   'add_admin_form': add_administration_form,
+                   'error_message': error_message, }
 
-            return render(request, 'recadm/add_entry.html', add_header_info(context))
+        return render(request, 'recadm/add_entry.html', add_header_info(context))
 
     mydata = []
 
-    recent_administrations = Usage.objects.all()
+    recent_administrations = Usage.objects.filter(user=request.user)
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
-            'id': administration.id,
-            'dosage': administration.dosage,
-            'substance_name': administration.sub,})  # .get(pk=administration.sub),})
+                       'id': administration.id,
+                       'dosage': administration.dosage,
+                       'substance_name': administration.sub,})
 
-    context = {
-        # can't remember why I did this this way, but it'll stand until I
-        # remember or can't stand it any more
-        'mydata': mydata,
-    }
+    context = {'mydata': mydata, 'debug': request.POST['sub']}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
 
+@login_required
 def detail(request, topic_id):
     """
     Provides the details on any particular administration's notes, primarily
@@ -127,7 +128,7 @@ def detail(request, topic_id):
     :return:
     """
 
-    admin_details = Usage.objects.get(id=topic_id)
+    admin_details = Usage.objects.get(id=topic_id, user=request.user)
 
     context = {
         'sub': admin_details.sub,
