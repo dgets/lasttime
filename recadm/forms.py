@@ -20,7 +20,8 @@ class Usage(models.Model):
     notes = models.CharField(max_length=512)
 
     def __str__(self):
-        return str(self.sub) + " (" + str(self.dosage) + ") administered at " + str(self.timestamp)
+        return str(self.sub) + " (" + str(self.dosage) + ") administered to: " + self.user.username + \
+               " at " + str(self.timestamp)
 
 
 class UsageForm(ModelForm):
