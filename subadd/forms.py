@@ -1,6 +1,8 @@
 from django.db import models
 from django.forms import ModelForm
 
+import lasttime.myglobals
+
 # dosage & duration choices are now provided via an Enum in the main project
 # level home (myglobals.py)
 
@@ -13,20 +15,22 @@ class Substance(models.Model):
     TODO: add the ability to pick between the appropriate dosage Enums
     """
 
+    DOSAGE_UNIT_CHOICE = (
+        (lasttime.myglobals.Units.mcg, 'mcg'),
+        (lasttime.myglobals.Units.mg, 'mg'),
+        (lasttime.myglobals.Units.ml, 'ml'),
+        (lasttime.myglobals.Units.floz, 'fl oz'),
+        (lasttime.myglobals.Units.tsp, 'tsp'),
+    )
+
     common_name = models.CharField(max_length=40)
     sci_name = models.CharField(max_length=60)
     half_life = models.DecimalField(max_digits=7, decimal_places=3)
     active_half_life = models.DecimalField(max_digits=7, decimal_places=3)
-    lipid_solubility = models.BooleanField(default=False)    
+    lipid_solubility = models.BooleanField(default=False)
+    units = models.CharField(choices=DOSAGE_UNIT_CHOICE, default=lasttime.myglobals.Units.mg, max_length=5)
 
     def __str__(self):
-        # return_text = self.common_name + " (" + self.sci_name + "): half-life: " + str(self.half_life) + \
-        #     "; detectable half-life: " + str(self.active_half_life)
-        #
-        # if self.lipid_solubility:
-        #     return_text += " - lipid soluble"
-        #
-        # return return_text
         return self.common_name + " (" + self.sci_name + ")"
 
 
@@ -39,6 +43,6 @@ class SubstanceForm(ModelForm):
 
     class Meta:
         model = Substance
-        fields = ['common_name', 'sci_name', 'half_life', 'active_half_life', 'lipid_solubility']
+        fields = ['common_name', 'sci_name', 'half_life', 'active_half_life', 'lipid_solubility', 'units']
 
 
