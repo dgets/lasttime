@@ -1,0 +1,43 @@
+{% load static %}
+
+{% block header_thru_navbar %}
+<html>
+ <head>
+     <title>LastTime</title>
+     <link rel="stylesheet" type="text/css"
+           href="{% static 'home/lasttime.css' %}">
+ </head>
+ <body>
+
+  <div class="header">
+      <h1 class="slogan">{{ header_info.motto }}</h1>
+      <h3 class="mission">{{ header_info.mission }}</h3>
+  </div>
+
+   <div class="topnav">
+      {% if user.is_authenticated %}
+      {% for nav_item in links %}
+       <a href="{% url nav_item.link %}">
+           {{ nav_item.link_text }}
+       </a>
+      {% endfor %}
+      {% else %}
+       <p>&nbsp;
+      {% endif %}
+  </div>
+{% endblock header_thru_navbar %}
+
+   <!--
+  {# NOTE: Here is where we'll want probably some sort of logo image and some
+       text describing things a little more thoroughly than the slogan and
+       mission statement #}
+    -->
+
+  {% block main_page_content %}{% endblock main_page_content %}
+
+{% block default_trailer %}
+   <div class="botnav">&nbsp;</p></div>
+
+ </body>
+</html>
+{% endblock default_trailer %}

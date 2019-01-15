@@ -1,5 +1,6 @@
 {% load static %}
 
+{% block header_thru_navbar %}
 <html>
  <head>
      <title>LastTime</title>
@@ -34,7 +35,9 @@
        </a>
      {% endfor %}
   </div>
+{% endblock header_thru_navbar %}
 
+{% block main_page_content %}
   <h2>{{ sub_name }}</h2>
 
   <table>
@@ -264,6 +267,4 @@ d3.json(json_src2, function(error, data) {
    <p>No timespans have been recorded.</p>
 
   {% endif %}
-
- </body>
-</html>
+{% endblock main_page_content %}
