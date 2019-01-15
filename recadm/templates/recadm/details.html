@@ -1,34 +1,5 @@
-{% load static %}
-
-<html>
- <head>
-     <title>LastTime</title>
-     <link rel="stylesheet" type="text/css"
-        href="{% static 'recadm/lasttime.css' %}">
- </head>
- <body>
-  <!--
-  {# NOTE: below is the fragment that will not be changing; above will depend
-	   on what site & layout details on whether or not it includes static
-	   assets, or whether or not this page is an included fragment or
-	   capable of stand-alone usage #}
-    -->
-
-  <div class="header">
-      <h1 class="slogan">{{ header_info.motto }}</h1>
-      <h3 class="mission">{{ header_info.mission }}</h3>
-  </div>
-
-  <div class="topnav">
-      {% if links %}
-        {% for link in links %}
-        <a href="{% url link.link %}">{{ link.link_text }}</a>
-        {% endfor %}
-      {% else %}
-        No links are configured!
-      {% endif %}
-  </div>
-
+{% extends 'home/lasttime_head.html' %}
+{% block main_page_content %}
   <h3>Administration Details</h3>
 
   <table>
@@ -65,7 +36,9 @@
           </td>
       </tr>
   </table>
+{% endblock main_page_content %}
 
+{% block default_trailer %}
   <div class="botnav">
       <a href="{% url 'recadm:index' %}">Administration Index</a>
       <a href="{% url 'recadm:add' %}">Add Administration</a>
@@ -73,3 +46,4 @@
 
  </body>
 </html>
+{% endblock default_trailer %}
