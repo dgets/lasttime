@@ -50,59 +50,23 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
-        usage_count = len(usages)
 
-        # average & total calculation
-        total_administered = 0
-        highest_administered = 0
-        lowest_administered = None
-        for use in usages:
-            total_administered += use.dosage
-
-            if use.dosage > highest_administered:
-                highest_administered = use.dosage
-
-            if lowest_administered is None or use.dosage < lowest_administered:
-                lowest_administered = use.dosage
-
-        usage_average = total_administered / usage_count
+        # calculate usage statistics
+        usage_data = get_usage_stats(usages)
 
         # timespan & average calculation
-        timespans = []
-        prev_time = None
-        for use in usages:
-            if prev_time is not None:
-                current_delta = datetime.timedelta
-                current_delta = use.timestamp - prev_time
-                current_delta = round_timedelta_to_15min_floor(current_delta)
-                timespans.append(current_delta)
+        span_data = get_interval_stats(usages)
 
-            prev_time = use.timestamp
+        scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
 
-        total_span = datetime.timedelta(0)
-        longest_span = datetime.timedelta(0)
-        shortest_span = datetime.timedelta.max
-
-        for span in timespans:
-            if longest_span < span:
-                longest_span = span
-
-            if shortest_span > span:
-                shortest_span = span
-
-            total_span += span
-
-        # errors here if there are 0 or 1 usages, obviously
-        average_span = round_timedelta_to_15min_floor(total_span / (usage_count - 1))
-        scale_factor = get_graph_normalization_divisor(longest_span.total_seconds(), 600)
-
-        return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
-                                'usage_high': highest_administered, 'usage_low': lowest_administered,
-                                'usage_total': total_administered, 'sub_dosage_units': usages[0].sub.units,
+        return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
+                                'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
+                                'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
+                                'sub_dosage_units': usages[0].sub.units,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
-                                'sub_id': self.kwargs['pk'], 'longest_span': longest_span,
-                                'shortest_span': shortest_span, 'timespans': timespans, 'scale_factor': scale_factor,
-                                'average_span': average_span})
+                                'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
+                                'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
+                                'scale_factor': scale_factor, 'average_span': span_data['average'],})
 
 
 @login_required
@@ -260,6 +224,81 @@ def dump_interval_graph_data(request, sub_id):
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
+
+
+def get_interval_stats(usages):
+    """
+    Method takes the appropriate Usage objects, compiles the spans between them
+    (currently rounded to 15 min intervals), determines the longest, shortest,
+    and total of the timespans, along with the average, and returns them in a
+    dict.
+
+    :param usages:
+    :return:
+    """
+
+    prev_time = None
+    interval_data = {'timespans': [],
+                     # 'prev_time': None,     # this shouldn't be part of the dict, no?
+                     'total': datetime.timedelta(0),
+                     'longest': datetime.timedelta(0),
+                     'shortest': datetime.timedelta.max,
+                     'average': None,}
+
+    for use in usages:
+        if prev_time is not None:  # interval_data['prev_time'] is not None:
+            current_delta = datetime.timedelta
+            current_delta = use.timestamp - prev_time   # interval_data['prev_time']
+            current_delta = round_timedelta_to_15min_floor(current_delta)
+            interval_data['timespans'].append(current_delta)
+
+        prev_time = use.timestamp
+        # interval_data['prev_time'] = use.timestamp
+
+    for span in interval_data['timespans']:
+        if interval_data['longest'] < span:
+            interval_data['longest'] = span
+
+        if interval_data['shortest'] > span:
+           interval_data['shortest'] = span
+
+        interval_data['total'] += span
+
+    # errors here if there are 0 or 1 usages, obviously
+    interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
+
+    return interval_data
+
+
+def get_usage_stats(usages):
+    """
+    Method utilizes the Usage records to calculate highest/lowest/average
+    dosages, total amount, and times administered, then returning them in a
+    dict.
+
+    :param usages: the records that we're looking at
+    :return:
+    """
+
+    # average & total calculation
+    administration_stats = {'total': 0,
+                            'highest': 0,
+                            'lowest': None,
+                            'average': None,
+                            'count': len(usages)}
+
+    for use in usages:
+        administration_stats['total'] += use.dosage
+
+        if use.dosage > administration_stats['highest']:
+            administration_stats['highest'] = use.dosage
+
+        if administration_stats['lowest'] is None or use.dosage < administration_stats['lowest']:
+            administration_stats['lowest'] = use.dosage
+
+    administration_stats['average'] = administration_stats['total'] / administration_stats['count']
+
+    return administration_stats
 
 
 def add_header_info(page_data):
