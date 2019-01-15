@@ -22,12 +22,14 @@ def index(request):
     """
 
     recent_administrations = Usage.objects.filter(user=request.user)
+
     mydata = []  # this can no doubt be handled better via the db
 
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
             'id': administration.id,
             'dosage': administration.dosage,
+            'units': administration.sub.units,
             'substance_name': administration.sub,})
 
     context = {'mydata': mydata, 'user': request.user,}
@@ -133,6 +135,7 @@ def detail(request, topic_id):
     context = {
         'sub': admin_details.sub,
         'dosage': admin_details.dosage,
+        'units': admin_details.sub.units,
         'timestamp': admin_details.timestamp,
         'notes': admin_details.notes,
     }

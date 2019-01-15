@@ -98,7 +98,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
         return add_header_info({'usages': usages, 'usage_count': usage_count, 'usage_average': usage_average,
                                 'usage_high': highest_administered, 'usage_low': lowest_administered,
-                                'usage_total': total_administered,
+                                'usage_total': total_administered, 'sub_dosage_units': usages[0].sub.units,
                                 'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
                                 'sub_id': self.kwargs['pk'], 'longest_span': longest_span,
                                 'shortest_span': shortest_span, 'timespans': timespans, 'scale_factor': scale_factor,
