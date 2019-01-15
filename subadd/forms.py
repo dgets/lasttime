@@ -1,8 +1,8 @@
 from django.db import models
+from django import forms
 from django.forms import ModelForm
 
-# dosage & duration choices are now provided via an Enum in the main project
-# level home (myglobals.py)
+from .models import DosageUnit
 
 
 class Substance(models.Model):
@@ -17,7 +17,10 @@ class Substance(models.Model):
     sci_name = models.CharField(max_length=60)
     half_life = models.DecimalField(max_digits=7, decimal_places=3)
     active_half_life = models.DecimalField(max_digits=7, decimal_places=3)
-    lipid_solubility = models.BooleanField(default=False)    
+    lipid_solubility = models.BooleanField(default=False)
+    # units = forms.ModelChoiceField(DosageUnit.objects.all(), empty_label="-Dosage Units-",
+    # to_field_name="abbreviation")
+    units = models.CharField(max_length=5)
 
     def __str__(self):
         # return_text = self.common_name + " (" + self.sci_name + "): half-life: " + str(self.half_life) + \
@@ -36,6 +39,8 @@ class SubstanceForm(ModelForm):
     filled out by the user in order to record a new substance's relevant
     characteristics for later administration records.
     """
+
+    units = forms.ModelChoiceField(DosageUnit.objects.all(), empty_label="-Dosage Units-", to_field_name="abbreviation")
 
     class Meta:
         model = Substance
