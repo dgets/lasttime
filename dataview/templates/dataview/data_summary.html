@@ -7,9 +7,9 @@
      <link rel="stylesheet" type="text/css"
         href="{% static 'recadm/lasttime.css' %}">
 
-     <script>
+     <!-- <script>
          var getJSON;
-     </script>
+     </script> -->
      <script src="{% static 'dataview/graphing_internals.js' %}"></script>
 
  </head>
@@ -42,7 +42,7 @@
           <td>Total Administrations:</td>
           <td>{{ usage_count }}</td>
           <td>Total Administered:</td>
-          <td>{{ usage_total }}</td>
+          <td>{{ usage_total }}{{ sub_dosage_units }}</td>
       </tr>
       <tr>
           <td>Average Administered:</td>
@@ -52,9 +52,9 @@
       </tr>
       <tr>
           <td>Highest Dosage:</td>
-          <td>{{ usage_high }}</td>
+          <td>{{ usage_high }}{{ sub_dosage_units }}</td>
           <td>Lowest Dosage:</td>
-          <td>{{ usage_low }}</td>
+          <td>{{ usage_low }}{{ sub_dosage_units }}</td>
       </tr>
       <tr>
           <td>Longest Span Between Intervals:</td>
@@ -71,7 +71,7 @@
   {% if usages %}
    <ol>
        {% for use in usages %}
-        <li>{{ use.timestamp }}: {{ use.dosage }}</li>
+        <li>{{ use.timestamp }}: {{ use.dosage }}{{ sub_dosage_units }}</li>
        {% endfor %}
    </ol>
 
@@ -144,7 +144,7 @@
               .attr("y", 6)
               .attr("dy", ".71em")
               .style("text-anchor", "end")
-              .text("Dosage");
+              .text("Dosage in {{ sub_dosage_units }}");
 
           svg.selectAll("bar")
               .data(ouah)
@@ -245,7 +245,7 @@ d3.json(json_src2, function(error, data) {
       .attr("y2", 6)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Timespan");
+      .text("Timespan in Hours");
 
   svg2.selectAll("bar")
       .data(ouah_interval)

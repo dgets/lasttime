@@ -63,7 +63,8 @@ def addentry(request):
                               sci_name=request.POST['sci_name'],
                               half_life=request.POST['half_life'],
                               active_half_life=request.POST['active_half_life'],
-                              lipid_solubility=request.POST.get('lipid_solubility', False))
+                              lipid_solubility=request.POST.get('lipid_solubility', False),
+                              units=request.POST['units'])
 
         # we'll need to do validation here, of course
 
