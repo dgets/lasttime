@@ -51,22 +51,41 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
 
-        # calculate usage statistics
-        usage_data = get_usage_stats(usages)
+        too_few_usages_error = False
+        if len(usages) < 2:
+            too_few_usages_error = True
+        else:
+            zero_interval_error = False
+            prev_timestamp = None
+            for use in usages:
+                if prev_timestamp is not None and use.timestamp == prev_timestamp:
+                    zero_interval_error = True
 
-        # timespan & average calculation
-        span_data = get_interval_stats(usages)
+                prev_timestamp = use.timestamp
 
-        scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
+        if too_few_usages_error:
+            return add_header_info({'error_message': "Not enough usages to calculate statistics properly"})
 
-        return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
-                                'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
-                                'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
-                                'sub_dosage_units': usages[0].sub.units,
-                                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
-                                'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
-                                'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
-                                'scale_factor': scale_factor, 'average_span': span_data['average'],})
+        elif zero_interval_error:
+            return add_header_info({'error_message': "Zero intervals between datasets causing calculation errors"})
+
+        else:
+            # calculate usage statistics
+            usage_data = get_usage_stats(usages)
+
+            # timespan & average calculation
+            span_data = get_interval_stats(usages)
+
+            scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
+
+            return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
+                                    'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
+                                    'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
+                                    'sub_dosage_units': usages[0].sub.units,
+                                    'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                    'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
+                                    'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
+                                    'scale_factor': scale_factor, 'average_span': span_data['average'],})
 
 
 @login_required
