@@ -23,14 +23,13 @@ def index(request):
 
     recent_administrations = Usage.objects.filter(user=request.user)
 
-    mydata = []  # this can no doubt be handled better via the db
-
+    mydata = []
     for administration in recent_administrations:
         mydata.append({'ts': administration.timestamp,
-            'id': administration.id,
-            'dosage': administration.dosage,
-            'units': administration.sub.units,
-            'substance_name': administration.sub,})
+                       'id': administration.id,
+                       'dosage': administration.dosage,
+                       'units': administration.sub.units,
+                       'substance_name': administration.sub,})
 
     context = {'mydata': mydata, 'user': request.user,}
 
@@ -43,15 +42,12 @@ def add(request):
     View for adding a particular administration record.  Passes the view off
     to the add_entry template.
 
-    TODO: check which particular views are vestigial and remove them
-
     :param request:
     :return:
     """
 
     substances = Substance.objects.all()
-    mydata = []  # what the hell is different here compared to above w/my
-    # data structure, construction, and access/storing logic?!?
+    mydata = []
 
     add_administration_form = UsageForm()
 
@@ -79,7 +75,6 @@ def save_admin(request):
     """
 
     add_administration_form = UsageForm({'sub': request.POST['sub'],
-                                         # 'user': request.user,  # this won't work, it'll save as default value
                                          'dosage': request.POST['dosage'],
                                          'notes': request.POST['notes']})
     new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
@@ -87,19 +82,11 @@ def save_admin(request):
                                notes=request.POST['notes'])
 
     try:
-        # add_administration_form.save()
         new_administration.save()
     except Exception as e:
-        # substances = Substance.objects.all()
-
-        #for sub in substances:
-            # mydata.append({'name': sub.common_name,
-                           # 'id': sub.id,})
-
         error_message = "Unable to save to db: " + str(e) + "admin: " + str(new_administration)
 
-        context = {# 'mydata': mydata,
-                   'add_admin_form': add_administration_form,
+        context = {'add_admin_form': add_administration_form,
                    'error_message': error_message, }
 
         return render(request, 'recadm/add_entry.html', add_header_info(context))

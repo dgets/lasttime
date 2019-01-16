@@ -51,22 +51,41 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
 
-        # calculate usage statistics
-        usage_data = get_usage_stats(usages)
+        too_few_usages_error = False
+        if len(usages) < 2:
+            too_few_usages_error = True
+        else:
+            zero_interval_error = False
+            prev_timestamp = None
+            for use in usages:
+                if prev_timestamp is not None and use.timestamp == prev_timestamp:
+                    zero_interval_error = True
 
-        # timespan & average calculation
-        span_data = get_interval_stats(usages)
+                prev_timestamp = use.timestamp
 
-        scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
+        if too_few_usages_error:
+            return add_header_info({'error_message': "Not enough usages to calculate statistics properly"})
 
-        return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
-                                'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
-                                'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
-                                'sub_dosage_units': usages[0].sub.units,
-                                'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
-                                'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
-                                'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
-                                'scale_factor': scale_factor, 'average_span': span_data['average'],})
+        elif zero_interval_error:
+            return add_header_info({'error_message': "Zero intervals between datasets causing calculation errors"})
+
+        else:
+            # calculate usage statistics
+            usage_data = get_usage_stats(usages)
+
+            # timespan & average calculation
+            span_data = get_interval_stats(usages)
+
+            scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
+
+            return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
+                                    'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
+                                    'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
+                                    'sub_dosage_units': usages[0].sub.units,
+                                    'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                    'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
+                                    'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
+                                    'scale_factor': scale_factor, 'average_span': span_data['average'],})
 
 
 @login_required
@@ -183,7 +202,7 @@ def dump_interval_graph_data(request, sub_id):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            current_delta = round_timedelta_to_15min_floor(current_delta)
+            #current_delta = round_timedelta_to_15min_floor(current_delta)
             timespans.append(current_delta.total_seconds())
 
             if current_delta > max_span:
@@ -272,7 +291,7 @@ def get_interval_stats(usages):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            current_delta = round_timedelta_to_15min_floor(current_delta)
+            #current_delta = round_timedelta_to_15min_floor(current_delta)
             interval_data['timespans'].append(current_delta)
 
         prev_time = use.timestamp
@@ -287,7 +306,8 @@ def get_interval_stats(usages):
         interval_data['total'] += span
 
     # errors here if there are 0 or 1 usages, obviously
-    interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
+    #interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
+    interval_data['average'] = interval_data['total'] / (len(usages) - 1)
 
     return interval_data
 
@@ -339,19 +359,19 @@ def add_header_info(page_data):
     return page_data
 
 
-def round_timedelta_to_15min_floor(span):
-    """
-    Method takes the timedelta passed and rounds it down to the closest 15min
-    interval.
-
-    :param span: datetime.timedelta
-    :return:
-    """
-
-    fifteen_min = datetime.timedelta(minutes=15)
-    dingleberry = span.total_seconds() % fifteen_min.seconds
-
-    return span - datetime.timedelta(seconds=dingleberry)
+# def round_timedelta_to_15min_floor(span):
+#     """
+#     Method takes the timedelta passed and rounds it down to the closest 15min
+#     interval.
+#
+#     :param span: datetime.timedelta
+#     :return:
+#     """
+#
+#     fifteen_min = datetime.timedelta(minutes=15)
+#     dingleberry = span.total_seconds() % fifteen_min.seconds
+#
+#     return span - datetime.timedelta(seconds=dingleberry)
 
 
 def get_graph_normalization_divisor(max_qty, graph_max_boundary):
