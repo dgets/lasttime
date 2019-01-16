@@ -203,18 +203,20 @@ def dump_interval_graph_data(request, sub_id):
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
             #current_delta = round_timedelta_to_15min_floor(current_delta)
-            timespans.append(current_delta.total_seconds())
+            timespans.append(int(current_delta.total_seconds() / 3600))
+            # print(int(current_delta.total_seconds() / 3600))
 
             if current_delta > max_span:
                 max_span = current_delta
 
         prev_time = use.timestamp
 
-    scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 300)
+    scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 72)
     # convert this to minutes
     for cntr in range(0, len(timespans)):
-        timespans[cntr] = timespans[cntr] / (60 ** 2)
+        timespans[cntr] = timespans[cntr]
 
+    print(timespans)
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
 
