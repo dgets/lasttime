@@ -42,8 +42,6 @@ def add(request):
     View for adding a particular administration record.  Passes the view off
     to the add_entry template.
 
-    TODO: check which particular views are vestigial and remove them
-
     :param request:
     :return:
     """

@@ -202,7 +202,7 @@ def dump_interval_graph_data(request, sub_id):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            current_delta = round_timedelta_to_15min_floor(current_delta)
+            #current_delta = round_timedelta_to_15min_floor(current_delta)
             timespans.append(current_delta.total_seconds())
 
             if current_delta > max_span:
@@ -291,7 +291,7 @@ def get_interval_stats(usages):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            current_delta = round_timedelta_to_15min_floor(current_delta)
+            #current_delta = round_timedelta_to_15min_floor(current_delta)
             interval_data['timespans'].append(current_delta)
 
         prev_time = use.timestamp
@@ -306,7 +306,8 @@ def get_interval_stats(usages):
         interval_data['total'] += span
 
     # errors here if there are 0 or 1 usages, obviously
-    interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
+    #interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
+    interval_data['average'] = interval_data['total'] / (len(usages) - 1)
 
     return interval_data
 
@@ -358,19 +359,19 @@ def add_header_info(page_data):
     return page_data
 
 
-def round_timedelta_to_15min_floor(span):
-    """
-    Method takes the timedelta passed and rounds it down to the closest 15min
-    interval.
-
-    :param span: datetime.timedelta
-    :return:
-    """
-
-    fifteen_min = datetime.timedelta(minutes=15)
-    dingleberry = span.total_seconds() % fifteen_min.seconds
-
-    return span - datetime.timedelta(seconds=dingleberry)
+# def round_timedelta_to_15min_floor(span):
+#     """
+#     Method takes the timedelta passed and rounds it down to the closest 15min
+#     interval.
+#
+#     :param span: datetime.timedelta
+#     :return:
+#     """
+#
+#     fifteen_min = datetime.timedelta(minutes=15)
+#     dingleberry = span.total_seconds() % fifteen_min.seconds
+#
+#     return span - datetime.timedelta(seconds=dingleberry)
 
 
 def get_graph_normalization_divisor(max_qty, graph_max_boundary):
