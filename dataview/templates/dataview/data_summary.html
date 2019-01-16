@@ -40,7 +40,15 @@
 {% block main_page_content %}
   <h2>{{ sub_name }}</h2>
 
-  <table>
+  {% if error_message %}
+
+    <div class="error">
+        <p>{{ error_message }}</p>
+    </div>
+
+  {% else %}
+
+    <table>
       <tr>
           <td>Total Administrations:</td>
           <td>{{ usage_count }}</td>
@@ -65,22 +73,22 @@
           <td>Shortest Span Between Intervals:</td>
           <td>{{ shortest_span }}</td>
       </tr>
-  </table>
+    </table>
 
-  <h3>Applicable Administrations Listing</h3>
+    <h3>Applicable Administrations Listing</h3>
 
-  <h4>Administration Time and Dosage</h4>
+    <h4>Administration Time and Dosage</h4>
 
-  {% if usages %}
-   <ol>
+    {% if usages %}
+     <ol>
        {% for use in usages %}
         <li>{{ use.timestamp }}: {{ use.dosage }}{{ sub_dosage_units }}</li>
        {% endfor %}
-   </ol>
+     </ol>
 
-   <div class="dose_chart"></div>
-   <script src="//d3js.org/d3.v3.min.js"></script>
-   <script>
+     <div class="dose_chart"></div>
+     <script src="//d3js.org/d3.v3.min.js"></script>
+     <script>
     let json_src = '{% url 'dataview:dump_dose_graph_data' sub_id %}';
 
         var margin = {top: 20, right: 20, bottom: 70, left: 40},
@@ -160,30 +168,30 @@
 
         });
 
-     </script>
+       </script>
 
-  {% else %}
+    {% else %}
 
-   <p>No administrations have been listed.</p>
+     <p>No administrations have been listed.</p>
 
-  {% endif %}
+    {% endif %}
 
-  <h4>Time Between Subsequent Administrations</h4>
+    <h4>Time Between Subsequent Administrations</h4>
 
-  <p><b>NOTE</b>:  Time span #1 is the duration between administration #1 & #2,
-     span #2 is between administration #2 & #3, etc ad infinitum.
+    <p><b>NOTE</b>:  Time span #1 is the duration between administration #1 & #2,
+       span #2 is between administration #2 & #3, etc ad infinitum.
 
-  {% if timespans %}
+    {% if timespans %}
 
-   <ol>
+     <ol>
        {% for span in timespans %}
          <li>{{ span }}</li>
        {% endfor %}
-   </ol>
+     </ol>
 
-   <div class="interval_chart"></div>
-   <script src="//d3js.org/d3.v3.min.js"></script>
-   <script>
+     <div class="interval_chart"></div>
+     <script src="//d3js.org/d3.v3.min.js"></script>
+     <script>
 let json_src2 = '{% url 'dataview:dump_interval_graph_data' sub_id %}';
 
 var margin = {top: 20, right: 20, bottom: 70, left: 40},
@@ -260,11 +268,12 @@ d3.json(json_src2, function(error, data) {
       .attr("height", function(d) { return height - y2(d.value); });
 
 });
-     </script>
+       </script>
 
-  {% else %}
+    {% else %}
 
-   <p>No timespans have been recorded.</p>
+     <p>No timespans have been recorded.</p>
 
+    {% endif %}
   {% endif %}
 {% endblock main_page_content %}
