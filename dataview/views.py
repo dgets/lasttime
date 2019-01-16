@@ -92,58 +92,31 @@ def extrapolate_halflife_data(request, sub_id):
     # TODO: modularize the lipid_soluble weed block below
     substance = Substance.objects.get(id=sub_id)
     context = {}
-    full_elimination_datetime = None
+    elimination_data = {'full': None, 'detectable': None, 'relevant_since': None,
+                        'last_usage':
+                            Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first(),
+                        'uses': 0}
 
     if substance.lipid_solubility and ('marijuana' in substance.common_name or 'weed' in substance.common_name):
-        # we're working with weed, let's give this a shot based on the information available at
-        # https://www.mayocliniI sure hope auto-save was keeping upclabs.com/test-info/drug-book/marijuana.html
-        # FWIW we're just going to base our projection on the average of the last 2 weeks of usage
-        weeks_averaged = 2
-        relevant_since_date = datetime.datetime.now() - datetime.timedelta(weeks=weeks_averaged)
-        relevant_usages = len(Usage.objects.filter(timestamp__gte=relevant_since_date, user=request.user))
-        last_usage = Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first()
-        full_elimination_duration = int(float(substance.active_half_life) * 5.7)
-
-        # note that half-life durations here (not flat day count) are calculated @ 5.7 * half-life, as in the
-        # standard non-lipid-soluble substances; detectable metabolites will be out of the system sooner (hence
-        # the less precise flat day count)
-        if relevant_usages <= weeks_averaged:
-            # single use: detectable for a standard half-life duration
-            full_elimination_datetime = last_usage.timestamp + \
-                                        datetime.timedelta(hours=full_elimination_duration)
-            detectable_elimination_datetime = last_usage.timestamp + datetime.timedelta(days=3)
-
-        elif relevant_usages <= (weeks_averaged * 4):
-            # moderate use: detectable for standard half-life * 5/3, _or_ 5 days
-            full_elimination_datetime = last_usage.timestamp + \
-                                        datetime.timedelta(hours=int(full_elimination_duration * (5/3)))
-            detectable_elimination_datetime = last_usage.timestamp + datetime.timedelta(days=5)
-
-        elif relevant_usages <= (weeks_averaged * 7):
-            # heavy use: detectable for standard half-life * 10/3, _or_ 10 days
-            full_elimination_datetime = last_usage.timestamp + \
-                                        datetime.timedelta(hours=int(full_elimination_duration * (10/3)))
-            detectable_elimination_datetime = last_usage.timestamp + datetime.timedelta(days=10)
-
-        else:
-            # chronic heavy use: detectable for standard half-life * 10, _or_ 30 days
-            full_elimination_datetime = last_usage.timestamp + \
-                                        datetime.timedelta(hours=(full_elimination_duration * 10))
-            detectable_elimination_datetime = last_usage.timestamp + datetime.timedelta(days=30)
+        #process the information for the tweeds
+        elimination_data = get_weed_stats(Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp'),
+                                          substance.active_half_life)
 
     elif substance.lipid_solubility:
         # we can't process this yet
         context['error_message'] = \
             "We are not able to process half-life extrapolation for non-THC lipid soluble metabolites yet, sorry!"
     else:
-        last_usage = Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first()
+        # last_usage = Usage.objects.filter(sub=sub_id, user=request.user).order_by('-timestamp').first()
 
-        full_elimination_datetime = last_usage.timestamp + \
-                                    datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
-        detectable_elimination_datetime = full_elimination_datetime
+        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
+                                   datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
+        elimination_data['detectable'] = elimination_data['full']
 
-    context = {'error_message': None, 'sub': substance, 'elimination_target': full_elimination_datetime,
-               'undetectable_target': detectable_elimination_datetime, 'last_usage': last_usage.timestamp}
+    # print('sub:' + str(substance) + ', elimination_data: ' + str(elimination_data))
+    context = {'sub': substance, 'elimination_target': elimination_data['full'],
+               'undetectable_target': elimination_data['detectable'],
+               'last_usage': elimination_data['last_usage'].timestamp}
 
     return render(request, 'dataview/halflife.html', add_header_info(context))
 
@@ -162,6 +135,7 @@ def dump_dose_graph_data(request, sub_id):
     the above dataview in order to select how much we're going to graph.
 
     :param request:
+    :param sub_id:
     :return:
     """
 
@@ -226,6 +200,48 @@ def dump_interval_graph_data(request, sub_id):
                         content_type='application/json')
 
 
+def get_weed_stats(usages, active_half_life):
+    # we're working with weed, let's give this a shot based on the information available at
+    # https://www.mayocliniI sure hope auto-save was keeping upclabs.com/test-info/drug-book/marijuana.html
+    # FWIW we're just going to base our projection on the average of the last 2 weeks of usage
+
+    weeks_averaged = 2
+    elimination_data = {'full': float(active_half_life) * 5.7,
+                        'detectable': None,
+                        'relevant_since': datetime.datetime.now() - datetime.timedelta(weeks=weeks_averaged),
+                        'last_usage': usages.first(), 'uses': len(usages)}
+
+    # note that half-life durations here (not flat day count) are calculated @ 5.7 * half-life, as in the
+    # standard non-lipid-soluble substances; detectable metabolites will be out of the system sooner (hence
+    # the less precise flat day count)
+    if elimination_data['uses'] <= weeks_averaged:
+        # single use: detectable for a standard half-life duration
+        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
+                                   datetime.timedelta(hours=int(elimination_data['full']))
+        elimination_data['detectable'] = elimination_data['last_usage'].timestamp + datetime.timedelta(days=3)
+
+    elif elimination_data['uses'] <= (weeks_averaged * 4):
+        # moderate use: detectable for standard half-life * 5/3, _or_ 5 days
+        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
+                                   datetime.timedelta(hours=int(elimination_data['full'] * (5 / 3)))
+        elimination_data['detectable'] = elimination_data['last_usage'].timestamp + datetime.timedelta(days=5)
+
+    elif elimination_data['uses'] <= (weeks_averaged * 7):
+        # heavy use: detectable for standard half-life * 10/3, _or_ 10 days
+        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
+                                   datetime.timedelta(hours=int(elimination_data['full'] * (10 / 3)))
+        elimination_data['detectable'] = elimination_data['uses'].timestamp + datetime.timedelta(days=10)
+
+    else:
+        # chronic heavy use: detectable for standard half-life * 10, _or_ 30 days
+        elimination_data['full'] = elimination_data['uses'].timestamp + \
+                                   datetime.timedelta(hours=(elimination_data['full'] * 10))
+        elimination_data['detectable'] = elimination_data['uses'].timestamp + datetime.timedelta(days=30)
+
+    print(str(elimination_data))
+    return elimination_data
+
+
 def get_interval_stats(usages):
     """
     Method takes the appropriate Usage objects, compiles the spans between them
@@ -239,28 +255,26 @@ def get_interval_stats(usages):
 
     prev_time = None
     interval_data = {'timespans': [],
-                     # 'prev_time': None,     # this shouldn't be part of the dict, no?
                      'total': datetime.timedelta(0),
                      'longest': datetime.timedelta(0),
                      'shortest': datetime.timedelta.max,
                      'average': None,}
 
     for use in usages:
-        if prev_time is not None:  # interval_data['prev_time'] is not None:
+        if prev_time is not None:
             current_delta = datetime.timedelta
-            current_delta = use.timestamp - prev_time   # interval_data['prev_time']
+            current_delta = use.timestamp - prev_time
             current_delta = round_timedelta_to_15min_floor(current_delta)
             interval_data['timespans'].append(current_delta)
 
         prev_time = use.timestamp
-        # interval_data['prev_time'] = use.timestamp
 
     for span in interval_data['timespans']:
         if interval_data['longest'] < span:
             interval_data['longest'] = span
 
         if interval_data['shortest'] > span:
-           interval_data['shortest'] = span
+            interval_data['shortest'] = span
 
         interval_data['total'] += span
 
