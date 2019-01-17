@@ -32,10 +32,16 @@ def create_user_interface(request):
     if request.method == "POST":
         context = {}
 
-        user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
-        user.first_name = request.POST['first_name']
-        user.last_name = request.POST['last_name']
-        user.save()     # this will need to be in an error handling block at some point here
+        try:
+            user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
+            user.first_name = request.POST['first_name']
+            user.last_name = request.POST['last_name']
+            user.save()     # this will need to be in an error handling block at some point here
+        except:
+            create_user_form = NewUserForm
+            return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form,
+                                                                             'error_message':
+                                                                                 "NameError (duplicate user?)",}))
 
         context['username'] = user.username
 

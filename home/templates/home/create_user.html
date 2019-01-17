@@ -3,6 +3,13 @@
 {% block main_page_content %}
   <h1>Create New User</h1>
 
+  {% if error_message %}
+    <div class="err">
+      {{ error_message }}
+    </div>
+    <p>
+  {% endif %}
+
   {% if not user.is_authenticated %}
 
   <form action="{% url 'home:user_created' %}" method="post">
