@@ -36,7 +36,12 @@
   {% block main_page_content %}{% endblock main_page_content %}
 
 {% block default_trailer %}
+
+  {% if user.is_authenticated %}
+   <div class="botnav"><a href="/accounts/logout">Log out</a></div>
+  {% else %}
    <div class="botnav">&nbsp;</p></div>
+  {% endif %}
 
  </body>
 </html>
