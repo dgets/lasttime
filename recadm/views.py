@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from django.core.paginator import Paginator
 from .forms import Usage, UsageForm
 
 from home.models import HeaderInfo, NavInfo
@@ -21,17 +21,21 @@ def index(request):
     :return:
     """
 
-    recent_administrations = Usage.objects.filter(user=request.user)
+    recent_administrations = Usage.objects.filter(user=request.user).order_by('-timestamp')
+    paginator = Paginator(recent_administrations, 15)   # 15 admins per page
+
+    page = request.GET.get('page')
+    administrations = paginator.get_page(page)
 
     mydata = []
-    for administration in recent_administrations:
+    for administration in administrations:  # recent_administrations:
         mydata.append({'ts': administration.timestamp,
                        'id': administration.id,
                        'dosage': administration.dosage,
                        'units': administration.sub.units,
                        'substance_name': administration.sub,})
 
-    context = {'mydata': mydata, 'user': request.user,}
+    context = {'mydata': mydata, 'user': request.user, 'administrations': administrations,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
