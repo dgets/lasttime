@@ -277,3 +277,17 @@ d3.json(json_src2, function(error, data) {
     {% endif %}
   {% endif %}
 {% endblock main_page_content %}
+
+{% block default_trailer %}
+
+  {% if user.is_authenticated %}
+   <div class="botnav">
+       <a href="{% url 'dataview:halflife' sub_id %}">See half-life data</a>
+       <a href="/accounts/logout">Log out</a></div>
+  {% else %}
+   <div class="botnav">&nbsp;</p></div>
+  {% endif %}
+
+ </body>
+</html>
+{% endblock default_trailer %}
