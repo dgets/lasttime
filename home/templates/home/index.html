@@ -6,9 +6,5 @@
     <p><a href="{% url 'login' %}">Log in</a></p>
     <p><a href="{% url 'home:create_user_interface' %}">Create new user</a></p>
 
-  {% else %}
-
-    <p><a href="{% url 'logout' %}">Log out</a></p>
-
   {% endif %}
 {% endblock main_page_content %}
