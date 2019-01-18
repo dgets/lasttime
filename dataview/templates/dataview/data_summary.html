@@ -10,6 +10,8 @@
 
   {% else %}
 
+   <div class="graphing">
+
     <table summary="Total Administration Data">
       <tr>
           <td>Total Administrations:</td>
@@ -50,7 +52,7 @@
 
      <div class="dose_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
-     <script lang="JavaScript">
+     <script type="text/javascript">
     let json_src = '{% url 'dataview:dump_dose_graph_data' sub_id %}';
 
         var margin = {top: 20, right: 20, bottom: 70, left: 40},
@@ -155,7 +157,7 @@
 
      <div class="interval_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
-     <script lang="JavaScript">
+     <script type="text/javascript">
 let json_src2 = '{% url 'dataview:dump_interval_graph_data' sub_id %}';
 
 var margin = {top: 20, right: 20, bottom: 70, left: 40},
@@ -239,6 +241,9 @@ d3.json(json_src2, function(error, data) {
      <p>No timespans have been recorded.</p>
 
     {% endif %}
+
+   </div>
+
   {% endif %}
 {% endblock main_page_content %}
 
