@@ -1,42 +1,4 @@
-{% load static %}
-
-{% block header_thru_navbar %}
-<html>
- <head>
-     <title>LastTime</title>
-
-     <link rel="stylesheet" type="text/css"
-        href="{% static 'recadm/lasttime.css' %}">
-
-     <!-- <script>
-         var getJSON;
-     </script> -->
-     <script src="{% static 'dataview/graphing_internals.js' %}"></script>
-
- </head>
- <body>
-  <!--
-  {# NOTE: below is the fragment that will not be changing; above will depend
-	   on what site & layout details on whether or not it includes static
-	   assets, or whether or not this page is an included fragment or
-	   capable of stand-alone usage #}
-    -->
-
-  <div class="header">
-      <h1 class="slogan">We'll keep those damn seizures away!</h1>
-      <h3 class="mission">Our mission is to provide you with a safe and effective way to monitor your medication
-        levels when professional medical care is not available, as seems to happen so often (at least in the USA).</h3>
-  </div>
-
-  <div class="topnav">
-     {% for nav_item in links %}
-       <a href="{% url nav_item.link %}">
-           {{ nav_item.link_text }}
-       </a>
-     {% endfor %}
-  </div>
-{% endblock header_thru_navbar %}
-
+{% extends 'home/lasttime_head.html' %}
 {% block main_page_content %}
   <h2>{{ sub_name }}</h2>
 
@@ -48,7 +10,7 @@
 
   {% else %}
 
-    <table>
+    <table summary="Total Administration Data">
       <tr>
           <td>Total Administrations:</td>
           <td>{{ usage_count }}</td>
@@ -87,8 +49,8 @@
      </ol>
 
      <div class="dose_chart"></div>
-     <script src="//d3js.org/d3.v3.min.js"></script>
-     <script>
+     <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+     <script lang="JavaScript">
     let json_src = '{% url 'dataview:dump_dose_graph_data' sub_id %}';
 
         var margin = {top: 20, right: 20, bottom: 70, left: 40},
@@ -178,11 +140,13 @@
 
     <h4>Time Between Subsequent Administrations</h4>
 
-    <p><b>NOTE</b>:  Time span #1 is the duration between administration #1 & #2,
-       span #2 is between administration #2 & #3, etc ad infinitum.
+    <p><b>NOTE</b>:  Time span #1 is the duration between administration #1
+       &amp; #2, span #2 is between administration #2 &amp; #3, etc ad
+       infinitum.
 
     {% if timespans %}
 
+     <p></p>
      <ol>
        {% for span in timespans %}
          <li>{{ span }}</li>
@@ -190,8 +154,8 @@
      </ol>
 
      <div class="interval_chart"></div>
-     <script src="//d3js.org/d3.v3.min.js"></script>
-     <script>
+     <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+     <script lang="JavaScript">
 let json_src2 = '{% url 'dataview:dump_interval_graph_data' sub_id %}';
 
 var margin = {top: 20, right: 20, bottom: 70, left: 40},
