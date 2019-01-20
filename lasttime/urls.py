@@ -23,6 +23,7 @@ urlpatterns = [
     path('dataview/', include('dataview.urls')),
     # path('home/', include('home.urls')),
     path('', include('home.urls')),
+    path('dox/', include('dox.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
 ]

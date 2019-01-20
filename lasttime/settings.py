@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'recadm.apps.RecadmConfig',
     'subadd.apps.SubaddConfig',
     'home.apps.HomeConfig',
+    'dox.apps.DoxConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
