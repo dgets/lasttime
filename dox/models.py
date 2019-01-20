@@ -12,7 +12,7 @@ class MainHelpTopic(models.Model):
     heading = models.CharField(max_length=40)
 
 
-class MainHelpTopicDetails(models.Model):
+class MainHelpTopicDetail(models.Model):
     """
     Holds information specific to a single topic above.
     """
@@ -32,7 +32,7 @@ class SpecificViewHelpTopic(models.Model):
     heading = models.CharField(max_length=40)
 
 
-class SpecificViewTopicDetails(models.Model):
+class SpecificViewTopicDetail(models.Model):
     """
     Holds sub-information specific to a single topic above.
     """

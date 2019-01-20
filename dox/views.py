@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
-from .models import MainHelpTopic, MainHelpTopicDetails, SpecificViewHelpTopic, SpecificViewTopicDetails
+from .models import MainHelpTopic, MainHelpTopicDetail, SpecificViewHelpTopic, SpecificViewTopicDetail
 from home.models import HeaderInfo, NavInfo
+
 
 @login_required
 def index(request):
@@ -14,12 +15,27 @@ def index(request):
     :param request:
     :return:
     """
+
     topics = MainHelpTopic.objects.all()
     paginator = Paginator(topics, 15)
+
     page = request.GET.get('page')
     topics_set = paginator.get_page(page)
 
-    return add_header_info({'topics': topics_set,})
+    return render(request, 'dox/index.html', add_header_info({'topics': topics_set,}))
+
+
+@login_required
+def detail(request):
+    """
+    Displays the detailed information for whatever link was selected in the
+    index view, above.
+
+    :param request:
+    :return:
+    """
+
+
 
 
 def add_header_info(page_data):
