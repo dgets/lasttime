@@ -78,28 +78,32 @@ def save_admin(request):
     :return:
     """
 
-    add_administration_form = UsageForm({'sub': request.POST['sub'],
-                                         'dosage': request.POST['dosage'],
-                                         'notes': request.POST['notes']})
-    new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
-                               dosage=request.POST['dosage'], timestamp=timezone.datetime.now(),
-                               notes=request.POST['notes'])
+    if request.method == "POST":
+        add_administration_form = UsageForm({'sub': request.POST['sub'],
+                                             'dosage': request.POST['dosage'],
+                                             'notes': request.POST['notes']})
+        new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
+                                   dosage=request.POST['dosage'], timestamp=timezone.datetime.now(),
+                                   notes=request.POST['notes'])
 
-    try:
-        new_administration.save()
-    except Exception as e:
-        error_message = "Unable to save to db: " + str(e) + "admin: " + str(new_administration)
+        try:
+            new_administration.save()
+        except Exception as e:
+            error_message = "Unable to save to db: " + str(e) + "admin: " + str(new_administration)
 
-        context = {'add_admin_form': add_administration_form,
-                   'error_message': error_message,}
+            context = {'add_admin_form': add_administration_form,
+                       'error_message': error_message,}
 
-        return render(request, 'recadm/add_entry.html', add_header_info(context))
+            return render(request, 'recadm/add_entry.html', add_header_info(context))
+
+    # else:
+    #     add_administration_form = UsageForm
 
     # code for the successful save of the record and return to the index
     # follows here
     mydata = []
 
-    recent_administrations = Usage.objects.filter(user=request.user)
+    recent_administrations = Usage.objects.filter(user=request.user).order_by('-timestamp')
     paginator = Paginator(recent_administrations, 15)  # 15 admins per page
 
     page = request.GET.get('page')
@@ -111,7 +115,7 @@ def save_admin(request):
                        'dosage': administration.dosage,
                        'substance_name': administration.sub,})
 
-    context = {'mydata': mydata, 'debug': request.POST['sub'], 'administrations': administrations,}
+    context = {'mydata': mydata, 'administrations': administrations,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 
