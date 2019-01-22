@@ -132,7 +132,6 @@ def extrapolate_halflife_data(request, sub_id):
                                    datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
         elimination_data['detectable'] = elimination_data['full']
 
-    # print('sub:' + str(substance) + ', elimination_data: ' + str(elimination_data))
     context = {'sub': substance, 'elimination_target': elimination_data['full'],
                'undetectable_target': elimination_data['detectable'],
                'last_usage': elimination_data['last_usage'].timestamp}
@@ -202,9 +201,7 @@ def dump_interval_graph_data(request, sub_id):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            #current_delta = round_timedelta_to_15min_floor(current_delta)
             timespans.append(int(current_delta.total_seconds() / 3600))
-            # print(int(current_delta.total_seconds() / 3600))
 
             if current_delta > max_span:
                 max_span = current_delta
@@ -216,7 +213,6 @@ def dump_interval_graph_data(request, sub_id):
     for cntr in range(0, len(timespans)):
         timespans[cntr] = timespans[cntr]
 
-    print(timespans)
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
 
@@ -267,7 +263,6 @@ def get_weed_stats(usages, active_half_life):
                                    datetime.timedelta(hours=(elimination_data['full'] * 10))
         elimination_data['detectable'] = elimination_data['uses'].timestamp + datetime.timedelta(days=30)
 
-    print(str(elimination_data))
     return elimination_data
 
 
@@ -293,7 +288,6 @@ def get_interval_stats(usages):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            #current_delta = round_timedelta_to_15min_floor(current_delta)
             interval_data['timespans'].append(current_delta)
 
         prev_time = use.timestamp
@@ -308,7 +302,6 @@ def get_interval_stats(usages):
         interval_data['total'] += span
 
     # errors here if there are 0 or 1 usages, obviously
-    #interval_data['average'] = round_timedelta_to_15min_floor(interval_data['total'] / (len(usages) - 1))
     interval_data['average'] = interval_data['total'] / (len(usages) - 1)
 
     return interval_data

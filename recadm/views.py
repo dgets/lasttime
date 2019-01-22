@@ -96,9 +96,6 @@ def save_admin(request):
 
             return render(request, 'recadm/add_entry.html', add_header_info(context))
 
-    # else:
-    #     add_administration_form = UsageForm
-
     # code for the successful save of the record and return to the index
     # follows here
     mydata = []
