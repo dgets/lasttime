@@ -91,20 +91,27 @@ def save_admin(request):
         error_message = "Unable to save to db: " + str(e) + "admin: " + str(new_administration)
 
         context = {'add_admin_form': add_administration_form,
-                   'error_message': error_message, }
+                   'error_message': error_message,}
 
         return render(request, 'recadm/add_entry.html', add_header_info(context))
 
+    # code for the successful save of the record and return to the index
+    # follows here
     mydata = []
 
     recent_administrations = Usage.objects.filter(user=request.user)
-    for administration in recent_administrations:
+    paginator = Paginator(recent_administrations, 15)  # 15 admins per page
+
+    page = request.GET.get('page')
+    administrations = paginator.get_page(page)
+
+    for administration in administrations:
         mydata.append({'ts': administration.timestamp,
                        'id': administration.id,
                        'dosage': administration.dosage,
                        'substance_name': administration.sub,})
 
-    context = {'mydata': mydata, 'debug': request.POST['sub']}
+    context = {'mydata': mydata, 'debug': request.POST['sub'], 'administrations': administrations,}
 
     return render(request, 'recadm/index.html', add_header_info(context))
 

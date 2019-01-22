@@ -37,6 +37,7 @@ class UsageForm(ModelForm):
         fields = ['sub', 'dosage', 'notes']
         labels = {
             'sub': 'Substance',
+            'dosage': 'Dosage in [what?]'
         }
         widgets = {
             'notes': Textarea(attrs={'cols': 60, 'rows': 9})
