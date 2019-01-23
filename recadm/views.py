@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from .forms import Usage, UsageForm
 
+from lasttime.myglobals import MiscMethods
+
 from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 
@@ -37,7 +39,8 @@ def index(request):
 
     context = {'mydata': mydata, 'user': request.user, 'administrations': administrations,}
 
-    return render(request, 'recadm/index.html', add_header_info(context))
+    return render(request, 'recadm/index.html',
+                  MiscMethods.add_pagination_info(add_header_info(context), administrations))
 
 
 @login_required

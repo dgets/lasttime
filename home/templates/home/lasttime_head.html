@@ -39,6 +39,29 @@
 
   {% block main_page_content %}{% endblock main_page_content %}
 
+{% block page_navigation %}
+  {% if page_number %}
+  <p>&nbsp;
+  <div class="pagination">
+    <span class="step-links">
+        {% if has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_number }} of {{ num_pages }}.
+        </span>
+
+        {% if has_next %}
+            <a href="?page={{ next_page_number }}">next</a>
+            <a href="?page={{ num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+  </div>
+  {% endif %}
+{% endblock page_navigation %}
+
 {% block default_trailer %}
 
   {% if user.is_authenticated %}

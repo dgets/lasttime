@@ -46,7 +46,7 @@ class MiscMethods:
         prev_context['has_previous'] = pagination_object.has_previous
         prev_context['previous_page_number'] = pagination_object.previous_page_number
         prev_context['page_number'] = pagination_object.number
-        prev_context['num_pages'] = pagination_object.num_pages
+        prev_context['num_pages'] = pagination_object.paginator.num_pages
         prev_context['next_page_number'] = pagination_object.next_page_number
         prev_context['has_next'] = pagination_object.has_next
 
