@@ -23,7 +23,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 
     model = Substance  # ListView needs to know
     template_name = 'dataview/index.html'   # to avoid default
-    # paginate_by = 15
+    paginate_by = 15
     context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
 
     def get_context_data(self, **kwargs):

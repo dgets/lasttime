@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 from .forms import Substance, SubstanceForm
 
@@ -18,8 +19,13 @@ def index(request):
     """
 
     all_subs = Substance.objects.all()
+    paginator = Paginator(all_subs, 15)  # 15 admins per page
+
+    page = request.GET.get('page')
+    subs = paginator.get_page(page)
+
     context = {
-        'all_subs': all_subs,
+        'all_subs': subs,
     }
 
     return render(request, 'subadd/index.html', add_header_info(context))
