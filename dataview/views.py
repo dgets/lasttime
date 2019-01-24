@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from lasttime.myglobals import MiscMethods
+
 import datetime
 import json
 
@@ -29,7 +31,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
 
-        context['sub'] = Substance.objects.all()[:5]
+        context['sub'] = Substance.objects.all()
 
         return add_header_info(context)
 
@@ -51,6 +53,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
 
+        # though it duplicates things, the following conditional just checks for errors that will screw up the graphing
         too_few_usages_error = False
         if len(usages) < 2:
             too_few_usages_error = True
@@ -70,6 +73,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
             return add_header_info({'error_message': "Zero intervals between datasets causing calculation errors"})
 
         else:
+            # now we get to actually gathering/calculating stats
             # calculate usage statistics
             usage_data = get_usage_stats(usages)
 
@@ -288,7 +292,7 @@ def get_interval_stats(usages):
         if prev_time is not None:
             current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
-            interval_data['timespans'].append(current_delta)
+            interval_data['timespans'].append(round_timedelta(current_delta, datetime.timedelta(seconds=1)))
 
         prev_time = use.timestamp
 
@@ -302,9 +306,32 @@ def get_interval_stats(usages):
         interval_data['total'] += span
 
     # errors here if there are 0 or 1 usages, obviously
-    interval_data['average'] = interval_data['total'] / (len(usages) - 1)
+    interval_data['average'] = round_timedelta((interval_data['total'] / (len(usages) - 1)),
+                                               datetime.timedelta(seconds=1))
 
     return interval_data
+
+
+def round_timedelta(td, period):
+    """
+    Rounds the given timedelta by the given timedelta period.
+
+    NOTE: Stolen shamelessly from
+    https://stackoverflow.com/questions/42299312/rounding-a-timedelta-to-the-nearest-15-minutes
+
+    :param td: `timedelta` to round
+    :param period: `timedelta` period to round by.
+    :return:
+    """
+
+    period_seconds = period.total_seconds()
+    half_period_seconds = period_seconds / 2
+    remainder = td.total_seconds() % period_seconds
+
+    if remainder >= half_period_seconds:
+        return datetime.timedelta(seconds=td.total_seconds() + (period_seconds - remainder))
+    else:
+        return datetime.timedelta(seconds=td.total_seconds() - remainder)
 
 
 def get_usage_stats(usages):
@@ -327,13 +354,14 @@ def get_usage_stats(usages):
     for use in usages:
         administration_stats['total'] += use.dosage
 
+        # rounding things to 3 decimal places for a nicer display experience
         if use.dosage > administration_stats['highest']:
-            administration_stats['highest'] = use.dosage
+            administration_stats['highest'] = round(use.dosage, 3)
 
         if administration_stats['lowest'] is None or use.dosage < administration_stats['lowest']:
-            administration_stats['lowest'] = use.dosage
+            administration_stats['lowest'] = round(use.dosage, 3)
 
-    administration_stats['average'] = administration_stats['total'] / administration_stats['count']
+    administration_stats['average'] = round((administration_stats['total'] / administration_stats['count']), 3)
 
     return administration_stats
 

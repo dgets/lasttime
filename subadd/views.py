@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
+from lasttime.myglobals import MiscMethods
+
 from .forms import Substance, SubstanceForm
 
 from home.models import NavInfo, HeaderInfo
@@ -28,7 +30,7 @@ def index(request):
         'all_subs': subs,
     }
 
-    return render(request, 'subadd/index.html', add_header_info(context))
+    return render(request, 'subadd/index.html', MiscMethods.add_pagination_info(add_header_info(context), subs))
 
 
 @login_required
