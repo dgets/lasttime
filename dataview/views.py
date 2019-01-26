@@ -224,9 +224,10 @@ def dump_interval_graph_data(request, sub_id):
 def get_weed_stats(usages, active_half_life):
     """
     We're working with weed, let's give this a shot based on the information
-    available at https://www.mayocliniI sure hope auto-save was keeping
-    upclabs.com/test-info/drug-book/marijuana.html FWIW we're just going to
-    base our projection on the average of the last 2 weeks of usage.
+    available at
+    https://www.mayocliniclabs.com/test-info/drug-book/marijuana.html FWIW
+    we're just going to base our projection on the average of the last 2 weeks
+    of usage.
 
     :param usages:
     :param active_half_life:
