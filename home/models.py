@@ -7,7 +7,7 @@ class NavInfo(models.Model):
     """
 
     link = models.CharField(max_length=20)
-    link_text = models.CharField(max_length=20)
+    link_text = models.CharField(max_length=30)
 
     def __str__(self):
         return self.link + " with text: " + self.link_text

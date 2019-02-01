@@ -80,7 +80,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
             # timespan & average calculation
             span_data = get_interval_stats(usages)
 
-            scale_factor = get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
+            scale_factor = 1    # get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
 
             return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
                                     'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],

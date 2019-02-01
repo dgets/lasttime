@@ -18,8 +18,6 @@ class Substance(models.Model):
     half_life = models.DecimalField(max_digits=7, decimal_places=3)
     active_half_life = models.DecimalField(max_digits=7, decimal_places=3)
     lipid_solubility = models.BooleanField(default=False)
-    # units = forms.ModelChoiceField(DosageUnit.objects.all(), empty_label="-Dosage Units-",
-    # to_field_name="abbreviation")
     units = models.CharField(max_length=5)
 
     def __str__(self):
