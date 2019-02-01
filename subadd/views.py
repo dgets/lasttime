@@ -85,12 +85,12 @@ def addentry(request):
 
     try:
         substance.save()
-    except:
+    except Exception as ex:
         context = {}
-        context['error_message'] = "Unable to save record to database (unknown reason)!"
+        context['error_message'] = "Unable to save record to database (" + str(ex) + ")!"
         context['substance'] = substance
 
-        return render(request, 'subadd/addentry.html', context)
+        return render(request, 'subadd/add.html', context)
 
     return render(request, 'subadd/index.html', add_header_info({'all_subs':
                   Substance.objects.all()}))
