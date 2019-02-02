@@ -43,4 +43,3 @@ class UsageForm(ModelForm):
             'notes': Textarea(attrs={'cols': 60, 'rows': 9})
         }
 
-

@@ -51,7 +51,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
     template_name = 'dataview/data_summary.html'  # needed to avoid using the default
 
     def get_context_data(self, **kwargs):
-        usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user)
+        usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user).order_by("timestamp")
 
         # though it duplicates things, the following conditional just checks for errors that will screw up the graphing
         too_few_usages_error = False
@@ -80,6 +80,8 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
             # timespan & average calculation
             span_data = get_interval_stats(usages)
 
+            # having issues with this with <2 (or maybe it's <3) usages recorded; not stopping to fix it the right way
+            # just yet here; next time work is done with this try to get to the bottom of it
             scale_factor = 1    # get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
 
             return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
