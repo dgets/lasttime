@@ -84,9 +84,10 @@ def save_admin(request):
     if request.method == "POST":
         add_administration_form = UsageForm({'sub': request.POST['sub'],
                                              'dosage': request.POST['dosage'],
+                                             'timestamp': request.POST['timestamp'],
                                              'notes': request.POST['notes']})
         new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
-                                   dosage=request.POST['dosage'], timestamp=timezone.datetime.now(),
+                                   dosage=request.POST['dosage'], timestamp=request.POST['timestamp'],
                                    notes=request.POST['notes'])
 
         try:

@@ -34,7 +34,7 @@ class UsageForm(ModelForm):
 
     class Meta:
         model = Usage
-        fields = ['sub', 'dosage', 'notes']
+        fields = ['sub', 'dosage', 'timestamp', 'notes']
         labels = {
             'sub': 'Substance',
             'dosage': 'Dosage in [what?]'
