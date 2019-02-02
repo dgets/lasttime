@@ -164,7 +164,7 @@ def dump_dose_graph_data(request, sub_id):
     """
 
     dosage_graph_data = []
-    usages = Usage.objects.filter(sub=sub_id, user=request.user)[:20]
+    usages = Usage.objects.filter(sub=sub_id, user=request.user).order_by("timestamp")
 
     max_dosage = 0
     for use in usages:
@@ -183,7 +183,7 @@ def dump_dose_graph_data(request, sub_id):
     for use in usages:
         dosage_graph_data.append(float(use.dosage))
 
-    return HttpResponse(json.dumps({'scale_factor': float(scale_factor), 'dosages': dosage_graph_data}),
+    return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': dosage_graph_data}),
                         content_type='application/json')
 
 
@@ -214,7 +214,7 @@ def dump_interval_graph_data(request, sub_id):
 
         prev_time = use.timestamp
 
-    scale_factor = get_graph_normalization_divisor(max_span.total_seconds(), 72)
+    scale_factor = 1    # get_graph_normalization_divisor(max_span.total_seconds(), 72)
     # convert this to minutes
     for cntr in range(0, len(timespans)):
         timespans[cntr] = timespans[cntr]
