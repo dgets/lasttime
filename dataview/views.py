@@ -198,7 +198,7 @@ def dump_interval_graph_data(request, sub_id):
     :return:
     """
 
-    usages = Usage.objects.filter(sub=sub_id, user=request.user)[:20]
+    usages = Usage.objects.filter(sub=sub_id, user=request.user).order_by("timestamp")
 
     timespans = []
     prev_time = None
