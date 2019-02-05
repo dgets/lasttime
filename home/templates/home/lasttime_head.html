@@ -29,6 +29,12 @@
        <p>&nbsp;
       {% endif %}
   </div>
+
+  {% if error_message or user_message %}
+  <div class="err"><center>
+      {{ error_message }}&nbsp; {{ user_message }}
+  </center></div>
+  {% endif %}
 {% endblock header_thru_navbar %}
 
    <!--
