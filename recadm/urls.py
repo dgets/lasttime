@@ -8,5 +8,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('add', views.add, name='add'),
     path('save_admin', views.save_admin, name='save_admin'),
+    path('edit/<int:admin_id>/', views.edit, name='edit'),
 ]
 

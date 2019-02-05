@@ -146,6 +146,58 @@ def detail(request, topic_id):
     return render(request, 'recadm/details.html', add_header_info(context))
 
 
+@login_required
+def edit(request, admin_id):
+    """
+    Provides the capability to edit an existing administration.
+
+    :param request:
+    :param admin_id:
+    :return:
+    """
+
+    context = {
+        'id': admin_id,
+    }
+
+    # give 'em the form
+    if request.method != "POST":
+        try:
+            admin_details = Usage.objects.get(id=admin_id, user=request.user)
+            
+        except Exception as ex:
+            context['error_message'] = "Invalid administration record request: " + str(ex)
+            # here we should really be throwing things back to the detail view,
+            # but with an error message explaining what happened; waiting until
+            # global error message handling is completed before doing this,
+            # however
+
+            return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+        context['admin_form'] = UsageForm(admin_details)
+
+        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+    # save the results
+    new_admin_deets = Usage(request.POST)
+
+    try:
+        new_admin_deets['id'] = admin_id
+        new_admin_deets.save()
+    except Exception as ex:
+        context['error_message'] = "Unable to save new administration details: " + str(ex)
+        context['admin_form'] = UsageForm(new_admin_deets)
+
+        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+    # again, this is another one waiting for the global user/error message
+    # displaying code, but in another area
+    context['user_message'] = "Saved new administration details."
+    context['admin_form'] = new_admin_deets
+
+    return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+
 def add_header_info(page_data):
     """
     Method takes whatever (presumably context) dict that is passed to it and
