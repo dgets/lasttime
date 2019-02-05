@@ -3,8 +3,6 @@
 {% block main_page_content %}
   <h2>Add Substance</h2>
 
-  {% if error_message %}<p><strong>{{ error_message }}</strong></p> {% endif %}
-
   <form action="{% url 'subadd:addentry' %}" method="post">
 
     {% csrf_token %}

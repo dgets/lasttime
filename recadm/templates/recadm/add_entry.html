@@ -2,12 +2,6 @@
 {% block main_page_content %}
 <h2>Record Medication Administration</h2>
 
-{% if error_message %}
- <div class="err">
-  {{ error_message }}
- </div>
-{% endif %}
-
 <form action="{% url 'recadm:save_admin' %}" method="post">
   {% csrf_token %}
 

@@ -2,14 +2,6 @@
 {% block main_page_content %}
   <h2>{{ sub_name }}</h2>
 
-  {% if error_message %}
-
-    <div class="error">
-        <p>{{ error_message }}</p>
-    </div>
-
-  {% else %}
-
    <div class="graphing">
 
     <table summary="Total Administration Data">
@@ -244,7 +236,6 @@ d3.json(json_src2, function(error, data) {
 
    </div>
 
-  {% endif %}
 {% endblock main_page_content %}
 
 {% block default_trailer %}
