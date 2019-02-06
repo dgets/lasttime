@@ -141,6 +141,7 @@ def detail(request, topic_id):
         'units': admin_details.sub.units,
         'timestamp': admin_details.timestamp,
         'notes': admin_details.notes,
+        'admin_id': admin_details.id,
     }
 
     return render(request, 'recadm/details.html', add_header_info(context))
@@ -164,7 +165,6 @@ def edit(request, admin_id):
         # give 'em the form
         try:
             admin_details = Usage.objects.get(id=admin_id, user=request.user)
-            context['error_message'] = "Trying to populate via the model in admin_details"
             context['admin_form'] = UsageForm(instance=admin_details)
             
         except Exception as ex:
