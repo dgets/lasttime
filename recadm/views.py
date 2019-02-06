@@ -160,10 +160,12 @@ def edit(request, admin_id):
         'id': admin_id,
     }
 
-    # give 'em the form
     if request.method != "POST":
+        # give 'em the form
         try:
             admin_details = Usage.objects.get(id=admin_id, user=request.user)
+            context['error_message'] = "Trying to populate via the model in admin_details"
+            context['admin_form'] = UsageForm(instance=admin_details)
             
         except Exception as ex:
             context['error_message'] = "Invalid administration record request: " + str(ex)
@@ -174,7 +176,10 @@ def edit(request, admin_id):
 
             return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
-        context['admin_form'] = UsageForm(admin_details)
+        # context['admin_form'] = UsageForm({
+        #     'sub': admin_details['sub'], 'dosage': admin_details['dosage'],
+        #     'timestamp': admin_details['timestamp'], 'notes': admin_details['notes'], 'user': request.user,
+        # })
 
         return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
