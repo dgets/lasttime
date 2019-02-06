@@ -184,21 +184,26 @@ def edit(request, admin_id):
         return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
     # save the results
-    new_admin_deets = Usage(request.POST)
+    # new_admin_deets = Usage(sub=Substance.objects.get(id=request.POST['sub']), dosage=request.POST['dosage'],
+    #                         timestamp=request.POST['timestamp'], notes=request.POST['notes'], user=request.user)
+    new_admin_deets = Usage.objects.get(id=admin_id, user=request.user)
+    new_admin_deets.sub = Substance.objects.get(id=request.POST['sub'])
+    new_admin_deets.dosage = request.POST['dosage']
+    new_admin_deets.timestamp = request.POST['timestamp']
+    new_admin_deets.notes = request.POST['notes']
 
     try:
-        new_admin_deets['id'] = admin_id
         new_admin_deets.save()
     except Exception as ex:
         context['error_message'] = "Unable to save new administration details: " + str(ex)
-        context['admin_form'] = UsageForm(new_admin_deets)
+        context['admin_form'] = UsageForm(instance=new_admin_deets)
 
         return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
     # again, this is another one waiting for the global user/error message
     # displaying code, but in another area
     context['user_message'] = "Saved new administration details."
-    context['admin_form'] = new_admin_deets
+    context['admin_form'] = UsageForm(instance=new_admin_deets)
 
     return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
