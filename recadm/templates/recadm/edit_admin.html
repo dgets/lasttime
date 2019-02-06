@@ -1,0 +1,28 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% if user_message or error_message %}
+ <div class="err">
+     {{user_message}}&nbsp;{{error_message}}
+ </div>
+{% endif %}
+
+{% block main_page_content %}
+  <form action="{% url 'recadm:edit' id %}" method="post">
+    {% csrf_token %}
+
+    <table>
+        {{ admin_form.as_table }}
+    </table>
+
+    <input type="submit" value="Save New Admin Details" />
+  </form>
+{% endblock main_page_content %}
+
+{% block default_trailer %}
+  <div class="botnav">
+      <a href="{% url 'recadm:index' %}">Administration Index</a>
+  </div>
+
+ </body>
+</html>
+{% endblock default_trailer %}

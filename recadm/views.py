@@ -141,9 +141,71 @@ def detail(request, topic_id):
         'units': admin_details.sub.units,
         'timestamp': admin_details.timestamp,
         'notes': admin_details.notes,
+        'admin_id': admin_details.id,
     }
 
     return render(request, 'recadm/details.html', add_header_info(context))
+
+
+@login_required
+def edit(request, admin_id):
+    """
+    Provides the capability to edit an existing administration.
+
+    :param request:
+    :param admin_id:
+    :return:
+    """
+
+    context = {
+        'id': admin_id,
+    }
+
+    if request.method != "POST":
+        # give 'em the form
+        try:
+            admin_details = Usage.objects.get(id=admin_id, user=request.user)
+            context['admin_form'] = UsageForm(instance=admin_details)
+            
+        except Exception as ex:
+            context['error_message'] = "Invalid administration record request: " + str(ex)
+            # here we should really be throwing things back to the detail view,
+            # but with an error message explaining what happened; waiting until
+            # global error message handling is completed before doing this,
+            # however
+
+            return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+        # context['admin_form'] = UsageForm({
+        #     'sub': admin_details['sub'], 'dosage': admin_details['dosage'],
+        #     'timestamp': admin_details['timestamp'], 'notes': admin_details['notes'], 'user': request.user,
+        # })
+
+        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+    # save the results
+    # new_admin_deets = Usage(sub=Substance.objects.get(id=request.POST['sub']), dosage=request.POST['dosage'],
+    #                         timestamp=request.POST['timestamp'], notes=request.POST['notes'], user=request.user)
+    new_admin_deets = Usage.objects.get(id=admin_id, user=request.user)
+    new_admin_deets.sub = Substance.objects.get(id=request.POST['sub'])
+    new_admin_deets.dosage = request.POST['dosage']
+    new_admin_deets.timestamp = request.POST['timestamp']
+    new_admin_deets.notes = request.POST['notes']
+
+    try:
+        new_admin_deets.save()
+    except Exception as ex:
+        context['error_message'] = "Unable to save new administration details: " + str(ex)
+        context['admin_form'] = UsageForm(instance=new_admin_deets)
+
+        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+
+    # again, this is another one waiting for the global user/error message
+    # displaying code, but in another area
+    context['user_message'] = "Saved new administration details."
+    context['admin_form'] = UsageForm(instance=new_admin_deets)
+
+    return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
 
 def add_header_info(page_data):
