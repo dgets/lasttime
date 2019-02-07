@@ -1,0 +1,5 @@
+Okay, so be aware that I'm only starting this as of 7 Feb 19, which means that basically all of the changes prior to addition of the per-diem constrained dosage graphing view are missing.  If you're really interested in this information you'll have to go back to the commits and issues and put it together yourself.
+
+6 Feb 19
+-=-=-=-=-
+- Started work on per-diem constrained dosage graphing view
