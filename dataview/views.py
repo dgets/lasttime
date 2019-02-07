@@ -203,25 +203,24 @@ def dump_constrained_dose_graph_data(request, sub_id):
     current_day = datetime.datetime.now()
     cntr = -1
 
-    print(str(usages))
+    # print(str(usages))
 
     for use in usages:
-        print(str(use))
+        # print(str(use))
 
         if current_day != use.timestamp.date():
-            print("- Initial Set -")
+            # print("- Initial Set -")
             current_day = use.timestamp.date()
             cntr += 1
-            # print("cntr: " + str(cntr))
 
             day_dosages.append(float(use.dosage))
 
-            print("Setting #" + str(cntr + 1) + " for date " + str(current_day) + " to " + str(day_dosages[cntr]))
+            # print("Setting #" + str(cntr + 1) + " for date " + str(current_day) + " to " + str(day_dosages[cntr]))
         else:
-            print("- Adding to Set -")
+            # print("- Adding to Set -")
             day_dosages[cntr] += float(use.dosage)
 
-            print("Adding " + str(use.dosage) + " to #" + str(cntr + 1) + " for total of " + str(day_dosages[cntr]))
+            # print("Adding " + str(use.dosage) + " to #" + str(cntr + 1) + " for total of " + str(day_dosages[cntr]))
 
     return HttpResponse(json.dumps({'dosages': day_dosages}), content_type='application/json')
 

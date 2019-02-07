@@ -1,26 +1,33 @@
 from enum import Enum
 
 
-class Dosage(Enum):
+class Const:
     """
-    Different dosage units
+    Just constant data here
     """
+    Debugging = {
+        'dataview': True,
+    }
 
-    mcg = 1
-    mg = 2
-    ml = 3
-    tsp = 4
-    floz = 5
+    class Dosage(Enum):
+        """
+        Different dosage units
+        """
 
+        mcg = 1
+        mg = 2
+        ml = 3
+        tsp = 4
+        floz = 5
 
-class TimeSpan(Enum):
-    """
-    Different time span variants
-    """
+    class TimeSpan(Enum):
+        """
+        Different time span variants
+        """
 
-    min = 1
-    hr = 2
-    day = 3
+        min = 1
+        hr = 2
+        day = 3
 
 
 class MiscMethods:
@@ -51,3 +58,17 @@ class MiscMethods:
         prev_context['has_next'] = pagination_object.has_next
 
         return prev_context
+
+    @staticmethod
+    def chk_debug_print(area, debug_message):
+        """
+        Checks to see if we're in debugging mode and, if so, prints the message
+        to the console/terminal window.
+
+        :param area:
+        :param debug_message:
+        :return:
+        """
+
+        if Const.Debugging[area]:
+            print("DEBUG:\t" + debug_message)
