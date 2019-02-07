@@ -10,4 +10,6 @@ urlpatterns = [
     path('halflife/<int:sub_id>/', views.extrapolate_halflife_data, name='halflife'),
     path('dump_dose_graph_data/<int:sub_id>/', views.dump_dose_graph_data, name='dump_dose_graph_data'),
     path('dump_interval_graph_data/<int:sub_id>/', views.dump_interval_graph_data, name='dump_interval_graph_data'),
+    path('dump_constrained_dose_graph_data/<int:sub_id>/', views.dump_constrained_dose_graph_data,
+         name='dump_constrained_dose_graph_data'),
 ]
