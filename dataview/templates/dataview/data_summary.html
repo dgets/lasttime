@@ -42,6 +42,12 @@
        {% endfor %}
      </ol>
 
+     <p><form action="{% url 'dataview:constrained_summary' sub_id %}" method="post">
+       {% csrf_token %}
+       <input type="submit" value="Constrain dosage graph to per-diem" />
+     </form>
+
+     <!-- dosage graph -->
      <div class="dose_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
      <script type="text/javascript">
@@ -147,6 +153,7 @@
        {% endfor %}
      </ol>
 
+     <!-- between dosage interval graph -->
      <div class="interval_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
      <script type="text/javascript">

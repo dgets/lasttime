@@ -95,6 +95,39 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
 
 @login_required
+def constrained_summary(request, sub_id):
+    """
+    This method will just handle displaying a per-day constrained view of the
+    dosages administered to this user per-sub, for now.  More functionality
+    including variable time constraints will be added in the future.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
+
+    usages = Usage.objects.filter(sub=sub_id, user=request.user).order_by("timestamp")
+
+    # not going to bother with testing if there are too few usages for now; if
+    # there weren't enough this should've prevented the user from getting this
+    # far in the first place
+
+    usage_data = {}
+    for use in usages:
+        if not str(use.timestamp.date()) in usage_data:
+            usage_data[str(use.timestamp.date())] = float(use.dosage)
+            # print("Set usage_data w/new key: " + str(use.timestamp.date()) + " (" + str(use.dosage) + ")\n" +
+            #       str(usage_data[str(use.timestamp.date())]))
+        else:
+            usage_data[str(use.timestamp.date())] += float(use.dosage)
+            # print("Adding " + str(use.dosage) + " to dict element: " + str(use.timestamp.date()))
+
+    # print(str(usage_data))
+
+    return render(request, 'dataview/constrained_dosage_summary.html', add_header_info({'usage_data': str(usage_data)}))
+
+
+@login_required
 def extrapolate_halflife_data(request, sub_id):
     """
     This method has a little more beef to it than most.  First it determines
