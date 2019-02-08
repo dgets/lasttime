@@ -3,12 +3,14 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
-from .forms import Usage, UsageForm
+from datetime import datetime
+from pytz import timezone
 
-from lasttime.myglobals import MiscMethods
+from lasttime.myglobals import MiscMethods, Const
 
 from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
+from .forms import Usage, UsageForm
 
 
 @login_required
@@ -86,8 +88,12 @@ def save_admin(request):
                                              'dosage': request.POST['dosage'],
                                              'timestamp': request.POST['timestamp'],
                                              'notes': request.POST['notes']})
+        # localize the timestamp
+        central_tz = timezone(Const.Time_Zone)
+        timestamp = central_tz.localize(datetime.strptime(request.POST['timestamp'], '%Y-%m-%d %H:%M:%S'))
+        print(str(timestamp))
         new_administration = Usage(sub=Substance.objects.get(id=request.POST['sub']), user=request.user,
-                                   dosage=request.POST['dosage'], timestamp=request.POST['timestamp'],
+                                   dosage=request.POST['dosage'], timestamp=timestamp,
                                    notes=request.POST['notes'])
 
         try:

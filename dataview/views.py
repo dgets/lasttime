@@ -4,9 +4,10 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from lasttime.myglobals import MiscMethods
+from lasttime.myglobals import MiscMethods, Const
 
 import datetime
+from pytz import timezone
 import json
 
 from recadm.forms import Usage
@@ -114,36 +115,41 @@ def constrained_summary(request, sub_id):
     # far in the first place
 
     usage_data = {}
-    admins_start = datetime.datetime.max
-    admins_end = datetime.datetime.min
+    admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - datetime.timedelta(days=1))
+    admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + datetime.timedelta(days=1))
     for use in usages:
-        if not str(use.timestamp.date()) in usage_data:
-            usage_data[str(use.timestamp.date())] = float(use.dosage)
+        if use.timestamp.tzinfo is None or use.timestamp.tzinfo.utcoffset(use.timestamp) is None:
+            local_datetime = MiscMethods.localize_timestamp(use.timestamp)
+        else:
+            local_datetime = use.timestamp
+
+        if not str(local_datetime.date()) in usage_data:
+            usage_data[str(local_datetime.date())] = float(use.dosage)
 
             # get our tabulated duration information
-            if use.timestamp < admins_start:
-                admins_start = use.timestamp
-            if use.timestamp > admins_end:
-                admins_end = use.timestamp
+            if local_datetime < admins_start:
+                admins_start = local_datetime
+            if local_datetime > admins_end:
+                admins_end = local_datetime
         else:
-            usage_data[str(use.timestamp.date())] += float(use.dosage)
+            usage_data[str(local_datetime.date())] += float(use.dosage)
 
     total_span = admins_end - admins_start
 
     max_dosage = 0
-    min_dosage = Decimal.max
+    min_dosage = 100000     # since Decimal.max isn't working, this should be big enough here
     cntr = 0
     total_dosed = 0
     for constrained_usage in usage_data:
         # get our max/min dosage information
-        if constrained_usage > max_dosage:
-            max_dosage = constrained_usage
-        if constrained_usage < min_dosage:
-            min_dosage = constrained_usage
+        if usage_data[constrained_usage] > max_dosage:
+            max_dosage = usage_data[constrained_usage]
+        if usage_data[constrained_usage] < min_dosage:
+            min_dosage = usage_data[constrained_usage]
 
         # for calculating average/total information
         cntr += 1
-        total_dosed += constrained_usage
+        total_dosed += usage_data[constrained_usage]
 
     average_dosed = total_dosed / cntr
 
@@ -156,7 +162,7 @@ def constrained_summary(request, sub_id):
                                                                                         'admins_end': admins_end,
                                                                                         'duration': total_span,
                                                                                         'sub_name':
-                                                                                            sub_data.common_name,}))
+                                                                                            sub_data,}))
 
 
 @login_required

@@ -1,5 +1,6 @@
 from enum import Enum
-
+from datetime import datetime
+from pytz import timezone
 
 class Const:
     """
@@ -73,3 +74,35 @@ class MiscMethods:
 
         if Const.Debugging[area]:
             print("DEBUG:\t" + debug_message)
+
+    @staticmethod
+    def localize_timestamp(ts):
+        """
+        Takes whatever timestamp it is handed and changes it to a localized one;
+        right now it's going to set everything to US/Central, but as the bit in
+        the user records starts working correctly as far as saving a default TZ
+        per-user, we'll add another parameter here and handle it for whatever TZ
+        that they're in.
+
+        :param ts:
+        :return:
+        """
+
+        central_tz = timezone(Const.Time_Zone)
+        timestamp = central_tz.localize(ts)
+
+        return timestamp
+
+    @staticmethod
+    def str_to_datetime(datetime_string):
+        """
+        Simply a wrapper to convert a properly formatted string back into a
+        datetime object for localization or whatever is needed; NOTE, as above,
+        this is only being utilized for US/Central right now and will require
+        additional work as timezones are implemented per-user.
+
+        :param datetime_string:
+        :return:
+        """
+
+        return datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S')
