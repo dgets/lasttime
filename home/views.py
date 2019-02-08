@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import NavInfo, HeaderInfo
 from .forms import NewUserForm
-
+from lasttime.myglobals import Const
 
 class IndexView(generic.ListView):
     """
@@ -36,12 +36,13 @@ def create_user_interface(request):
             user = User.objects.create_user(request.POST['username'], request.POST['email'], request.POST['password'])
             user.first_name = request.POST['first_name']
             user.last_name = request.POST['last_name']
+            user.tz = Const.Time_Zone   # obviously this will need to be changed when we add user TZ selection
             user.save()     # this will need to be in an error handling block at some point here
-        except:
+        except Exception as ex:
             create_user_form = NewUserForm
             return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form,
                                                                              'error_message':
-                                                                                 "NameError (duplicate user?)",}))
+                                                                                 "Error saving: " + str(ex),}))
 
         context['username'] = user.username
 

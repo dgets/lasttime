@@ -8,6 +8,7 @@ class Const:
     Debugging = {
         'dataview': True,
     }
+    Time_Zone = 'US/Central'
 
     class Dosage(Enum):
         """
