@@ -124,7 +124,8 @@ def constrained_summary(request, sub_id):
 
     # print(str(usage_data))
 
-    return render(request, 'dataview/constrained_dosage_summary.html', add_header_info({'usage_data': str(usage_data)}))
+    return render(request, 'dataview/constrained_dosage_summary.html', add_header_info({'usage_data': str(usage_data),
+                                                                                        'sub_id': sub_id}))
 
 
 @login_required
@@ -222,7 +223,7 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
             # print("Adding " + str(use.dosage) + " to #" + str(cntr + 1) + " for total of " + str(day_dosages[cntr]))
 
-    return HttpResponse(json.dumps({'dosages': day_dosages}), content_type='application/json')
+    return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': day_dosages}), content_type='application/json')
 
 
 @login_required
