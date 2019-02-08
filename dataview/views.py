@@ -162,7 +162,7 @@ def constrained_summary(request, sub_id):
                                                                                         'admins_end': admins_end,
                                                                                         'duration': total_span,
                                                                                         'sub_name':
-                                                                                            sub_data,}))
+                                                                                            sub_data[0].common_name,}))
 
 
 @login_required
