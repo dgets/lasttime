@@ -107,25 +107,56 @@ def constrained_summary(request, sub_id):
     """
 
     usages = Usage.objects.filter(sub=sub_id, user=request.user).order_by("timestamp")
+    sub_data = Substance.objects.filter(id=sub_id)
 
     # not going to bother with testing if there are too few usages for now; if
     # there weren't enough this should've prevented the user from getting this
     # far in the first place
 
     usage_data = {}
+    admins_start = datetime.datetime.max
+    admins_end = datetime.datetime.min
     for use in usages:
         if not str(use.timestamp.date()) in usage_data:
             usage_data[str(use.timestamp.date())] = float(use.dosage)
-            # print("Set usage_data w/new key: " + str(use.timestamp.date()) + " (" + str(use.dosage) + ")\n" +
-            #       str(usage_data[str(use.timestamp.date())]))
+
+            # get our tabulated duration information
+            if use.timestamp < admins_start:
+                admins_start = use.timestamp
+            if use.timestamp > admins_end:
+                admins_end = use.timestamp
         else:
             usage_data[str(use.timestamp.date())] += float(use.dosage)
-            # print("Adding " + str(use.dosage) + " to dict element: " + str(use.timestamp.date()))
 
-    # print(str(usage_data))
+    total_span = admins_end - admins_start
+
+    max_dosage = 0
+    min_dosage = Decimal.max
+    cntr = 0
+    total_dosed = 0
+    for constrained_usage in usage_data:
+        # get our max/min dosage information
+        if constrained_usage > max_dosage:
+            max_dosage = constrained_usage
+        if constrained_usage < min_dosage:
+            min_dosage = constrained_usage
+
+        # for calculating average/total information
+        cntr += 1
+        total_dosed += constrained_usage
+
+    average_dosed = total_dosed / cntr
 
     return render(request, 'dataview/constrained_dosage_summary.html', add_header_info({'usage_data': str(usage_data),
-                                                                                        'sub_id': sub_id}))
+                                                                                        'sub_id': sub_id,
+                                                                                        'highest_dose': max_dosage,
+                                                                                        'lowest_dose': min_dosage,
+                                                                                        'avg_dose': average_dosed,
+                                                                                        'admins_start': admins_start,
+                                                                                        'admins_end': admins_end,
+                                                                                        'duration': total_span,
+                                                                                        'sub_name':
+                                                                                            sub_data.common_name,}))
 
 
 @login_required

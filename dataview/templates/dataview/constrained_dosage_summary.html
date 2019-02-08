@@ -1,13 +1,33 @@
 {% extends 'home/lasttime_head.html' %}
 {% block main_page_content %}
+     <h2>Day-span Constrained Data for {{sub_name}}</h2>
 
-  {{ usage_data }}
+     <table>
+         <tr>
+             <td>Span Starts:</td>
+             <td>{{ admins_start }}</td>
+             <td>Span Ends:</td>
+             <td>{{ admin_end }}</td>
+         </tr>
+         <tr>
+             <td>Span Duration:</td>
+             <td>{{ duration }}</td>
+             <td>Average Daily Dose:</td>
+             <td>{{ avg_dose }}</td>
+         </tr>
+         <tr>
+             <td>Highest Daily Dosage:</td>
+             <td>{{ highest_dose }}</td>
+             <td>Lowest Daily Dosage:</td>
+             <td>{{ lowest_dose }}</td>
+         </tr>
+     </table>
 
-       <!-- dosage graph -->
+     <!-- dosage graph -->
      <div class="dose_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
      <script type="text/javascript">
-    let json_src = '{% url 'dataview:dump_constrained_dose_graph_data' sub_id %}';
+        let json_src = '{% url 'dataview:dump_constrained_dose_graph_data' sub_id %}';
 
         var margin = {top: 20, right: 20, bottom: 70, left: 40},
         width = 600 - margin.left - margin.right,
