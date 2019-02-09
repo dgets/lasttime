@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 
 from .models import NavInfo, HeaderInfo
 from .forms import NewUserForm
-from lasttime.myglobals import Const
+from lasttime.myglobals import Const, MiscMethods
+
 
 class IndexView(generic.ListView):
     """
@@ -18,7 +19,7 @@ class IndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         page_data = {}
 
-        return add_header_info(page_data)
+        return MiscMethods.add_header_info(page_data)
 
 
 def create_user_interface(request):
@@ -46,24 +47,10 @@ def create_user_interface(request):
 
         context['username'] = user.username
 
-        return render(request, 'home/user_created.html', add_header_info(context))
+        return render(request, 'home/user_created.html', MiscMethods.add_header_info(context))
     else:
         create_user_form = NewUserForm()
 
-        return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form}))
+        return render(request, 'home/create_user.html', MiscMethods.add_header_info({'create_user_form':
+                                                                                     create_user_form}))
 
-
-def add_header_info(page_data):
-    """
-    Method takes whatever (presumably context) dict that is passed to it and
-    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
-    applicable data for the header & footer schitt.
-
-    :param page_data:
-    :return: new context (dict)
-    """
-
-    page_data['header_info'] = HeaderInfo.objects.first()
-    page_data['links'] = NavInfo.objects.all()
-
-    return page_data

@@ -2,6 +2,8 @@ from enum import Enum
 from datetime import datetime
 from pytz import timezone
 
+from home.models import HeaderInfo, NavInfo
+
 class Const:
     """
     Just constant data here
@@ -122,3 +124,19 @@ class MiscMethods:
             return True
         else:
             return False
+
+    @staticmethod
+    def add_header_info(page_data):
+        """
+        Method takes whatever (presumably context) dict that is passed to it and
+        adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
+        applicable data for the header & footer schitt.
+
+        :param previous_context:
+        :return: new context (dict)
+        """
+
+        page_data['header_info'] = HeaderInfo.objects.first()
+        page_data['links'] = NavInfo.objects.all()
+
+        return page_data

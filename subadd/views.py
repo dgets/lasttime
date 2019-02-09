@@ -7,8 +7,6 @@ from lasttime.myglobals import MiscMethods
 
 from .forms import Substance, SubstanceForm
 
-from home.models import NavInfo, HeaderInfo
-
 
 @login_required
 def index(request):
@@ -30,7 +28,8 @@ def index(request):
         'all_subs': subs,
     }
 
-    return render(request, 'subadd/index.html', MiscMethods.add_pagination_info(add_header_info(context), subs))
+    return render(request, 'subadd/index.html', MiscMethods.add_pagination_info(MiscMethods.add_header_info(context),
+                                                                                subs))
 
 
 @login_required
@@ -46,7 +45,8 @@ def add(request):
 
     add_sub_form = SubstanceForm()
 
-    return render(request, 'subadd/add.html', add_header_info({'substance': None, 'add_sub_form': add_sub_form}))
+    return render(request, 'subadd/add.html', MiscMethods.add_header_info({'substance': None,
+                                                                           'add_sub_form': add_sub_form}))
 
 
 @login_required
@@ -80,7 +80,7 @@ def addentry(request):
         context = {}
         context['error_message'] = "Please navigate to addentry (here) only from the links."
 
-        return render(request, 'subadd/add.html', add_header_info(context))
+        return render(request, 'subadd/add.html', MiscMethods.add_header_info(context))
 
 
     try:
@@ -92,8 +92,7 @@ def addentry(request):
 
         return render(request, 'subadd/add.html', context)
 
-    return render(request, 'subadd/index.html', add_header_info({'all_subs':
-                  Substance.objects.all()}))
+    return render(request, 'subadd/index.html', MiscMethods.add_header_info({'all_subs': Substance.objects.all()}))
 
 
 @login_required
@@ -112,20 +111,5 @@ def detail(request, substance_id):
     except Substance.DoesNotExist:
         raise Http404("Substance does not exist :|")
 
-    return render(request, 'subadd/detail.html', add_header_info({'substance': substance}))
+    return render(request, 'subadd/detail.html', MiscMethods.add_header_info({'substance': substance}))
 
-
-def add_header_info(page_data):
-    """
-    Method takes whatever (presumably context) dict that is passed to it and
-    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
-    applicable data for the header & footer schitt.
-
-    :param page_data:
-    :return: new context (dict)
-    """
-
-    page_data['header_info'] = HeaderInfo.objects.first()
-    page_data['links'] = NavInfo.objects.all()
-
-    return page_data

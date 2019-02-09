@@ -34,7 +34,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
 
         context['sub'] = Substance.objects.all()
 
-        return add_header_info(context)
+        return MiscMethods.add_header_info(context)
 
 
 class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
@@ -68,10 +68,11 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
                 prev_timestamp = use.timestamp
 
         if too_few_usages_error:
-            return add_header_info({'error_message': "Not enough usages to calculate statistics properly"})
+            return MiscMethods.add_header_info({'error_message': "Not enough usages to calculate statistics properly"})
 
         elif zero_interval_error:
-            return add_header_info({'error_message': "Zero intervals between datasets causing calculation errors"})
+            return MiscMethods.add_header_info({'error_message':
+                                                "Zero intervals between datasets causing calculation errors"})
 
         else:
             # now we get to actually gathering/calculating stats
@@ -85,14 +86,17 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
             # just yet here; next time work is done with this try to get to the bottom of it
             scale_factor = 1    # get_graph_normalization_divisor(span_data['longest'].total_seconds(), 600)
 
-            return add_header_info({'usages': usages, 'usage_count': usage_data['count'],
-                                    'usage_average': usage_data['average'], 'usage_high': usage_data['highest'],
-                                    'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
-                                    'sub_dosage_units': usages[0].sub.units,
-                                    'sub_name': Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
-                                    'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
-                                    'shortest_span': span_data['shortest'], 'timespans': span_data['timespans'],
-                                    'scale_factor': scale_factor, 'average_span': span_data['average'],})
+            return MiscMethods.add_header_info({'usages': usages, 'usage_count': usage_data['count'],
+                                                'usage_average': usage_data['average'],
+                                                'usage_high': usage_data['highest'],
+                                                'usage_low': usage_data['lowest'], 'usage_total': usage_data['total'],
+                                                'sub_dosage_units': usages[0].sub.units,
+                                                'sub_name':
+                                                    Substance.objects.filter(pk=self.kwargs['pk'])[0].common_name,
+                                                'sub_id': self.kwargs['pk'], 'longest_span': span_data['longest'],
+                                                'shortest_span': span_data['shortest'],
+                                                'timespans': span_data['timespans'],
+                                                'scale_factor': scale_factor, 'average_span': span_data['average'],})
 
 
 @login_required
@@ -157,16 +161,12 @@ def constrained_summary(request, sub_id):
 
     average_dosed = total_dosed / cntr
 
-    return render(request, 'dataview/constrained_dosage_summary.html', add_header_info({'usage_data': str(usage_data),
-                                                                                        'sub_id': sub_id,
-                                                                                        'highest_dose': max_dosage,
-                                                                                        'lowest_dose': min_dosage,
-                                                                                        'avg_dose': average_dosed,
-                                                                                        'admins_start': admins_start,
-                                                                                        'admins_end': admins_end,
-                                                                                        'duration': total_span,
-                                                                                        'sub_name':
-                                                                                            sub_data[0].common_name,}))
+    return render(request, 'dataview/constrained_dosage_summary.html',
+                  MiscMethods.add_header_info({'usage_data': str(usage_data), 'sub_id': sub_id,
+                                               'highest_dose': max_dosage, 'lowest_dose': min_dosage,
+                                               'avg_dose': average_dosed, 'admins_start': admins_start,
+                                               'admins_end': admins_end, 'duration': total_span,
+                                               'sub_name': sub_data[0].common_name,}))
 
 
 @login_required
@@ -225,7 +225,7 @@ def extrapolate_halflife_data(request, sub_id):
                'undetectable_target': elimination_data['detectable'],
                'last_usage': elimination_data['last_usage'].timestamp}
 
-    return render(request, 'dataview/halflife.html', add_header_info(context))
+    return render(request, 'dataview/halflife.html', MiscMethods.add_header_info(context))
 
 
 @login_required
@@ -418,10 +418,9 @@ def get_weed_stats(usages, active_half_life):
 
 def get_interval_stats(usages):
     """
-    Method takes the appropriate Usage objects, compiles the spans between them
-    (currently rounded to 15 min intervals), determines the longest, shortest,
-    and total of the timespans, along with the average, and returns them in a
-    dict.
+    Method takes the appropriate Usage objects, compiles the spans between
+    them, determines the longest, shortest, and total of the timespans, along
+    with the average, and returns them in a dict.
 
     :param usages:
     :return:
@@ -516,22 +515,6 @@ def get_usage_stats(usages):
     administration_stats['average'] = round((administration_stats['total'] / administration_stats['count']), 3)
 
     return administration_stats
-
-
-def add_header_info(page_data):
-    """
-    Method takes whatever (presumably context) dict that is passed to it and
-    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
-    applicable data for the header & footer schitt.
-
-    :param previous_context:
-    :return: new context (dict)
-    """
-
-    page_data['header_info'] = HeaderInfo.objects.first()
-    page_data['links'] = NavInfo.objects.all()
-
-    return page_data
 
 
 # def round_timedelta_to_15min_floor(span):

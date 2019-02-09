@@ -8,7 +8,6 @@ from pytz import timezone
 
 from lasttime.myglobals import MiscMethods, Const
 
-from home.models import HeaderInfo, NavInfo
 from subadd.forms import Substance
 from .forms import Usage, UsageForm
 
@@ -49,7 +48,7 @@ def index(request):
     context = {'mydata': mydata, 'user': request.user, 'administrations': administrations,}
 
     return render(request, 'recadm/index.html',
-                  MiscMethods.add_pagination_info(add_header_info(context), administrations))
+                  MiscMethods.add_pagination_info(MiscMethods.add_header_info(context), administrations))
 
 
 @login_required
@@ -75,7 +74,7 @@ def add(request):
         'add_admin_form': add_administration_form,
     }
 
-    return render(request, 'recadm/add_entry.html', add_header_info(context))
+    return render(request, 'recadm/add_entry.html', MiscMethods.add_header_info(context))
 
 
 @login_required
@@ -111,7 +110,7 @@ def save_admin(request):
             context = {'add_admin_form': add_administration_form,
                        'error_message': error_message,}
 
-            return render(request, 'recadm/add_entry.html', add_header_info(context))
+            return render(request, 'recadm/add_entry.html', MiscMethods.add_header_info(context))
 
     # code for the successful save of the record and return to the index
     # follows here
@@ -138,7 +137,7 @@ def save_admin(request):
 
     context = {'mydata': mydata, 'administrations': administrations,}
 
-    return render(request, 'recadm/index.html', add_header_info(context))
+    return render(request, 'recadm/index.html', MiscMethods.add_header_info(context))
 
 
 @login_required
@@ -171,7 +170,7 @@ def detail(request, topic_id):
         'admin_id': admin_details.id,
     }
 
-    return render(request, 'recadm/details.html', add_header_info(context))
+    return render(request, 'recadm/details.html', MiscMethods.add_header_info(context))
 
 
 @login_required
@@ -221,27 +220,12 @@ def edit(request, admin_id):
         context['error_message'] = "Unable to save new administration details: " + str(ex)
         context['admin_form'] = UsageForm(instance=new_admin_deets)
 
-        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+        return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
 
     # again, this is another one waiting for the global user/error message
     # displaying code, but in another area
     context['user_message'] = "Saved new administration details."
     context['admin_form'] = UsageForm(instance=new_admin_deets)
 
-    return render(request, 'recadm/edit_admin.html', add_header_info(context))
+    return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
 
-
-def add_header_info(page_data):
-    """
-    Method takes whatever (presumably context) dict that is passed to it and
-    adds the 'NavInfo' and 'HeaderInfo' keys to it, pointing to the
-    applicable data for the header & footer schitt.
-
-    :param previous_context:
-    :return: new context (dict)
-    """
-
-    page_data['header_info'] = HeaderInfo.objects.first()
-    page_data['links'] = NavInfo.objects.all()
-
-    return page_data
