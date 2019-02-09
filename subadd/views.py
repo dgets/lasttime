@@ -90,7 +90,7 @@ def addentry(request):
         context['error_message'] = "Unable to save record to database (" + str(ex) + ")!"
         context['substance'] = substance
 
-        return render(request, 'subadd/add.html', context)
+        return render(request, 'subadd/add.html', MiscMethods.add_header_info(context))
 
     return render(request, 'subadd/index.html', MiscMethods.add_header_info({'all_subs': Substance.objects.all()}))
 
