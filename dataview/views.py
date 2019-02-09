@@ -118,7 +118,11 @@ def constrained_summary(request, sub_id):
     admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - datetime.timedelta(days=1))
     admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + datetime.timedelta(days=1))
     for use in usages:
-        if use.timestamp.tzinfo is None or use.timestamp.tzinfo.utcoffset(use.timestamp) is None:
+        # if use.timestamp.tzinfo is None or use.timestamp.tzinfo.utcoffset(use.timestamp) is None:
+        #     local_datetime = MiscMethods.localize_timestamp(use.timestamp)
+        # else:
+        #     local_datetime = use.timestamp
+        if MiscMethods.is_localization_needed(use.timestamp):
             local_datetime = MiscMethods.localize_timestamp(use.timestamp)
         else:
             local_datetime = use.timestamp
@@ -209,6 +213,14 @@ def extrapolate_halflife_data(request, sub_id):
                                    datetime.timedelta(hours=int(float(substance.half_life) * 5.7))
         elimination_data['detectable'] = elimination_data['full']
 
+        # check if localization is needed
+        if MiscMethods.is_localization_needed(elimination_data['full']):
+            elimination_data['full'] = MiscMethods.localize_timestamp(elimination_data['full'])
+        if MiscMethods.is_localization_needed(elimination_data['detectable']):
+            elimination_data['detectable'] = MiscMethods.localize_timestamp(elimination_data['detectable'])
+        if MiscMethods.is_localization_needed(elimination_data['last_usage'].timestamp):
+            elimination_data['last_usage'] = MiscMethods.localize_timestamp(elimination_data['last_usage'].timestamp)
+
     context = {'sub': substance, 'elimination_target': elimination_data['full'],
                'undetectable_target': elimination_data['detectable'],
                'last_usage': elimination_data['last_usage'].timestamp}
@@ -238,27 +250,27 @@ def dump_constrained_dose_graph_data(request, sub_id):
     # far in the first place
 
     day_dosages = []
-    current_day = datetime.datetime.now()
-    cntr = -1
+    current_dt = datetime.datetime.now()
+    tmp_dt = None
 
-    # print(str(usages))
+    # localize timezone?
+    if MiscMethods.is_localization_needed(current_dt):
+        current_dt = MiscMethods.localize_timestamp(current_dt)
 
     for use in usages:
-        # print(str(use))
+        # what about localization here?
+        if MiscMethods.is_localization_needed(use.timestamp.date()):
+            tmp_dt = MiscMethods.localize_timestamp(use.timestamp.date())
+        else:
+            tmp_dt = use.timestamp.date()
 
-        if current_day != use.timestamp.date():
-            # print("- Initial Set -")
-            current_day = use.timestamp.date()
-            cntr += 1
+        if current_dt != tmp_dt:
+            current_dt = use.timestamp.date()
 
             day_dosages.append(float(use.dosage))
 
-            # print("Setting #" + str(cntr + 1) + " for date " + str(current_day) + " to " + str(day_dosages[cntr]))
         else:
-            # print("- Adding to Set -")
             day_dosages[cntr] += float(use.dosage)
-
-            # print("Adding " + str(use.dosage) + " to #" + str(cntr + 1) + " for total of " + str(day_dosages[cntr]))
 
     return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': day_dosages}), content_type='application/json')
 
@@ -320,17 +332,24 @@ def dump_interval_graph_data(request, sub_id):
 
     timespans = []
     prev_time = None
+    tmp_dt = None
     max_span = datetime.timedelta(0)
     for use in usages:
+        # localization needed?
+        if MiscMethods.is_localization_needed(use.timestamp):
+            tmp_dt = MiscMethods.localize_timestamp(use.timestamp)
+        else:
+            tmp_dt = use.timestamp
+
         if prev_time is not None:
             current_delta = datetime.timedelta
-            current_delta = use.timestamp - prev_time
+            current_delta = tmp_dt - prev_time
             timespans.append(int(current_delta.total_seconds() / 3600))
 
             if current_delta > max_span:
                 max_span = current_delta
 
-        prev_time = use.timestamp
+        prev_time = tmp_dt
 
     scale_factor = 1    # get_graph_normalization_divisor(max_span.total_seconds(), 72)
     # convert this to minutes
@@ -356,37 +375,43 @@ def get_weed_stats(usages, active_half_life):
 
 
     weeks_averaged = 2
+    relevant_dt = MiscMethods.localize_timestamp(datetime.datetime.now())
     elimination_data = {'full': float(active_half_life) * 5.7,
                         'detectable': None,
-                        'relevant_since': datetime.datetime.now() - datetime.timedelta(weeks=weeks_averaged),
+                        'relevant_since': relevant_dt - datetime.timedelta(weeks=weeks_averaged),
                         'last_usage': usages.first(), 'uses': len(usages)}
+
+    # localize the following?
+    last_usage_dt = elimination_data['last_usage'].timestamp
+    uses_dt = elimination_data['uses'].timestamp
+
+    if MiscMethods.is_localization_needed(last_usage_dt):
+        last_usage_dt = MiscMethods.localize_timestamp(last_usage_dt)
+    if MiscMethods.is_localization_needed(uses_dt):
+        uses_dt = MiscMethods.localize_timestamp(uses_dt)
 
     # note that half-life durations here (not flat day count) are calculated @ 5.7 * half-life, as in the
     # standard non-lipid-soluble substances; detectable metabolites will be out of the system sooner (hence
     # the less precise flat day count)
     if elimination_data['uses'] <= weeks_averaged:
         # single use: detectable for a standard half-life duration
-        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
-                                   datetime.timedelta(hours=int(elimination_data['full']))
-        elimination_data['detectable'] = elimination_data['last_usage'].timestamp + datetime.timedelta(days=3)
+        elimination_data['full'] = last_usage_dt + datetime.timedelta(hours=int(elimination_data['full']))
+        elimination_data['detectable'] = last_usage_dt + datetime.timedelta(days=3)
 
     elif elimination_data['uses'] <= (weeks_averaged * 4):
         # moderate use: detectable for standard half-life * 5/3, _or_ 5 days
-        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
-                                   datetime.timedelta(hours=int(elimination_data['full'] * (5 / 3)))
-        elimination_data['detectable'] = elimination_data['last_usage'].timestamp + datetime.timedelta(days=5)
+        elimination_data['full'] = last_usage_dt + datetime.timedelta(hours=int(elimination_data['full'] * (5 / 3)))
+        elimination_data['detectable'] = last_usage_dt + datetime.timedelta(days=5)
 
     elif elimination_data['uses'] <= (weeks_averaged * 7):
         # heavy use: detectable for standard half-life * 10/3, _or_ 10 days
-        elimination_data['full'] = elimination_data['last_usage'].timestamp + \
-                                   datetime.timedelta(hours=int(elimination_data['full'] * (10 / 3)))
-        elimination_data['detectable'] = elimination_data['uses'].timestamp + datetime.timedelta(days=10)
+        elimination_data['full'] = last_usage_dt + datetime.timedelta(hours=int(elimination_data['full'] * (10 / 3)))
+        elimination_data['detectable'] = uses_dt + datetime.timedelta(days=10)
 
     else:
         # chronic heavy use: detectable for standard half-life * 10, _or_ 30 days
-        elimination_data['full'] = elimination_data['uses'].timestamp + \
-                                   datetime.timedelta(hours=(elimination_data['full'] * 10))
-        elimination_data['detectable'] = elimination_data['uses'].timestamp + datetime.timedelta(days=30)
+        elimination_data['full'] = uses_dt + datetime.timedelta(hours=(elimination_data['full'] * 10))
+        elimination_data['detectable'] = uses_dt + datetime.timedelta(days=30)
 
     return elimination_data
 
@@ -401,6 +426,10 @@ def get_interval_stats(usages):
     :param usages:
     :return:
     """
+
+    # NOTE: with the current functionality in this particular method, we shouldn't need to worry about having to
+    # localize anything; it makes no difference to the relevance of the intervals, especially as they're not mapped
+    # to any particular dates on the graph or anything
 
     prev_time = None
     interval_data = {'timespans': [],
@@ -464,6 +493,8 @@ def get_usage_stats(usages):
     :param usages: the records that we're looking at
     :return:
     """
+
+    # TODO: add the dates at which each of the highest & lowest were admined
 
     # average & total calculation
     administration_stats = {'total': 0,
