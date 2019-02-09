@@ -106,3 +106,19 @@ class MiscMethods:
         """
 
         return datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S')
+
+    @staticmethod
+    def is_localization_needed(datetime_in_question):
+        """
+        Just determines whether or not a datetime object has already been
+        localized; returns true if localization is needed.
+
+        :param datetime_in_question:
+        :return:
+        """
+
+        if datetime_in_question.tzinfo is None or datetime_in_question.tzinfo.utcoffset(datetime_in_question) is None:
+            # localization is needed for this one
+            return True
+        else:
+            return False

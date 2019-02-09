@@ -32,8 +32,15 @@ def index(request):
     administrations = paginator.get_page(page)
 
     mydata = []
+    local_dt = None
     for administration in administrations:  # recent_administrations:
-        mydata.append({'ts': administration.timestamp,
+        # localize timestamp?
+        if MiscMethods.is_localization_needed(administration.timestamp):
+            local_dt = MiscMethods.localize_timestamp(administration.timestamp)
+        else:
+            local_dt = administration.timestamp
+
+        mydata.append({'ts': local_dt,
                        'id': administration.id,
                        'dosage': administration.dosage,
                        'units': administration.sub.units,
@@ -116,8 +123,15 @@ def save_admin(request):
     page = request.GET.get('page')
     administrations = paginator.get_page(page)
 
+    tmp_dt = None
     for administration in administrations:
-        mydata.append({'ts': administration.timestamp,
+        # localization needed?
+        if MiscMethods.is_localization_needed(administration.timestamp):
+            tmp_dt = MiscMethods.localize_timestamp(administration.timestamp)
+        else:
+            tmp_dt = administration.timestamp
+
+        mydata.append({'ts': tmp_dt,
                        'id': administration.id,
                        'dosage': administration.dosage,
                        'substance_name': administration.sub,})
@@ -141,11 +155,18 @@ def detail(request, topic_id):
 
     admin_details = Usage.objects.get(id=topic_id, user=request.user)
 
+    tmp_dt = None
+    # localization needed?
+    if MiscMethods.is_localization_needed(admin_details.timestamp):
+        tmp_dt = MiscMethods.localize_timestamp(admin_details.timestamp)
+    else:
+        tmp_dt = admin_details.timestamp
+
     context = {
         'sub': admin_details.sub,
         'dosage': admin_details.dosage,
         'units': admin_details.sub.units,
-        'timestamp': admin_details.timestamp,
+        'timestamp': tmp_dt,
         'notes': admin_details.notes,
         'admin_id': admin_details.id,
     }
@@ -182,21 +203,17 @@ def edit(request, admin_id):
 
             return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
-        # context['admin_form'] = UsageForm({
-        #     'sub': admin_details['sub'], 'dosage': admin_details['dosage'],
-        #     'timestamp': admin_details['timestamp'], 'notes': admin_details['notes'], 'user': request.user,
-        # })
-
         return render(request, 'recadm/edit_admin.html', add_header_info(context))
 
-    # save the results
-    # new_admin_deets = Usage(sub=Substance.objects.get(id=request.POST['sub']), dosage=request.POST['dosage'],
-    #                         timestamp=request.POST['timestamp'], notes=request.POST['notes'], user=request.user)
     new_admin_deets = Usage.objects.get(id=admin_id, user=request.user)
     new_admin_deets.sub = Substance.objects.get(id=request.POST['sub'])
     new_admin_deets.dosage = request.POST['dosage']
-    new_admin_deets.timestamp = request.POST['timestamp']
+    new_admin_deets.timestamp = MiscMethods.str_to_datetime(request.POST['timestamp'])
     new_admin_deets.notes = request.POST['notes']
+
+    # localize?
+    if MiscMethods.is_localization_needed(new_admin_deets.timestamp):
+        new_admin_deets.timestamp = MiscMethods.localize_timestamp(new_admin_deets.timestamp)
 
     try:
         new_admin_deets.save()
