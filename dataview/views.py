@@ -53,6 +53,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user).order_by("timestamp")
+        print("pk is: " + str(self.kwargs['pk']))
 
         # though it duplicates things, the following conditional just checks for errors that will screw up the graphing
         too_few_usages_error = False
@@ -252,6 +253,7 @@ def dump_constrained_dose_graph_data(request, sub_id):
     day_dosages = []
     current_dt = datetime.datetime.now()
     tmp_dt = None
+    cntr = -1
 
     # localize timezone?
     if MiscMethods.is_localization_needed(current_dt):
@@ -259,8 +261,8 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
     for use in usages:
         # what about localization here?
-        if MiscMethods.is_localization_needed(use.timestamp.date()):
-            tmp_dt = MiscMethods.localize_timestamp(use.timestamp.date())
+        if MiscMethods.is_localization_needed(use.timestamp):
+            tmp_dt = MiscMethods.localize_timestamp(use.timestamp)
         else:
             tmp_dt = use.timestamp.date()
 
@@ -268,6 +270,7 @@ def dump_constrained_dose_graph_data(request, sub_id):
             current_dt = use.timestamp.date()
 
             day_dosages.append(float(use.dosage))
+            cntr += 1
 
         else:
             day_dosages[cntr] += float(use.dosage)
