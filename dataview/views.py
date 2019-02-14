@@ -257,15 +257,18 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
     # localize timezone?
     if MiscMethods.is_localization_needed(current_dt):
-        current_dt = MiscMethods.localize_timestamp(current_dt)
+        current_dt = MiscMethods.localize_timestamp(current_dt).date()
 
     for use in usages:
+        # print("Currently working with use: " + str(use))
+
         # what about localization here?
         if MiscMethods.is_localization_needed(use.timestamp):
-            tmp_dt = MiscMethods.localize_timestamp(use.timestamp)
+            tmp_dt = MiscMethods.localize_timestamp(use.timestamp).date()
         else:
             tmp_dt = use.timestamp.date()
 
+        # print("timestamp date: " + str(use.timestamp.date()))
         if current_dt != tmp_dt:
             current_dt = use.timestamp.date()
 
@@ -274,6 +277,8 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
         else:
             day_dosages[cntr] += float(use.dosage)
+
+        # print("filing under: " + str(current_dt))
 
     return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': day_dosages}), content_type='application/json')
 
