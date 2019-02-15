@@ -41,9 +41,11 @@ def create_user_interface(request):
             user.save()     # this will need to be in an error handling block at some point here
         except Exception as ex:
             create_user_form = NewUserForm
-            return render(request, 'home/create_user.html', add_header_info({'create_user_form': create_user_form,
-                                                                             'error_message':
-                                                                                 "Error saving: " + str(ex),}))
+            return render(request, 'home/create_user.html', MiscMethods.add_header_info({'create_user_form':
+                                                                                             create_user_form,
+                                                                                         'error_message':
+                                                                                             "Error saving: " +
+                                                                                             str(ex),}))
 
         context['username'] = user.username
 
