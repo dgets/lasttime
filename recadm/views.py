@@ -24,7 +24,7 @@ def index(request):
     :return:
     """
 
-    recent_administrations = Usage.objects.filter(user=request.user).order_by('-timestamp')
+    recent_administrations = Usage.objects.filter(user=request.user).order_by('sub', '-timestamp')
     paginator = Paginator(recent_administrations, 15)   # 15 admins per page
 
     page = request.GET.get('page')

@@ -16,33 +16,6 @@ from subadd.forms import Substance
 from home.models import NavInfo, HeaderInfo
 
 
-# class IndexView(LoginRequiredMixin, generic.ListView):
-#     """
-#     I may be over simplifying things here, since I'm learning how to use
-#     generic/class-based views while implementing these features, but the
-#     general idea for this class is to provide a list of links to
-#     the SubAdminDetailsView class/view, each of which represents a particular
-#     [unique] substance's administration details.
-#     """
-#
-#     model = Substance  # ListView needs to know
-#     template_name = 'dataview/index.html'   # to avoid default
-#     paginate_by = 15
-#     context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(IndexView, self).get_context_data(**kwargs)
-#
-#         # how do I hand off the lifting to the database here?
-#         subs = Substance.objects.all()
-#         context['subs'] = []
-#         for sub in subs:
-#             if Usage.objects.filter(sub=sub.pk, user=self.request.user).exists():
-#                 context['subs'].append(sub)
-#
-#         return MiscMethods.add_header_info(context)
-
-
 @login_required
 def index(request):
     all_subs = Substance.objects.all()
