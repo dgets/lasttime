@@ -84,6 +84,9 @@ def addentry(request):
 
 
     try:
+        if substance.lipid_solubility != False:
+            substance.lipid_solubility = True
+
         substance.save()
     except Exception as ex:
         context = {}
