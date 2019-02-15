@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -200,9 +200,9 @@ def edit(request, admin_id):
             # global error message handling is completed before doing this,
             # however
 
-            return render(request, 'recadm/edit_admin.html', add_header_info(context))
+            return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
 
-        return render(request, 'recadm/edit_admin.html', add_header_info(context))
+        return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
 
     new_admin_deets = Usage.objects.get(id=admin_id, user=request.user)
     new_admin_deets.sub = Substance.objects.get(id=request.POST['sub'])
@@ -227,5 +227,7 @@ def edit(request, admin_id):
     context['user_message'] = "Saved new administration details."
     context['admin_form'] = UsageForm(instance=new_admin_deets)
 
-    return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
-
+    # return render(request, 'recadm/edit_admin.html', MiscMethods.add_header_info(context))
+    # so below here...  this really isn't the way to be doing this, with an absolute URL/path, but the other ways
+    # weren't working, and this one was, so I took the easy out...  :P
+    return redirect('/recadm/', context=MiscMethods.add_header_info(context))
