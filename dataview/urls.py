@@ -4,7 +4,8 @@ from . import views
 
 app_name = 'dataview'
 urlpatterns = [
-    path('', views.IndexView.as_view(), name='index'),
+    # path('', views.IndexView.as_view(), name='index'),
+    path('', views.index, name='index'),
     path('<int:pk>/', views.SubAdminDataView.as_view(), name='data_summary'),
     path('constrained_summary/<int:sub_id>/', views.constrained_summary, name='constrained_summary'),
     path('halflife/<int:sub_id>/', views.extrapolate_halflife_data, name='halflife'),

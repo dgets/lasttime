@@ -3,6 +3,7 @@ from django.views import generic
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 
 from lasttime.myglobals import MiscMethods, Const
 
@@ -15,31 +16,57 @@ from subadd.forms import Substance
 from home.models import NavInfo, HeaderInfo
 
 
-class IndexView(LoginRequiredMixin, generic.ListView):
-    """
-    I may be over simplifying things here, since I'm learning how to use
-    generic/class-based views while implementing these features, but the
-    general idea for this class is to provide a list of links to
-    the SubAdminDetailsView class/view, each of which represents a particular
-    [unique] substance's administration details.
-    """
+# class IndexView(LoginRequiredMixin, generic.ListView):
+#     """
+#     I may be over simplifying things here, since I'm learning how to use
+#     generic/class-based views while implementing these features, but the
+#     general idea for this class is to provide a list of links to
+#     the SubAdminDetailsView class/view, each of which represents a particular
+#     [unique] substance's administration details.
+#     """
+#
+#     model = Substance  # ListView needs to know
+#     template_name = 'dataview/index.html'   # to avoid default
+#     paginate_by = 15
+#     context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(IndexView, self).get_context_data(**kwargs)
+#
+#         # how do I hand off the lifting to the database here?
+#         subs = Substance.objects.all()
+#         context['subs'] = []
+#         for sub in subs:
+#             if Usage.objects.filter(sub=sub.pk, user=self.request.user).exists():
+#                 context['subs'].append(sub)
+#
+#         return MiscMethods.add_header_info(context)
 
-    model = Substance  # ListView needs to know
-    template_name = 'dataview/index.html'   # to avoid default
-    paginate_by = 15
-    context_object_name = 'relevant_subs'  # overrides default of 'usage_list'
 
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
+@login_required
+def index(request):
+    all_subs = Substance.objects.all()
+    filtered_subs = []
+    context = {}
 
-        # how do I hand off the lifting to the database here?
-        subs = Substance.objects.all()
-        context['subs'] = []
-        for sub in subs:
-            if Usage.objects.filter(sub=sub.pk).exists():
-                context['subs'].append(sub)
+    for sub in all_subs:
+        if Usage.objects.filter(sub=sub.pk, user=request.user).exists():
+            print("Adding " + str(sub))
+            filtered_subs.append(sub)
 
-        return MiscMethods.add_header_info(context)
+    print("Filtered subs: " + str(filtered_subs))
+
+    paginator = Paginator(filtered_subs, 15)  # 15 admins per page
+
+    page = request.GET.get('page')
+    subs = paginator.get_page(page)
+
+    print("subs: " + str(subs))
+
+    context = {'relevant_subs': subs}
+
+    return render(request, 'dataview/index.html', MiscMethods.add_pagination_info(MiscMethods.add_header_info(context),
+                                                                                  subs))
 
 
 class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
