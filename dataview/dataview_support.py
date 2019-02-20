@@ -15,6 +15,7 @@ from recadm.forms import Usage
 from subadd.forms import Substance
 from home.models import NavInfo, HeaderInfo
 
+
 def get_weed_stats(usages, active_half_life):
     """
     We're working with weed, let's give this a shot based on the information

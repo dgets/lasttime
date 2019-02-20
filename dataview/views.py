@@ -125,6 +125,7 @@ def day_constrained_summary(request, sub_id):
     # far in the first place
 
     usage_data = {}
+    prev_date = None
     admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - datetime.timedelta(days=1))
     admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + datetime.timedelta(days=1))
     for use in usages:
@@ -138,6 +139,12 @@ def day_constrained_summary(request, sub_id):
             local_datetime = use.timestamp
 
         if not str(local_datetime.date()) in usage_data:
+            # insert 0 entries until we're up to the next date
+            # if prev_date is not None:
+            #     while prev_date < local_datetime.date():
+            #         prev_date += datetime.timedelta(days=1)
+            #         usage_data[str(prev_date)] = 0.001
+
             usage_data[str(local_datetime.date())] = float(use.dosage)
 
             # get our tabulated duration information
@@ -147,6 +154,8 @@ def day_constrained_summary(request, sub_id):
                 admins_end = local_datetime
         else:
             usage_data[str(local_datetime.date())] += float(use.dosage)
+
+        prev_date = local_datetime.date()
 
     total_span = admins_end - admins_start
 
@@ -265,25 +274,27 @@ def dump_constrained_dose_graph_data(request, sub_id):
         current_dt = MiscMethods.localize_timestamp(current_dt).date()
 
     for use in usages:
-        # print("Currently working with use: " + str(use))
-
         # what about localization here?
         if MiscMethods.is_localization_needed(use.timestamp):
             tmp_dt = MiscMethods.localize_timestamp(use.timestamp).date()
         else:
             tmp_dt = use.timestamp.date()
 
-        # print("timestamp date: " + str(use.timestamp.date()))
         if current_dt != tmp_dt:
-            current_dt = use.timestamp.date()
+            # insert 0.0 entries up until the next usage date
+            # while current_dt < tmp_dt:
+            #     print("In the empty date loop")
+            #
+            #     day_dosages.append(0.0)
+            #     current_dt += datetime.timedelta(days=1)
+            #     cntr += 1
+
+            # current_dt = use.timestamp.date()
 
             day_dosages.append(float(use.dosage))
             cntr += 1
-
         else:
             day_dosages[cntr] += float(use.dosage)
-
-        # print("filing under: " + str(current_dt))
 
     return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': day_dosages}), content_type='application/json')
 
