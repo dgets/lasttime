@@ -16,6 +16,7 @@ from subadd.forms import Substance
 from home.models import NavInfo, HeaderInfo
 from . import dataview_support
 
+
 @login_required
 def index(request):
     all_subs = Substance.objects.all()
@@ -126,7 +127,6 @@ def day_constrained_summary(request, sub_id):
 
     OneDay = datetime.timedelta(days=1)
     usage_data = {}
-    # prev_date = None
     admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - OneDay)
     admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + OneDay)
 
@@ -138,7 +138,7 @@ def day_constrained_summary(request, sub_id):
 
         if not str(local_datetime.date()) in usage_data:
             usage_data[str(local_datetime.date())] = float(use.dosage)
-            print("Creating " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
+            # print("Creating " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
 
             # get our tabulated duration information
             if local_datetime < admins_start:
@@ -147,7 +147,7 @@ def day_constrained_summary(request, sub_id):
                 admins_end = local_datetime
         else:
             usage_data[str(local_datetime.date())] += float(use.dosage)
-            print("Adding " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
+            # print("Adding " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
 
         # prev_date = local_datetime.date()
 

@@ -29,7 +29,6 @@ def get_weed_stats(usages, active_half_life):
     :return:
     """
 
-
     weeks_averaged = 2
     relevant_dt = MiscMethods.localize_timestamp(datetime.datetime.now())
     elimination_data = {'full': float(active_half_life) * 5.7,
