@@ -43,4 +43,9 @@
       </span>
     </div>
 
+    <p><form action="{% url 'dox:per_app_dox' %}" method="post">
+       {% csrf_token %}
+       <input type="submit" value="See documentation on specific app views" />
+     </form>
+
 {% endblock main_page_content %}

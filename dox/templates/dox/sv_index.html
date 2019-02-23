@@ -1,0 +1,27 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+
+  {% if topics %}
+
+    <h2>Help Topics</h2>
+
+    <p><ul>
+
+    {% for help_topic in topics %}
+      <li>
+          <a href="{% url 'dox:app_dox_detail' help_topic.id %}">
+              {{ help_topic.name }}: {{ help_topic.heading }}
+          </a>
+      </li>
+    {% endfor %}
+
+    </ul>
+
+  {% else %}
+
+    <h2>No topics are currently configured!</h2>
+
+  {% endif %}
+
+{% endblock main_page_content %}

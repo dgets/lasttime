@@ -1,0 +1,17 @@
+{% extends 'home/lasttime_head.html' %}
+{% block main_page_content %}
+
+  <h1>{{ primary.name }}</h1>
+  <h2>{{ primary.heading }}</h2>
+
+  {% if supporting %}
+    {% for support in supporting %}
+      <h3>{{ support.sub_topic }}</h3>
+
+      <p>{{ support.text }}</p>
+    {% endfor %}
+  {% else %}
+    <h3>No other information available yet...</h3>
+  {% endif %}
+
+{% endblock main_page_content %}

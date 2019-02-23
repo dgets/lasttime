@@ -11,6 +11,7 @@ from lasttime.myglobals import MiscMethods
 # these particular views restricted to just logged in users; derp!
 
 
+@login_required
 def index(request):
     """
     View displays the topics links for everything available, paginated if
@@ -26,9 +27,11 @@ def index(request):
     page = request.GET.get('page')
     topics_set = paginator.get_page(page)
 
-    return render(request, 'dox/index.html', MiscMethods.add_header_info({'topics': topics_set,}))
+    return render(request, 'dox/index.html', MiscMethods.add_pagination_info(
+        MiscMethods.add_header_info({'topics': topics_set,}), topics_set))
 
 
+@login_required
 def detail(request, topic_id):
     """
     Displays the detailed information for whatever link was selected in the
@@ -44,4 +47,25 @@ def detail(request, topic_id):
     topic_info['supporting'] = MainHelpTopicDetail.objects.filter(topic=topic_id)
 
     return render(request, 'dox/detail.html', MiscMethods.add_header_info(topic_info))
+
+
+@login_required
+def per_app_docs(request):
+    topics = SpecificViewHelpTopic.objects.all()
+    paginator = Paginator(topics, 15)
+
+    page = request.GET.get('page')
+    topics_set = paginator.get_page(page)
+
+    return render(request, 'dox/sv_index.html', MiscMethods.add_pagination_info(
+        MiscMethods.add_header_info({'topics' : topics,}), topics_set))
+
+
+@login_required
+def sv_detail(request, sv_topic_id):
+    topic_info = {}
+    topic_info['primary'] = SpecificViewHelpTopic.objects.get(id=sv_topic_id)
+    topic_info['supporting'] = SpecificViewTopicDetail.objects.filter(topic=sv_topic_id)
+
+    return render(request, 'dox/sv_detail.html', MiscMethods.add_header_info(topic_info))
 

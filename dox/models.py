@@ -29,6 +29,7 @@ class SpecificViewHelpTopic(models.Model):
     """
 
     name = models.CharField(max_length=25)
+    view = models.CharField(max_length=40, default="")
     heading = models.CharField(max_length=40)
 
 
