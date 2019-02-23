@@ -4,6 +4,7 @@ from pytz import timezone
 
 from home.models import HeaderInfo, NavInfo
 
+
 class Const:
     """
     Just constant data here

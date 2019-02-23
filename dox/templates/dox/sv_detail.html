@@ -6,7 +6,10 @@
 
   {% if supporting %}
     {% for support in supporting %}
-      <h3>{{ support.sub_topic }}</h3>
+
+      {% if support.sub_topic != "" %}
+        <h3>{{ support.sub_topic }}</h3>
+      {% endif %}
 
       <p>{{ support.text }}</p>
     {% endfor %}

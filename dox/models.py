@@ -39,5 +39,5 @@ class SpecificViewTopicDetail(models.Model):
     """
 
     topic = models.ForeignKey(SpecificViewHelpTopic, on_delete=models.CASCADE)
-    sub_topic = models.CharField(max_length=80)
+    sub_topic = models.CharField(max_length=80, blank=True)
     text = models.TextField()
