@@ -152,7 +152,12 @@ def detail(request, topic_id):
     :return:
     """
 
-    admin_details = Usage.objects.get(id=topic_id, user=request.user)
+    try:
+        admin_details = Usage.objects.get(id=topic_id, user=request.user)
+    except Usage.DoesNotExist:
+        return render(request, 'recadm/details.html',
+                      MiscMethods.add_header_info({'error_message':
+                                                       "The Usage records you requested do not seem to exist...",}))
 
     tmp_dt = None
     # localization needed?
