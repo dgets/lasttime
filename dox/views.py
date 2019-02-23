@@ -62,10 +62,10 @@ def per_app_docs(request):
 
 
 @login_required
-def sv_detail(request, sv_topic_id):
+def sv_detail(request, topic_id):
     topic_info = {}
-    topic_info['primary'] = SpecificViewHelpTopic.objects.get(id=sv_topic_id)
-    topic_info['supporting'] = SpecificViewTopicDetail.objects.filter(topic=sv_topic_id)
+    topic_info['primary'] = SpecificViewHelpTopic.objects.get(id=topic_id)
+    topic_info['supporting'] = SpecificViewTopicDetail.objects.filter(topic=topic_id)
 
     return render(request, 'dox/sv_detail.html', MiscMethods.add_header_info(topic_info))
 
