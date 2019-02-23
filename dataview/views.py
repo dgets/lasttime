@@ -59,7 +59,7 @@ class SubAdminDataView(LoginRequiredMixin, generic.DetailView):
 
     def get_context_data(self, **kwargs):
         usages = Usage.objects.filter(sub=self.kwargs['pk'], user=self.request.user).order_by("timestamp")
-        print("pk is: " + str(self.kwargs['pk']))
+        # print("pk is: " + str(self.kwargs['pk']))
 
         # though it duplicates things, the following conditional just checks for errors that will screw up the graphing
         too_few_usages_error = False
@@ -339,7 +339,8 @@ def dump_dose_graph_data(request, sub_id):
     for use in usages:
         dosage_graph_data.append(float(use.dosage))
 
-    return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': dosage_graph_data}),
+    return HttpResponse(json.dumps({'scale_factor': 1,
+                                    'dosages': dataview_support.check_dose_range_sanity(dosage_graph_data)}),
                         content_type='application/json')
 
 

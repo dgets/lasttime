@@ -203,3 +203,30 @@ def get_graph_normalization_divisor(max_qty, graph_max_boundary):
         scale_factor = graph_max_boundary / max_qty
 
     return scale_factor
+
+
+def check_dose_range_sanity(dose_list):
+    low_dose = 10000
+    high_dose = 0
+    constrained_list = []
+
+    for dose in dose_list:
+        if low_dose > dose:
+            low_dose = dose
+        if high_dose < dose:
+            high_dose = dose
+
+    if high_dose >= (low_dose * 10):
+        # an order of magnitude or more range breaks the graphs
+        for dose in dose_list:
+            if dose > (low_dose * 10):
+                constrained_list.append(low_dose * 10)
+                print("Chopping " + str(dose) + " to " + str(low_dose * 10))
+            else:
+                constrained_list.append(dose)
+
+        return constrained_list
+    else:
+        return dose_list
+
+
