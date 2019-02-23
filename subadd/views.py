@@ -109,10 +109,14 @@ def detail(request, substance_id):
     :return:
     """
 
-    try:
-        substance = get_object_or_404(Substance, pk=substance_id)
-    except Substance.DoesNotExist:
-        raise Http404("Substance does not exist :|")
+    context = {}
 
-    return render(request, 'subadd/detail.html', MiscMethods.add_header_info({'substance': substance}))
+    try:
+        # substance = get_object_or_404(Substance, pk=substance_id)
+        context['substance'] = Substance.objects.get(pk=substance_id)
+    except Substance.DoesNotExist:
+        # raise Http404("Substance does not exist :|")
+        context['error_message'] = "The substance you are looking for does not seem to exist..."
+
+    return render(request, 'subadd/detail.html', MiscMethods.add_header_info(context))
 
