@@ -131,23 +131,14 @@ def day_constrained_summary(request, sub_id):
     admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + OneDay)
 
     for use in usages:
-        # if use.timestamp.tzinfo is None or use.timestamp.tzinfo.utcoffset(use.timestamp) is None:
-        #     local_datetime = MiscMethods.localize_timestamp(use.timestamp)
-        # else:
-        #     local_datetime = use.timestamp
         if MiscMethods.is_localization_needed(use.timestamp):
             local_datetime = MiscMethods.localize_timestamp(use.timestamp)
         else:
             local_datetime = use.timestamp
 
         if not str(local_datetime.date()) in usage_data:
-            # insert 0 entries until we're up to the next date
-            # if prev_date is not None:
-            #     while prev_date < local_datetime.date():
-            #         prev_date += datetime.timedelta(days=1)
-            #         usage_data[str(prev_date)] = 0.001
-
             usage_data[str(local_datetime.date())] = float(use.dosage)
+            print("Creating " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
 
             # get our tabulated duration information
             if local_datetime < admins_start:
@@ -156,6 +147,7 @@ def day_constrained_summary(request, sub_id):
                 admins_end = local_datetime
         else:
             usage_data[str(local_datetime.date())] += float(use.dosage)
+            print("Adding " + str(local_datetime) + " to " + str(local_datetime.date()) + " @ " + str(use.dosage))
 
         # prev_date = local_datetime.date()
 
@@ -177,6 +169,8 @@ def day_constrained_summary(request, sub_id):
         total_dosed += usage_data[constrained_usage]
 
     average_dosed = total_dosed / cntr
+
+    print("usage_data: " + str(usage_data))
 
     return render(request, 'dataview/constrained_dosage_summary.html',
                   MiscMethods.add_header_info({'usage_data': str(usage_data), 'sub_id': sub_id,
@@ -268,15 +262,17 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
     OneDay = datetime.timedelta(days=1)
     day_dosages = []
-    current_dt = datetime.datetime.now()
+    current_dt = None
     tmp_dt = None
     cntr = -1
 
     # localize timezone?
-    if MiscMethods.is_localization_needed(current_dt):
-        current_dt = MiscMethods.localize_timestamp(current_dt).date()
+    # if MiscMethods.is_localization_needed(current_dt):
+    #    current_dt = MiscMethods.localize_timestamp(current_dt).date()
 
     for use in usages:
+        current_dt = use.timestamp.date()
+
         # here we'll enter the blank entries for days where no administrations were recorded
         while tmp_dt is not None and (use.timestamp.date() - tmp_dt) > OneDay:
             # we need a more exact calculation above, maybe?
@@ -284,30 +280,23 @@ def dump_constrained_dose_graph_data(request, sub_id):
             # usage_data[str(tmp_dt)] = 0.0
             day_dosages.append(0.0)
             cntr += 1
-            print("Adding " + str(tmp_dt) + ": 0.0")
+            # print("Adding " + str(tmp_dt) + ": 0.0")
 
         if current_dt != tmp_dt:
-            # insert 0.0 entries up until the next usage date
-            # while current_dt < tmp_dt:
-            #     print("In the empty date loop")
-            #
-            #     day_dosages.append(0.0)
-            #     current_dt += datetime.timedelta(days=1)
-            #     cntr += 1
-
-            # current_dt = use.timestamp.date()
-
             day_dosages.append(float(use.dosage))
             cntr += 1
+            # print("Appending " + str(use.dosage))
         else:
             day_dosages[cntr] += float(use.dosage)
+            # print("Adding " + str(use.dosage) + " to " + str(day_dosages[cntr]) + " already at day_dosages[" +
+            #      str(cntr) + "]")
 
         tmp_dt = current_dt
         # what about localization here?
-        if MiscMethods.is_localization_needed(use.timestamp):
-            tmp_dt = MiscMethods.localize_timestamp(use.timestamp).date()
-        else:
-            tmp_dt = use.timestamp.date()
+        # if MiscMethods.is_localization_needed(use.timestamp):
+        #     tmp_dt = MiscMethods.localize_timestamp(use.timestamp).date()
+        # else:
+        #     tmp_dt = use.timestamp.date()
 
     return HttpResponse(json.dumps({'scale_factor': 1, 'dosages': day_dosages}), content_type='application/json')
 
