@@ -206,6 +206,17 @@ def get_graph_normalization_divisor(max_qty, graph_max_boundary):
 
 
 def check_dose_range_sanity(dose_list):
+    """
+    Method determines whether or not any of the dosages passed in the dose_list
+    parameter are an order of magnitude greater than any of the others; if so,
+    they are chopped at 10x the lowest dosage.
+
+    TODO: Check to see if this would be better implemented as the method below
+
+    :param dose_list:
+    :return:
+    """
+
     low_dose = 10000
     high_dose = 0
     constrained_list = []
@@ -221,7 +232,7 @@ def check_dose_range_sanity(dose_list):
         for dose in dose_list:
             if dose > (low_dose * 10):
                 constrained_list.append(low_dose * 10)
-                print("Chopping " + str(dose) + " to " + str(low_dose * 10))
+                # print("Chopping " + str(dose) + " to " + str(low_dose * 10))
             else:
                 constrained_list.append(dose)
 
@@ -230,3 +241,32 @@ def check_dose_range_sanity(dose_list):
         return dose_list
 
 
+def check_for_extremes_from_average(qty_list):
+    """
+    Method determines whether or not any of the quantities passed in the
+    'qty_list' parameter are over 2 times the average quantity; if
+    so, they are constrained at this value and returned (or returned
+    unscathed if not).
+
+    :param qty_list:
+    :return:
+    """
+
+    cntr = 0
+    average = 0
+
+    # determine list average
+    for qty in qty_list:
+        average += qty
+
+    average = average / len(qty_list)
+
+    # constrain list to average x multiplier
+    for qty in qty_list:
+        if qty > (average * 2):
+            qty_list[cntr] = average * 2
+
+        cntr += 1
+
+    # list was modified in place, so we can just return it
+    return qty_list

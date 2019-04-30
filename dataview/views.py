@@ -350,6 +350,8 @@ def dump_interval_graph_data(request, sub_id):
     View does the same as the above one, except for the intervals between
     administrations data subset.
 
+    TODO: utilize check_intervals_for_extremes_from_average in dataview_support
+
     :param request:
     :param sub_id:
     :return:
@@ -359,7 +361,7 @@ def dump_interval_graph_data(request, sub_id):
 
     timespans = []
     prev_time = None
-    tmp_dt = None
+    # tmp_dt = None
     max_span = datetime.timedelta(0)
     for use in usages:
         # localization needed?
@@ -369,7 +371,7 @@ def dump_interval_graph_data(request, sub_id):
             tmp_dt = use.timestamp
 
         if prev_time is not None:
-            current_delta = datetime.timedelta
+            # current_delta = datetime.timedelta
             current_delta = tmp_dt - prev_time
             timespans.append(int(current_delta.total_seconds() / 3600))
 
@@ -382,6 +384,8 @@ def dump_interval_graph_data(request, sub_id):
     # convert this to minutes
     for cntr in range(0, len(timespans)):
         timespans[cntr] = timespans[cntr]
+
+    timespans = dataview_support.check_for_extremes_from_average(timespans)
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
