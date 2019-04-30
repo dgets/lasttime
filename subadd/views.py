@@ -130,8 +130,22 @@ def add_sub_class(request):
     :return:
     """
 
-    add_sub_class_form = SubstanceClassForm()
+    if (request.method != 'POST'):
+        add_sub_class_form = SubstanceClassForm()
 
-    return render(request, 'subadd/add_class.html', MiscMethods.add_header_info({'substance_class': None,
-                                                                                'add_sub_class_form':
-                                                                                    add_sub_class_form}))
+        return render(request, 'subadd/add_class.html', MiscMethods.add_header_info({'substance_class': None,
+                                                                                    'add_sub_class_form':
+                                                                                        add_sub_class_form}))
+
+    else:
+        add_sub_class = SubstanceClass({'name': request.POST['name'], 'desc': request.POST['desc'],})
+
+        try:
+            add_sub_class.save()
+        except Exception as e:
+            error_message = "Unable to save to db: " + str(e) + "admin: " + str(add_sub_class)
+
+            add_sub_class_form = SubstanceClassForm({'name': request.POST['name'], 'desc': request.POST['desc'],})
+
+            context = {'add_sub_class_form': add_sub_class_form, 'error_message': error_message}
+            return render(request, 'subadd/add_class.html', MiscMethods.add_header_info(context))

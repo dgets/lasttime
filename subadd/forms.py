@@ -15,7 +15,7 @@ class Substance(models.Model):
 
     common_name = models.CharField(max_length=40)
     sci_name = models.CharField(max_length=60)
-    sub_class = models.ForeignKey('subadd.SubstanceClass', on_delete=models.CASCADE, default=-1)
+    sub_class = models.ForeignKey('subadd.SubstanceClass', on_delete=models.CASCADE, null=True, default=None)
     half_life = models.DecimalField(max_digits=7, decimal_places=3)
     active_half_life = models.DecimalField(max_digits=7, decimal_places=3)
     lipid_solubility = models.BooleanField(default=False)
