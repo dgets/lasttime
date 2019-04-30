@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 
 from lasttime.myglobals import MiscMethods
 
-from .forms import Substance, SubstanceForm
+from .forms import Substance, SubstanceForm, SubstanceClass, SubstanceClassForm
 
 
 @login_required
@@ -120,3 +120,18 @@ def detail(request, substance_id):
 
     return render(request, 'subadd/detail.html', MiscMethods.add_header_info(context))
 
+
+@login_required
+def add_sub_class(request):
+    """
+    View provides the ability to add a new SubstanceClass.
+
+    :param request:
+    :return:
+    """
+
+    add_sub_class_form = SubstanceClassForm()
+
+    return render(request, 'subadd/add_class.html', MiscMethods.add_header_info({'substance_class': None,
+                                                                                'add_sub_class_form':
+                                                                                    add_sub_class_form}))
