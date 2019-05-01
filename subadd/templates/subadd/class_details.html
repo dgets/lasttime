@@ -11,7 +11,7 @@
   {% if substances %}
     <ul>
       {% for sub in substances %}
-        <li>{{ sub }}</li>
+        <li><a href="{% url 'subadd:detail' sub.id %}">{{ sub }}</a></li>
       {% endfor %}
     </ul>
   {% endif %}
