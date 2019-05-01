@@ -167,11 +167,14 @@ def sub_class_details(request, class_id):
     the substances classified under it currently.
 
     :param request:
+    :param class_id:
     :return:
     """
 
-    class_details = SubstanceClass.objects.get(id=class_id).all
-    substances_in_class = Substance.objects.get(sub_class=class_id)
+    class_details = SubstanceClass.objects.get(id=class_id)
+    substances_in_class = Substance.objects.filter(sub_class=class_details.id)
+
+    print(str(class_details.id))
 
     return render(request, 'subadd/class_details.html', MiscMethods.add_header_info({'class_details': class_details,
                                                                                      'substances':
