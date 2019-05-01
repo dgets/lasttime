@@ -1,0 +1,27 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Substances in Classification</h2>
+
+  {% if subs %}
+    <ul>
+        {% for sub in subs %}
+            <li>{{ sub.common_name }}</li>
+        {% endfor %}
+    </ul>
+  {% else %}
+    <h3>No Substances Available!</h3>
+  {% endif %}
+
+  <h2>Usages Per Substance in Classification</h2>
+
+  {% if usages %}
+    <ul>
+        {% for use in usages %}
+            <li>{{ use }}</li>
+        {% endfor %}
+    </ul>
+  {% else %}
+    <h3>No Usages to Report!</h3>
+  {% endif %}
+{% endblock main_page_content %}

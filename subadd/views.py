@@ -174,7 +174,7 @@ def sub_class_details(request, class_id):
     class_details = SubstanceClass.objects.get(id=class_id)
     substances_in_class = Substance.objects.filter(sub_class=class_details.id)
 
-    paginator = Paginator(substances_in_class, 15)  # 15 admins per page
+    paginator = Paginator(substances_in_class, 10)  # 15 admins per page
 
     page = request.GET.get('page')
     subs = paginator.get_page(page)

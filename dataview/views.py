@@ -331,7 +331,7 @@ def dump_dose_graph_data(request, sub_id):
         if max_dosage < use.dosage:
             max_dosage = use.dosage
 
-    scale_factor = dataview_support.get_graph_normalization_divisor(max_dosage, 300)
+    # scale_factor = dataview_support.get_graph_normalization_divisor(max_dosage, 300)
 
     # okay, yeah the 2 for loops is gross, but my brain is fried and I want to
     # finish this quick; I'll fix it later
@@ -389,3 +389,26 @@ def dump_interval_graph_data(request, sub_id):
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
+
+
+def class_data_summary(request, class_id):
+    """
+    View handles the summary data gathering and calculation for the
+    class_details view to see all information regarding the usages within a
+    particular class of substances.
+
+    :param request:
+    :param class_id:
+    :return:
+    """
+
+    subs = Substance.objects.filter(sub_class=class_id)
+    sub_usages = []
+
+    # get the usages for each sub
+    for sub in subs:
+        sub_usages.append(Usage.objects.filter(sub=sub.id, user=request.user))
+
+    context = {'subs': subs, 'usages': sub_usages,}
+
+    return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
