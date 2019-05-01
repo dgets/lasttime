@@ -130,27 +130,49 @@ def add_sub_class(request):
     :return:
     """
 
+    sub_classes = SubstanceClass.objects.all()
+
     if request.method != 'POST':
         add_sub_class_form = SubstanceClassForm()
 
         return render(request, 'subadd/add_class.html', MiscMethods.add_header_info({'substance_class': None,
+                                                                                     'substance_classes': sub_classes,
                                                                                     'add_sub_class_form':
                                                                                         add_sub_class_form}))
 
     else:
-        # add_sub_class_rec = SubstanceClass({'name': request.POST['name'], 'desc': request.POST['desc'],})
         add_sub_class_rec = SubstanceClass(name=request.POST['name'], desc=request.POST['desc'])
 
         try:
             add_sub_class_rec.save()
 
-            context = {'user_message': "Substance classification added successfully!"}
+            context = {'user_message': "Substance classification added successfully!",
+                       'substance_classes': sub_classes,}
 
         except Exception as e:
             error_message = "Unable to save to db: " + str(e) + " admin: " + str(add_sub_class_rec)
 
             add_sub_class_form = SubstanceClassForm({'name': request.POST['name'], 'desc': request.POST['desc'],})
 
-            context = {'add_sub_class_form': add_sub_class_form, 'error_message': error_message}
+            context = {'add_sub_class_form': add_sub_class_form, 'error_message': error_message,
+                       'substance_classes': sub_classes,}
 
         return render(request, 'subadd/add_class.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def sub_class_details(request, class_id):
+    """
+    View shows the details for a given classification of substances, including
+    the substances classified under it currently.
+
+    :param request:
+    :return:
+    """
+
+    class_details = SubstanceClass.objects.get(id=class_id).all
+    substances_in_class = Substance.objects.get(sub_class=class_id)
+
+    return render(request, 'subadd/class_details.html', MiscMethods.add_header_info({'class_details': class_details,
+                                                                                     'substances':
+                                                                                         substances_in_class,}))

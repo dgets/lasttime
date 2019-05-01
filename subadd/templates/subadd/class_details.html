@@ -1,0 +1,18 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>{{ class_details.name }} Details</h2>
+
+  <p>Description:</p>
+  <p>{{ class_details.desc }}</p>
+
+  <h2>Substances in Class</h2>
+
+  {% if substances %}
+    <ul>
+      {% for sub in substances %}
+        <li>{{ sub.name }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock main_page_content %}
