@@ -17,11 +17,14 @@
 
   {% if usages %}
     <ul>
-        {% for use in usages %}
-            <li>{{ use }}</li>
+        {% for use_group in usages %}
+            {% for use in use_group.1 %}
+                <li>{{ use }}</li>
+            {% endfor %}
         {% endfor %}
     </ul>
   {% else %}
     <h3>No Usages to Report!</h3>
   {% endif %}
+
 {% endblock main_page_content %}

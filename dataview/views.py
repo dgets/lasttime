@@ -397,6 +397,8 @@ def class_data_summary(request, class_id):
     class_details view to see all information regarding the usages within a
     particular class of substances.
 
+    TODO: pass sub_usages in a tuple instead of dict of lists
+
     :param request:
     :param class_id:
     :return:
@@ -404,11 +406,19 @@ def class_data_summary(request, class_id):
 
     subs = Substance.objects.filter(sub_class=class_id)
     sub_usages = []
+    tmp_usages = []
 
     # get the usages for each sub
     for sub in subs:
-        sub_usages.append(Usage.objects.filter(sub=sub.id, user=request.user))
+        # sub_usages['sub.id'].append(Usage.objects.filter(sub=sub.id, user=request.user))
 
-    context = {'subs': subs, 'usages': sub_usages,}
+        for usage in Usage.objects.filter(sub=sub.id, user=request.user):
+            tmp_usages.append(usage)
+
+        sub_usages.append((sub, tmp_usages))
+        tmp_usages = []
+
+    context = {'subs': subs, 'usages': sub_usages,}     # subs isn't really necessary here any more, but does simplify
+                                                        # the template a bit
 
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
