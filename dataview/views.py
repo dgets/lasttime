@@ -418,7 +418,8 @@ def class_data_summary(request, class_id):
             usage_count += 1
             if usage.dosage > highest_dosage:
                 highest_dosage = usage.dosage
-            elif usage.dosage < lowest_dosage:
+
+            if usage.dosage < lowest_dosage:
                 lowest_dosage = usage.dosage
             tmp_usages.append(usage)
 
