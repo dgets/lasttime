@@ -397,8 +397,6 @@ def class_data_summary(request, class_id):
     class_details view to see all information regarding the usages within a
     particular class of substances.
 
-    TODO: pass sub_usages in a tuple instead of dict of lists
-
     :param request:
     :param class_id:
     :return:
@@ -410,12 +408,27 @@ def class_data_summary(request, class_id):
 
     # get the usages for each sub
     for sub in subs:
-        # sub_usages['sub.id'].append(Usage.objects.filter(sub=sub.id, user=request.user))
+        usage_count = 0
+        total_dosage = 0
+        highest_dosage = 0
+        lowest_dosage = 10000
 
         for usage in Usage.objects.filter(sub=sub.id, user=request.user):
+            total_dosage += usage.dosage
+            usage_count += 1
+            if usage.dosage > highest_dosage:
+                highest_dosage = usage.dosage
+            elif usage.dosage < lowest_dosage:
+                lowest_dosage = usage.dosage
             tmp_usages.append(usage)
 
-        sub_usages.append((sub, tmp_usages))
+        if lowest_dosage == 10000:
+            lowest_dosage = highest_dosage
+
+        # sub, usages, total administered, number of usages, avg per usage, highest dose, lowest dose
+        sub_usages.append((sub, tmp_usages, total_dosage, usage_count, total_dosage / usage_count, highest_dosage,
+                           lowest_dosage))
+
         tmp_usages = []
 
     context = {'subs': subs, 'usages': sub_usages,}     # subs isn't really necessary here any more, but does simplify
