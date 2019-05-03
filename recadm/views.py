@@ -157,9 +157,8 @@ def detail(request, topic_id):
     except Usage.DoesNotExist:
         return render(request, 'recadm/details.html',
                       MiscMethods.add_header_info({'error_message':
-                                                       "The Usage records you requested do not seem to exist...",}))
+                                                   "The Usage records you requested do not seem to exist...",}))
 
-    tmp_dt = None
     # localization needed?
     if MiscMethods.is_localization_needed(admin_details.timestamp):
         tmp_dt = MiscMethods.localize_timestamp(admin_details.timestamp)

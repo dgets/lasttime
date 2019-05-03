@@ -415,12 +415,14 @@ def class_data_summary(request, class_id):
 
         for usage in Usage.objects.filter(sub=sub.id, user=request.user):
             total_dosage += usage.dosage
+
             usage_count += 1
             if usage.dosage > highest_dosage:
                 highest_dosage = usage.dosage
 
             if usage.dosage < lowest_dosage:
                 lowest_dosage = usage.dosage
+
             tmp_usages.append(usage)
 
         if lowest_dosage == 10000:
@@ -436,3 +438,21 @@ def class_data_summary(request, class_id):
                                                         # the template a bit
 
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
+
+
+def classes(request):
+    """
+    Method provides selection for classes to view the detailed statistics
+    breakdown of.
+
+    :param request:
+    :return:
+    """
+
+    if request.method != 'POST':
+        # if there are no classes we should return an error_message to user
+        classes = SubstanceClass.objects.all()
+
+        return render(request, 'dataview/classes.html', MiscMethods.add_header_info({'classes': classes,}))
+
+    else:
