@@ -1,0 +1,31 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Existing Substance Classes</h2>
+
+    {% if substance_classes %}
+        <ul>
+          {% for sub_class in substance_classes %}
+            <li><a href="{% url 'subadd:sub_class_details' sub_class.id %}">{{ sub_class.name }}</a></li>
+          {% endfor %}
+        </ul>
+    {% endif %}
+
+  <h2>Add Substance Classification</h2>
+
+    <form action="{% url 'subadd:add_sub_class' %}" method="post">
+
+        {% csrf_token %}
+
+        <table>
+
+            {{ add_sub_class_form.as_table }}
+
+        </table>
+
+        <br>
+
+        <input type="submit" value="Add Substance Classification" />
+
+    </form>
+{% endblock main_page_content %}

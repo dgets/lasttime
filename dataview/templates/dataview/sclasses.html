@@ -1,0 +1,21 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>See Detailed Stats per Substance Class</h2>
+
+  {% if classes %}
+    <form action="{% url 'dataview:sclasses' %}" method="post">
+
+      {% csrf_token %}
+
+      {% for class in classes %}
+        <br><input type="radio" name="class_destination" value="{{ class.id }}">{{ class.name }}</input>
+      {% endfor %}
+
+      <br><input type="submit" value="Go!" />
+
+    </form>
+  {% else %}
+    <h3>No Classes to Display!</h3>
+  {% endif %}
+{% endblock main_page_content %}

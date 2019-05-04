@@ -13,8 +13,9 @@ class Substance(models.Model):
     TODO: add the ability to pick between the appropriate dosage Enums
     """
 
-    common_name = models.CharField(max_length=40)
-    sci_name = models.CharField(max_length=60)
+    common_name = models.CharField(max_length=40, unique=True)
+    sci_name = models.CharField(max_length=60, unique=True)
+    sub_class = models.ForeignKey('subadd.SubstanceClass', on_delete=models.CASCADE, null=True, default=None)
     half_life = models.DecimalField(max_digits=7, decimal_places=3)
     active_half_life = models.DecimalField(max_digits=7, decimal_places=3)
     lipid_solubility = models.BooleanField(default=False)
@@ -45,3 +46,23 @@ class SubstanceForm(ModelForm):
         fields = ['common_name', 'sci_name', 'half_life', 'active_half_life', 'lipid_solubility']
 
 
+class SubstanceClass(models.Model):
+    """
+    Class holds the details for substance classes.
+    """
+
+    name = models.CharField(max_length=25, unique=True)
+    desc = models.CharField(max_length=160)
+
+    def __str__(self):
+        return self.name
+
+
+class SubstanceClassForm(ModelForm):
+    """
+    Pretty much goes without saying at this point, don't you agree?
+    """
+
+    class Meta:
+        model = SubstanceClass
+        fields = ['name', 'desc']

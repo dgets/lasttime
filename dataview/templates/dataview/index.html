@@ -1,7 +1,6 @@
 {% extends 'home/lasttime_head.html' %}
 
 {% block main_page_content %}
-
   {% if relevant_subs %}
     <ul>
     {% for sub in relevant_subs %}
@@ -13,5 +12,12 @@
   {% else %}
     <h3>No relevant records are available.</h3>
   {% endif %}
-
 {% endblock main_page_content %}
+{% block default_trailer %}
+     <div class="botnav">
+         <a href="{% url 'dataview:classes' %}">See class-based breakdowns</a>
+         <a href="/accounts/logout">Log out</a></div>
+     </div>
+  </body>
+</html>
+{% endblock default_trailer %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import generic
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,7 @@ from pytz import timezone
 import json
 
 from recadm.forms import Usage
-from subadd.forms import Substance
+from subadd.forms import Substance, SubstanceClass
 from home.models import NavInfo, HeaderInfo
 from . import dataview_support
 
@@ -262,7 +262,6 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
     OneDay = datetime.timedelta(days=1)
     day_dosages = []
-    current_dt = None
     tmp_dt = None
     cntr = -1
 
@@ -331,7 +330,7 @@ def dump_dose_graph_data(request, sub_id):
         if max_dosage < use.dosage:
             max_dosage = use.dosage
 
-    scale_factor = dataview_support.get_graph_normalization_divisor(max_dosage, 300)
+    # scale_factor = dataview_support.get_graph_normalization_divisor(max_dosage, 300)
 
     # okay, yeah the 2 for loops is gross, but my brain is fried and I want to
     # finish this quick; I'll fix it later
@@ -389,3 +388,78 @@ def dump_interval_graph_data(request, sub_id):
 
     return HttpResponse(json.dumps({'scale_factor': scale_factor, 'timespans': timespans}),
                         content_type='application/json')
+
+
+def class_data_summary(request, class_id):
+    """
+    View handles the summary data gathering and calculation for the
+    class_details view to see all information regarding the usages within a
+    particular class of substances.
+
+    :param request:
+    :param class_id:
+    :return:
+    """
+
+    subs = Substance.objects.filter(sub_class=class_id)
+    sub_usages = []
+    tmp_usages = []
+
+    # get the usages for each sub
+    for sub in subs:
+        usage_count = 0
+        total_dosage = 0
+        highest_dosage = 0
+        lowest_dosage = 10000
+
+        for usage in Usage.objects.filter(sub=sub.id, user=request.user):
+            total_dosage += usage.dosage
+
+            usage_count += 1
+            if usage.dosage > highest_dosage:
+                highest_dosage = usage.dosage
+
+            if usage.dosage < lowest_dosage:
+                lowest_dosage = usage.dosage
+
+            tmp_usages.append(usage)
+
+        if lowest_dosage == 10000:
+            lowest_dosage = highest_dosage
+
+        # sub, usages, total administered, number of usages, avg per usage, highest dose, lowest dose
+        sub_usages.append((sub, tmp_usages, total_dosage, usage_count, total_dosage / usage_count, highest_dosage,
+                           lowest_dosage))
+
+        tmp_usages = []
+
+    context = {'subs': subs, 'usages': sub_usages,}     # subs isn't really necessary here any more, but does simplify
+                                                        # the template a bit
+
+    return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
+
+
+def sclasses(request):
+    """
+    Method provides selection for classes to view the detailed statistics
+    breakdown of.
+
+    :param request:
+    :return:
+    """
+
+    if request.method != 'POST':
+        print("Request method is not POST")
+
+        # if there are no classes we should return an error_message to user
+        sub_classes = SubstanceClass.objects.all()
+
+        return render(request, 'dataview/sclasses.html', MiscMethods.add_header_info({'classes': sub_classes,}))
+
+    else:
+        print("Attempting redirect to subadd/sub_class_details/" + request.POST['class_destination'] + '/')
+
+        # return redirect('subadd/sub_class_details/' + request.POST['class_destination'] + '/')
+        # return redirect('subadd/sub_class_details', class_id=request.POST['class_destination'])
+        return redirect('subadd:sub_class_details', class_id=request.POST['class_destination'])
+
