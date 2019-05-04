@@ -57,7 +57,7 @@ class UsualSuspect(models.Model):
     notes = models.CharField(max_length=512, blank=True)
 
     def __str__(self):
-        return name + ": " + notes  # we'll add more to this later
+        return self.name + ": " + self.notes  # we'll add more to this later
 
 
 class UsualSuspectForm(ModelForm):

@@ -253,5 +253,24 @@ def add_usual_suspect(request):
         return render(request, 'recadm/add_usual_suspect.html', MiscMethods.add_header_info({'add_usual_suspect_form':
                                                                                              UsualSuspectForm(),}))
 
-    # else:
+    else:
+        context = {}
         # validate (if necessary) and save the form contents
+        new_us = UsualSuspect()
+
+        new_us.name = request.POST['name']
+        new_us.sub_id = Substance.objects.get(id=request.POST['sub_id'])
+        new_us.dosage = request.POST['dosage']
+        new_us.notes = request.POST['notes']
+
+        try:
+            new_us.save()
+        except Exception as ex:
+            context['error_message'] = "Unable to save new usual suspect: " + str(ex)
+            context['add_usual_suspect_form'] = UsualSuspectForm(instance=new_us)
+
+            return render(request, 'recadm/add_usual_suspect.html', MiscMethods.add_header_info(context))
+
+        context['user_message'] = "Saved new usual suspect."
+
+        return redirect('/recadm/')
