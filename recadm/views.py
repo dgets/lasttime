@@ -9,7 +9,7 @@ from pytz import timezone
 from lasttime.myglobals import MiscMethods, Const
 
 from subadd.forms import Substance
-from .forms import Usage, UsageForm
+from .forms import Usage, UsageForm, UsualSuspect, UsualSuspectForm
 
 
 @login_required
@@ -235,3 +235,23 @@ def edit(request, admin_id):
     # so below here...  this really isn't the way to be doing this, with an absolute URL/path, but the other ways
     # weren't working, and this one was, so I took the easy out...  :P
     return redirect('/recadm/', context=MiscMethods.add_header_info(context))
+
+
+@login_required
+def add_usual_suspect(request):
+    """
+    Provides capability for adding a usual suspect to the database.
+
+    :param request:
+    :return:
+    """
+
+    if request.method != 'POST':
+        # display the form and get what we need for a new US entry
+        # add_usual_suspect_form = UsualSuspectForm()
+
+        return render(request, 'recadm/add_usual_suspect.html', MiscMethods.add_header_info({'add_usual_suspect_form':
+                                                                                             UsualSuspectForm(),}))
+
+    # else:
+        # validate (if necessary) and save the form contents

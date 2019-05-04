@@ -43,3 +43,37 @@ class UsageForm(ModelForm):
             'notes': Textarea(attrs={'cols': 60, 'rows': 9})
         }
 
+
+class UsualSuspect(models.Model):
+    """
+    Models holds the information relevant to a UsualSuspect, ie a predefined
+    substance's usage information (including particular dosage, notes, etc, for
+    one-click additions of a usage).
+    """
+
+    name = models.CharField(max_length=32, unique=True)
+    sub_id = models.ForeignKey('subadd.Substance', on_delete=models.CASCADE)
+    dosage = models.DecimalField(max_digits=7, decimal_places=3)
+    notes = models.CharField(max_length=512, blank=True)
+
+    def __str__(self):
+        return name + ": " + notes  # we'll add more to this later
+
+
+class UsualSuspectForm(ModelForm):
+    """
+    Form for adding or changing a UsualSuspect.
+    """
+
+    class Meta:
+        model = UsualSuspect
+        fields = ['name', 'sub_id', 'dosage', 'notes']
+        labels = {
+            'name': 'Name',
+            'sub_id': 'Substance',
+            'dosage': 'Dosage amount',
+            'notes': 'Notes',
+        }
+        widgets = {
+            'notes': Textarea(attrs={'cols': 60, 'rows': 9})
+        }
