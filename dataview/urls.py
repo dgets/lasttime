@@ -14,5 +14,5 @@ urlpatterns = [
     path('dump_constrained_dose_graph_data/<int:sub_id>/', views.dump_constrained_dose_graph_data,
          name='dump_constrained_dose_graph_data'),
     path('class_data_summary/<int:class_id>/', views.class_data_summary, name='class_data_summary'),
-    path('classes/', views.classes, name='classes'),
+    path('sclasses/', views.sclasses, name='sclasses'),
 ]

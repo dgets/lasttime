@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import generic
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,7 @@ from pytz import timezone
 import json
 
 from recadm.forms import Usage
-from subadd.forms import Substance
+from subadd.forms import Substance, SubstanceClass
 from home.models import NavInfo, HeaderInfo
 from . import dataview_support
 
@@ -262,7 +262,6 @@ def dump_constrained_dose_graph_data(request, sub_id):
 
     OneDay = datetime.timedelta(days=1)
     day_dosages = []
-    current_dt = None
     tmp_dt = None
     cntr = -1
 
@@ -440,7 +439,7 @@ def class_data_summary(request, class_id):
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
 
 
-def classes(request):
+def sclasses(request):
     """
     Method provides selection for classes to view the detailed statistics
     breakdown of.
@@ -450,9 +449,17 @@ def classes(request):
     """
 
     if request.method != 'POST':
-        # if there are no classes we should return an error_message to user
-        classes = SubstanceClass.objects.all()
+        print("Request method is not POST")
 
-        return render(request, 'dataview/classes.html', MiscMethods.add_header_info({'classes': classes,}))
+        # if there are no classes we should return an error_message to user
+        sub_classes = SubstanceClass.objects.all()
+
+        return render(request, 'dataview/sclasses.html', MiscMethods.add_header_info({'classes': sub_classes,}))
 
     else:
+        print("Attempting redirect to subadd/sub_class_details/" + request.POST['class_destination'] + '/')
+
+        # return redirect('subadd/sub_class_details/' + request.POST['class_destination'] + '/')
+        # return redirect('subadd/sub_class_details', class_id=request.POST['class_destination'])
+        return redirect('subadd:sub_class_details', class_id=request.POST['class_destination'])
+
