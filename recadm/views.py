@@ -62,15 +62,18 @@ def add(request):
     """
 
     substances = Substance.objects.all()
+    usual_suspects = UsualSuspect.objects.all()
+
     mydata = []
 
     add_administration_form = UsageForm()
 
     for sub in substances:
-        mydata.append({'name': sub.common_name, 'id': sub.id, })
+        mydata.append({'name': sub.common_name, 'id': sub.id,})
 
     context = {
         'mydata': mydata,
+        'usual_suspects': usual_suspects,
         'add_admin_form': add_administration_form,
     }
 
@@ -274,3 +277,24 @@ def add_usual_suspect(request):
         context['user_message'] = "Saved new usual suspect."
 
         return redirect('/recadm/')
+
+
+@login_required
+def save_usual_suspect_admin(request):
+    """
+    Saves the administration of a usual_suspect from the 'add' view above.
+
+    :param request:
+    :return:
+    """
+
+    if request.method != 'POST':
+        # we have some sort of funky error here
+        context['user_message'] = "We had some sort of funky error here."
+
+    else:
+
+        context['user_message'] = "Saved usual suspect administration."
+
+
+    return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))

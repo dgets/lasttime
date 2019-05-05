@@ -10,5 +10,6 @@ urlpatterns = [
     path('save_admin', views.save_admin, name='save_admin'),
     path('edit/<int:admin_id>/', views.edit, name='edit'),
     path('add_usual_suspect', views.add_usual_suspect, name='add_usual_suspect'),
+    path('save_usual_suspect_admin', views.save_usual_suspect_admin, name='save_usual_suspect_admin'),
 ]
 
