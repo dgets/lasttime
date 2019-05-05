@@ -288,6 +288,8 @@ def save_usual_suspect_admin(request):
     :return:
     """
 
+    context = {}
+
     if request.method != 'POST':
         # we have some sort of funky error here
         context['error_message'] = "We had some sort of funky error here."
@@ -308,6 +310,6 @@ def save_usual_suspect_admin(request):
 
             context['user_message'] = "Saved usual suspect administration."
         except Exception as e:
-            print("Houston, we have a friggin' problem: " + str(e))
+            context['error_message'] = "Houston, we have a friggin' problem: " + str(e)
 
     return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))
