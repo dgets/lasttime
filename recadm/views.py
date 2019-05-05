@@ -290,11 +290,24 @@ def save_usual_suspect_admin(request):
 
     if request.method != 'POST':
         # we have some sort of funky error here
-        context['user_message'] = "We had some sort of funky error here."
+        context['error_message'] = "We had some sort of funky error here."
 
     else:
+        us = UsualSuspect.objects.get(id=request.POST['us_value'])
 
-        context['user_message'] = "Saved usual suspect administration."
+        # save our administration here
+        new_usage = Usage()
+        new_usage.user = request.user
+        new_usage.timestamp = datetime.now()
+        new_usage.sub = us.sub_id
+        new_usage.dosage = us.dosage
+        new_usage.notes = us.notes
 
+        try:
+            new_usage.save()
+
+            context['user_message'] = "Saved usual suspect administration."
+        except Exception as e:
+            print("Houston, we have a friggin' problem: " + str(e))
 
     return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))
