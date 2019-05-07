@@ -9,7 +9,7 @@ from pytz import timezone
 from lasttime.myglobals import MiscMethods, Const
 
 from subadd.forms import Substance
-from .forms import Usage, UsageForm
+from .forms import Usage, UsageForm, UsualSuspect, UsualSuspectForm
 
 
 @login_required
@@ -31,7 +31,6 @@ def index(request):
     administrations = paginator.get_page(page)
 
     mydata = []
-    local_dt = None
     for administration in administrations:  # recent_administrations:
         # localize timestamp?
         if MiscMethods.is_localization_needed(administration.timestamp):
@@ -62,15 +61,20 @@ def add(request):
     """
 
     substances = Substance.objects.all()
+    usual_suspects = UsualSuspect.objects.all()
+
     mydata = []
 
     add_administration_form = UsageForm()
 
     for sub in substances:
-        mydata.append({'name': sub.common_name, 'id': sub.id, })
+        mydata.append({'name': sub.common_name, 'id': sub.id,})
 
     context = {
         'mydata': mydata,
+        'timestamp': "YYYY-mm-dd HH:MM:SS",
+        # 'timestamp': datetime.now(),  # the other option
+        'usual_suspects': usual_suspects,
         'add_admin_form': add_administration_form,
     }
 
@@ -122,7 +126,6 @@ def save_admin(request):
     page = request.GET.get('page')
     administrations = paginator.get_page(page)
 
-    tmp_dt = None
     for administration in administrations:
         # localization needed?
         if MiscMethods.is_localization_needed(administration.timestamp):
@@ -235,3 +238,81 @@ def edit(request, admin_id):
     # so below here...  this really isn't the way to be doing this, with an absolute URL/path, but the other ways
     # weren't working, and this one was, so I took the easy out...  :P
     return redirect('/recadm/', context=MiscMethods.add_header_info(context))
+
+
+@login_required
+def add_usual_suspect(request):
+    """
+    Provides capability for adding a usual suspect to the database.
+
+    :param request:
+    :return:
+    """
+
+    if request.method != 'POST':
+        # display the form and get what we need for a new US entry
+        # add_usual_suspect_form = UsualSuspectForm()
+
+        return render(request, 'recadm/add_usual_suspect.html', MiscMethods.add_header_info({'add_usual_suspect_form':
+                                                                                             UsualSuspectForm(),}))
+
+    else:
+        context = {}
+        # validate (if necessary) and save the form contents
+        new_us = UsualSuspect()
+
+        new_us.name = request.POST['name']
+        new_us.sub_id = Substance.objects.get(id=request.POST['sub_id'])
+        new_us.dosage = request.POST['dosage']
+        new_us.notes = request.POST['notes']
+
+        try:
+            new_us.save()
+        except Exception as ex:
+            context['error_message'] = "Unable to save new usual suspect: " + str(ex)
+            context['add_usual_suspect_form'] = UsualSuspectForm(instance=new_us)
+
+            return render(request, 'recadm/add_usual_suspect.html', MiscMethods.add_header_info(context))
+
+        context['user_message'] = "Saved new usual suspect."
+
+        return redirect('/recadm/')
+
+
+@login_required
+def save_usual_suspect_admin(request):
+    """
+    Saves the administration of a usual_suspect from the 'add' view above.
+
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    if request.method != 'POST':
+        # we have some sort of funky error here
+        context['error_message'] = "We had some sort of funky error here."
+
+    else:
+        us = UsualSuspect.objects.get(id=request.POST['us_value'])
+
+        # save our administration here
+        new_usage = Usage()
+        new_usage.user = request.user
+        new_usage.sub = us.sub_id
+        new_usage.dosage = us.dosage
+        new_usage.notes = us.notes
+        if request.POST['timestamp'] == "" or request.POST['timestamp'] == "YYYY-mm-dd HH:MM:SS":
+            new_usage.timestamp = datetime.now()
+        else:
+            new_usage.timestamp = datetime.strptime(request.POST['timestamp'], '%Y-%m-%d %H:%M:%S')
+
+        try:
+            new_usage.save()
+
+            context['user_message'] = "Saved usual suspect administration."
+        except Exception as e:
+            context['error_message'] = "Houston, we have a friggin' problem: " + str(e)
+
+    return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))

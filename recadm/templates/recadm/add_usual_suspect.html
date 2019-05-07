@@ -1,0 +1,18 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Add Usual Suspect</h2>
+
+    <form action="{% url 'recadm:add_usual_suspect' %}" method="post">
+
+        {% csrf_token %}
+
+        <table>
+            {{ add_usual_suspect_form.as_table }}
+        </table>
+
+        <br>
+
+        <input type="submit" value="Save Usual Suspect" />
+    </form>
+{% endblock main_page_content %}

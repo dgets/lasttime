@@ -137,8 +137,8 @@ def add_sub_class(request):
 
         return render(request, 'subadd/add_class.html', MiscMethods.add_header_info({'substance_class': None,
                                                                                      'substance_classes': sub_classes,
-                                                                                    'add_sub_class_form':
-                                                                                        add_sub_class_form}))
+                                                                                     'add_sub_class_form':
+                                                                                     add_sub_class_form}))
 
     else:
         add_sub_class_rec = SubstanceClass(name=request.POST['name'], desc=request.POST['desc'])

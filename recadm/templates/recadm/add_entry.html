@@ -2,16 +2,47 @@
 {% block main_page_content %}
 <h2>Record Medication Administration</h2>
 
-<form action="{% url 'recadm:save_admin' %}" method="post">
-  {% csrf_token %}
+<table>
+    <tr>
+      <td>
+        <!-- standard 'raw data' administration addition lies here -->
+        <form action="{% url 'recadm:save_admin' %}" method="post">
+          {% csrf_token %}
 
- <table>
-  {{ add_admin_form.as_table }}
- </table>
+          <table>
+              {{ add_admin_form.as_table }}
+          </table>
 
-  <input type="submit" value="Record Med Administration" />
+          <br>
+          <input type="submit" value="Record Med Administration" />
+        </form>
+      </td>
+      <td>
+          <!-- here is where the usual suspect administration addition lies -->
+          {% if usual_suspects %}
 
-</form>
+            <form action="{% url 'recadm:save_usual_suspect_admin' %}" method="post">
+                {% csrf_token %}
+                <p>Usual Suspect:</p>
+                {% for usual_suspect in usual_suspects %}
+                    <input type="radio" name="us_value" value="{{ usual_suspect.id }}">
+                        {{ usual_suspect.name }}
+                    </input>
+                    <br>
+                {% endfor %}
+                  <p>Timestamp:</p>
+                  <input type="text" name="timestamp" placeholder="{{ timestamp }}" maxlength="20" />
+                  <br>
+                <br><br>
+                <input type="submit" value="Record Usual Suspect Administration" />
+            </form>
+
+          {% else %}
+            <h3>No Usual Suspects Exist for Addition!</h3>
+          {% endif %}
+      </td>
+    </tr>
+</table>
 {% endblock main_page_content %}
 
 {% block default_trailer %}

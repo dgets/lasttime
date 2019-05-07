@@ -1,0 +1,13 @@
+{% extends 'home/lasttime_head.html' %}
+{% block main_page_content %}
+  {% if error_message %}
+    <h2>Unable to Save Administration</h2>
+
+    <p>We're sorry, something is borked in the administration addition via
+    <b>usual suspect</b> feature.  We're going to get on top of this as soon as
+    possible here!</p>
+  {% else %}
+    <h2>Usual Suspect Administration Saved</h2>
+
+  {% endif %}
+{% endblock main_page_content %}
