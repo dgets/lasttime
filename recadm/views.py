@@ -31,7 +31,6 @@ def index(request):
     administrations = paginator.get_page(page)
 
     mydata = []
-    local_dt = None
     for administration in administrations:  # recent_administrations:
         # localize timestamp?
         if MiscMethods.is_localization_needed(administration.timestamp):
@@ -73,6 +72,8 @@ def add(request):
 
     context = {
         'mydata': mydata,
+        'timestamp': "YYYY-mm-dd HH:MM:SS",
+        # 'timestamp': datetime.now(),  # the other option
         'usual_suspects': usual_suspects,
         'add_admin_form': add_administration_form,
     }
@@ -125,7 +126,6 @@ def save_admin(request):
     page = request.GET.get('page')
     administrations = paginator.get_page(page)
 
-    tmp_dt = None
     for administration in administrations:
         # localization needed?
         if MiscMethods.is_localization_needed(administration.timestamp):
@@ -300,10 +300,13 @@ def save_usual_suspect_admin(request):
         # save our administration here
         new_usage = Usage()
         new_usage.user = request.user
-        new_usage.timestamp = datetime.now()
         new_usage.sub = us.sub_id
         new_usage.dosage = us.dosage
         new_usage.notes = us.notes
+        if request.POST['timestamp'] == "" or request.POST['timestamp'] == "YYYY-mm-dd HH:MM:SS":
+            new_usage.timestamp = datetime.now()
+        else:
+            new_usage.timestamp = datetime.strptime(request.POST['timestamp'], '%Y-%m-%d %H:%M:%S')
 
         try:
             new_usage.save()

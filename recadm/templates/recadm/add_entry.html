@@ -23,13 +23,16 @@
 
             <form action="{% url 'recadm:save_usual_suspect_admin' %}" method="post">
                 {% csrf_token %}
+                <p>Usual Suspect:</p>
                 {% for usual_suspect in usual_suspects %}
                     <input type="radio" name="us_value" value="{{ usual_suspect.id }}">
                         {{ usual_suspect.name }}
                     </input>
                     <br>
                 {% endfor %}
-
+                  <p>Timestamp:</p>
+                  <input type="text" name="timestamp" placeholder="{{ timestamp }}" maxlength="20" />
+                  <br>
                 <br><br>
                 <input type="submit" value="Record Usual Suspect Administration" />
             </form>
