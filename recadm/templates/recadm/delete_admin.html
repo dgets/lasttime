@@ -1,0 +1,42 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Delete Administration(s)</h2>
+
+  {% if admins %}
+    <form action="{% url 'recadm:delete_admin' %}" method="post">
+
+        {% csrf_token %}
+
+        <table>
+            <!--
+                NOTE: We will need to add a 'select all' checkbox here, with
+                      applicable javascript, as soon as motivation is available
+                      for such
+              -->
+
+            <tr>
+                <th>Administration Information</th>
+                <th>Delete?</th>
+            </tr>
+            {% for admin in admins %}
+                <tr>
+                    <td>{{ admin }}</td>
+                    <td><center>
+                        <input type="checkbox" name="admins" value="{{ admin.id }}" />
+                    </center></td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <br>
+        <input type="submit" value="Delete Administrations" />
+
+    </form>
+  {% else %}
+    <h3>No Administrations Available!</h3>
+  {% endif %}
+
+{% endblock main_page_content %}
+{% block default_trailer %}
+{% endblock default_trailer %}

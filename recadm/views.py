@@ -316,3 +316,20 @@ def save_usual_suspect_admin(request):
             context['error_message'] = "Houston, we have a friggin' problem: " + str(e)
 
     return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def delete_admin(request):
+    """
+    Provides capability for deleting an administration (or several).
+
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    if request.method != 'POST':
+        context['admins'] = Usage.objects.filter(user=request.user)
+
+    return render(request, 'recadm/delete_admin.html', MiscMethods.add_header_info(context))
