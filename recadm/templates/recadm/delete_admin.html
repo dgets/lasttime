@@ -51,6 +51,9 @@
 
         <br>
         <p>Clicking this box will delete these administrations (<i>forever</i>)!</p>
+        {% for id in selected_admin_ids %}
+            <input type="hidden" name="selected_admin_ids" value="{{ id }}" />
+        {% endfor %}
         <input type="hidden" name="delete_confirmed" value="delete_confirmed" id="delete_confirmed" />
         <input type="submit" value="Permanently Delete Administrations!" />
 

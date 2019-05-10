@@ -333,19 +333,26 @@ def delete_admin(request):
         # display the administrations available for deletion
         context['admins'] = Usage.objects.filter(user=request.user)
 
-    # elif request.POST['delete_confirmed'] is not None:
-    elif 'delete_confirmed' in request.POST:
-        # now we will go ahead and wipe what has been confirmed for deletion
-        context['user_message'] = "Administrations deleted!"
-
-    # elif request.POST.getlist('admin_checks') is not None:
     elif 'admin_checks' in request.POST:
         # confirm and delete the checked administrations
         # first build a set of the administrations
         # admins = []
         context['selected_admins'] = []
+        context['selected_admin_ids'] = []
         for admin in request.POST.getlist('admin_checks'):
-            context['selected_admins'].append(str(Usage.objects.get(id=admin)))
+            tmp_usage = Usage.objects.get(id=admin)
+            context['selected_admins'].append(str(tmp_usage))
+            context['selected_admin_ids'].append(tmp_usage.id)
+
+    elif 'delete_confirmed' in request.POST:
+        # now we will go ahead and wipe what has been confirmed for deletion
+        # for use_id in context['selected_admin_ids']:
+        for use_id in request.POST.getlist('selected_admin_ids'):
+            print("Deleting administration: " + use_id)
+            Usage.objects.filter(id=use_id).delete()
+
+        context['user_message'] = "Administrations deleted!"
+        context['admins'] = Usage.objects.filter(user=request.user)
 
     else:
         # whayit
