@@ -330,6 +330,15 @@ def delete_admin(request):
     context = {}
 
     if request.method != 'POST':
+        # display the administrations available for deletion
         context['admins'] = Usage.objects.filter(user=request.user)
+
+    elif request.POST.getlist('admin_checks') is not None:
+        # confirm and delete the checked administrations
+        context['selected_admins'] = request.POST.getlist('admin_checks')
+
+    elif request.POST['delete_confirmed'] is not None:
+        # now we will go ahead and wipe what has been confirmed for deletion
+        context['user_message'] = "Administrations deleted!"
 
     return render(request, 'recadm/delete_admin.html', MiscMethods.add_header_info(context))

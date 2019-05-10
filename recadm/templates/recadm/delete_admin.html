@@ -23,7 +23,7 @@
                 <tr>
                     <td>{{ admin }}</td>
                     <td><center>
-                        <input type="checkbox" name="admins" value="{{ admin.id }}" />
+                        <input type="checkbox" name="admin_checks" value="{{ admin.id }}" />
                     </center></td>
                 </tr>
             {% endfor %}
@@ -33,6 +33,29 @@
         <input type="submit" value="Delete Administrations" />
 
     </form>
+  {% elif selected_admins %}
+    <!-- confirm that the administrations are to be deleted -->
+
+    <h2>You are about to delete the following administrations!</h2>
+    <p><b>NOTE</b>:  This cannot be undone!</p>
+
+    <ul>
+        {% for admin in selected_admins %}
+            <li>{{ admin }}</li>
+        {% endfor %}
+    </ul>
+
+    <form action="{% url 'recadm:delete_admin' %}" method="post">
+
+        {% csrf_token %}
+
+        <br>
+        <p>Clicking this box will delete these administrations (<i>forever</i>)!</p>
+        <br>
+        <input type="submit" value="Permanently Delete Administrations!" />
+
+    </form>
+
   {% else %}
     <h3>No Administrations Available!</h3>
   {% endif %}
