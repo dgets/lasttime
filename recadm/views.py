@@ -316,3 +316,46 @@ def save_usual_suspect_admin(request):
             context['error_message'] = "Houston, we have a friggin' problem: " + str(e)
 
     return render(request, 'recadm/usual_suspect_admin_added.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def delete_admin(request):
+    """
+    Provides capability for deleting an administration (or several).
+
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    if request.method != 'POST':
+        # display the administrations available for deletion
+        context['admins'] = Usage.objects.filter(user=request.user)
+
+    elif 'admin_checks' in request.POST:
+        # confirm and delete the checked administrations
+        # first build a set of the administrations
+        # admins = []
+        context['selected_admins'] = []
+        context['selected_admin_ids'] = []
+        for admin in request.POST.getlist('admin_checks'):
+            tmp_usage = Usage.objects.get(id=admin)
+            context['selected_admins'].append(str(tmp_usage))
+            context['selected_admin_ids'].append(tmp_usage.id)
+
+    elif 'delete_confirmed' in request.POST:
+        # now we will go ahead and wipe what has been confirmed for deletion
+        # for use_id in context['selected_admin_ids']:
+        for use_id in request.POST.getlist('selected_admin_ids'):
+            print("Deleting administration: " + use_id)
+            Usage.objects.filter(id=use_id).delete()
+
+        context['user_message'] = "Administrations deleted!"
+        context['admins'] = Usage.objects.filter(user=request.user)
+
+    else:
+        # whayit
+        context['error_message'] = "Whayit?"
+
+    return render(request, 'recadm/delete_admin.html', MiscMethods.add_header_info(context))
