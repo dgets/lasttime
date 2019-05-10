@@ -29,7 +29,7 @@
   {% if user.is_authenticated %}
    <div class="botnav">
      <a href="{% url 'subadd:add' %}">Add new substance</a>
-     <a href="{% url 'subadd:add_sub_class' %}">Add new substance class</a>
+     <a href="{% url 'subadd:add_sub_class' %}">Substance classes</a>
      <a href="/accounts/logout">Log out</a>
    </div>
   {% else %}
