@@ -439,6 +439,7 @@ def class_data_summary(request, class_id):
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
 
 
+@login_required
 def sclasses(request):
     """
     Method provides selection for classes to view the detailed statistics
@@ -457,9 +458,10 @@ def sclasses(request):
         return render(request, 'dataview/sclasses.html', MiscMethods.add_header_info({'classes': sub_classes,}))
 
     else:
-        print("Attempting redirect to subadd/sub_class_details/" + request.POST['class_destination'] + '/')
+        # print("Attempting redirect to subadd/sub_class_details/" + request.POST['class_destination'] + '/')
 
         # return redirect('subadd/sub_class_details/' + request.POST['class_destination'] + '/')
         # return redirect('subadd/sub_class_details', class_id=request.POST['class_destination'])
-        return redirect('subadd:sub_class_details', class_id=request.POST['class_destination'])
+        # return redirect('subadd:sub_class_details', class_id=request.POST['class_destination'])
+        return redirect('dataview:class_data_summary', class_id=request.POST['class_destination'])
 
