@@ -77,6 +77,8 @@ def get_interval_stats(usages):
     them, determines the longest, shortest, and total of the timespans, along
     with the average, and returns them in a dict.
 
+    Dict keys consist of timespans, total, longest, shortest, average
+
     :param usages:
     :return:
     """
@@ -94,7 +96,7 @@ def get_interval_stats(usages):
 
     for use in usages:
         if prev_time is not None:
-            current_delta = datetime.timedelta
+            # current_delta = datetime.timedelta
             current_delta = use.timestamp - prev_time
             interval_data['timespans'].append(round_timedelta(current_delta, datetime.timedelta(seconds=1)))
 
@@ -143,6 +145,8 @@ def get_usage_stats(usages):
     Method utilizes the Usage records to calculate highest/lowest/average
     dosages, total amount, and times administered, then returning them in a
     dict.
+
+    Dict keys consist of: total, highest, lowest, average, count
 
     :param usages: the records that we're looking at
     :return:

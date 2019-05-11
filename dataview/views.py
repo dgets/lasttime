@@ -390,6 +390,7 @@ def dump_interval_graph_data(request, sub_id):
                         content_type='application/json')
 
 
+@login_required
 def class_data_summary(request, class_id):
     """
     View handles the summary data gathering and calculation for the
@@ -402,39 +403,60 @@ def class_data_summary(request, class_id):
     """
 
     subs = Substance.objects.filter(sub_class=class_id)
-    sub_usages = []
-    tmp_usages = []
-
-    # get the usages for each sub
+    usages_list = []
     for sub in subs:
-        usage_count = 0
-        total_dosage = 0
-        highest_dosage = 0
-        lowest_dosage = 10000
+        usages_list.append(Usage.objects.filter(sub=sub.id, user=request.user))
 
-        for usage in Usage.objects.filter(sub=sub.id, user=request.user):
-            total_dosage += usage.dosage
+    # now we process each sub in the usages_list for our stats
+    sub_usage_stats = []
+    sub_usage_stats_tuple = []
+    # sub_interval_stats = []
+    cntr = 0
+    for usages in usages_list:
+        sub_usage_stats.append(dataview_support.get_usage_stats(usages))
+        # we're not working with the intervals yet, so we'll save that processing for later
+        # sub_interval_stats.append(dataview_support.get_interval_stats(usages))
 
-            usage_count += 1
-            if usage.dosage > highest_dosage:
-                highest_dosage = usage.dosage
+        # now we'll stuff that data into our pre-existing data structure, at least until we've got time to rework
+        # the template for what's here now
+        sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
+                                      len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
+                                      sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest']))
+        cntr += 1
 
-            if usage.dosage < lowest_dosage:
-                lowest_dosage = usage.dosage
+    # sub_usages = []
+    # tmp_usages = []
+    #
+    # # get the usages for each sub
+    # for sub in subs:
+    #     usage_count = 0
+    #     total_dosage = 0
+    #     highest_dosage = 0
+    #     lowest_dosage = 10000
+    #
+    #     for usage in Usage.objects.filter(sub=sub.id, user=request.user):
+    #         total_dosage += usage.dosage
+    #
+    #         usage_count += 1
+    #         if usage.dosage > highest_dosage:
+    #             highest_dosage = usage.dosage
+    #
+    #         if usage.dosage < lowest_dosage:
+    #             lowest_dosage = usage.dosage
+    #
+    #         tmp_usages.append(usage)
+    #
+    #     if lowest_dosage == 10000:
+    #         lowest_dosage = highest_dosage
+    #
+    #     # sub, usages, total administered, number of usages, avg per usage, highest dose, lowest dose
+    #     sub_usages.append((sub, tmp_usages, total_dosage, usage_count, total_dosage / usage_count, highest_dosage,
+    #                        lowest_dosage))
+    #
+    #     tmp_usages = []
 
-            tmp_usages.append(usage)
-
-        if lowest_dosage == 10000:
-            lowest_dosage = highest_dosage
-
-        # sub, usages, total administered, number of usages, avg per usage, highest dose, lowest dose
-        sub_usages.append((sub, tmp_usages, total_dosage, usage_count, total_dosage / usage_count, highest_dosage,
-                           lowest_dosage))
-
-        tmp_usages = []
-
-    context = {'subs': subs, 'usages': sub_usages,}     # subs isn't really necessary here any more, but does simplify
-                                                        # the template a bit
+    context = {'subs': subs, 'usages': sub_usage_stats_tuple,}     # subs isn't really necessary here any more, but does
+                                                                   # simplify the template a bit
 
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
 
@@ -450,18 +472,12 @@ def sclasses(request):
     """
 
     if request.method != 'POST':
-        print("Request method is not POST")
-
         # if there are no classes we should return an error_message to user
         sub_classes = SubstanceClass.objects.all()
 
         return render(request, 'dataview/sclasses.html', MiscMethods.add_header_info({'classes': sub_classes,}))
 
     else:
-        # print("Attempting redirect to subadd/sub_class_details/" + request.POST['class_destination'] + '/')
-
-        # return redirect('subadd/sub_class_details/' + request.POST['class_destination'] + '/')
-        # return redirect('subadd/sub_class_details', class_id=request.POST['class_destination'])
         # return redirect('subadd:sub_class_details', class_id=request.POST['class_destination'])
         return redirect('dataview:class_data_summary', class_id=request.POST['class_destination'])
 
