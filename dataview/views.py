@@ -405,23 +405,23 @@ def class_data_summary(request, class_id):
     subs = Substance.objects.filter(sub_class=class_id)
     usages_list = []
     for sub in subs:
-        usages_list.append(Usage.objects.filter(sub=sub.id, user=request.user))
+        usages_list.append(Usage.objects.filter(sub=sub.id, user=request.user).order_by("timestamp"))
 
     # now we process each sub in the usages_list for our stats
     sub_usage_stats = []
     sub_usage_stats_tuple = []
-    # sub_interval_stats = []
+    sub_interval_stats = []
     cntr = 0
     for usages in usages_list:
         sub_usage_stats.append(dataview_support.get_usage_stats(usages))
-        # we're not working with the intervals yet, so we'll save that processing for later
-        # sub_interval_stats.append(dataview_support.get_interval_stats(usages))
+        sub_interval_stats.append(dataview_support.get_interval_stats(usages))
 
         # now we'll stuff that data into our pre-existing data structure, at least until we've got time to rework
         # the template for what's here now
         sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
                                       len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
-                                      sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest']))
+                                      sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest'],
+                                      sub_interval_stats[cntr]))
         cntr += 1
 
     # sub_usages = []

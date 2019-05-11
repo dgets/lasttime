@@ -20,6 +20,8 @@
             <a name="{{ use_group.0 }}"><h4>{{ use_group.0 }}</h4></a>
 
             <table summary="{{ use_group.0 }} Data Summary">
+             <tr><td>
+              <table summary="Administration Stats">
                 <tr>
                     <td>Total Usages:</td>
                     <td>{{ use_group.3 }}</td>
@@ -38,6 +40,28 @@
                     <td>Lowest Dosage:</td>
                     <td>{{ use_group.6 }}</td>
                 </tr>
+              </table>
+             </td>
+             <td>
+                 <table summary="Interval Stats">
+                     <tr>
+                         <td>Total Duration:</td>
+                         <td>{{ use_group.7.total }}</td>
+                     </tr>
+                     <tr>
+                         <td>Average Duration:</td>
+                         <td>{{ use_group.7.average }}</td>
+                     </tr>
+                     <tr>
+                         <td>Longest Duration:</td>
+                         <td>{{ use_group.7.longest }}</td>
+                     </tr>
+                     <tr>
+                         <td>Shortest Duration:</td>
+                         <td>{{ use_group.7.shortest }}</td>
+                     </tr>
+                 </table>
+             </td></tr>
             </table>
 
             <ul>
