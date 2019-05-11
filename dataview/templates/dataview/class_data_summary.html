@@ -19,8 +19,10 @@
         {% for use_group in usages %}
             <a name="{{ use_group.0 }}"><h4>{{ use_group.0 }}</h4></a>
 
+            {% if not interval_error %}
             <table summary="{{ use_group.0 }} Data Summary">
              <tr><td>
+            {% endif %}
               <table summary="Administration Stats">
                 <tr>
                     <td>Total Usages:</td>
@@ -41,6 +43,7 @@
                     <td>{{ use_group.6 }}</td>
                 </tr>
               </table>
+            {% if not interval_error %}
              </td>
              <td>
                  <table summary="Interval Stats">
@@ -63,6 +66,7 @@
                  </table>
              </td></tr>
             </table>
+            {% endif %}
 
             <ul>
               {% for use in use_group.1 %}

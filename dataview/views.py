@@ -412,51 +412,34 @@ def class_data_summary(request, class_id):
     sub_usage_stats_tuple = []
     sub_interval_stats = []
     cntr = 0
+    interval_cntr = 0
     for usages in usages_list:
+        if len(usages) < 2:
+            interval_error = True
+        else:
+            interval_error = False
+
         sub_usage_stats.append(dataview_support.get_usage_stats(usages))
-        sub_interval_stats.append(dataview_support.get_interval_stats(usages))
+        if not interval_error:
+            sub_interval_stats.append(dataview_support.get_interval_stats(usages))
 
         # now we'll stuff that data into our pre-existing data structure, at least until we've got time to rework
         # the template for what's here now
-        sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
-                                      len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
-                                      sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest'],
-                                      sub_interval_stats[cntr]))
+        if not interval_error:
+            sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
+                                          len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
+                                          sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest'],
+                                          sub_interval_stats[interval_cntr]))
+            interval_cntr += 1
+        else:
+            sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
+                                          len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
+                                          sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest']))
+
         cntr += 1
 
-    # sub_usages = []
-    # tmp_usages = []
-    #
-    # # get the usages for each sub
-    # for sub in subs:
-    #     usage_count = 0
-    #     total_dosage = 0
-    #     highest_dosage = 0
-    #     lowest_dosage = 10000
-    #
-    #     for usage in Usage.objects.filter(sub=sub.id, user=request.user):
-    #         total_dosage += usage.dosage
-    #
-    #         usage_count += 1
-    #         if usage.dosage > highest_dosage:
-    #             highest_dosage = usage.dosage
-    #
-    #         if usage.dosage < lowest_dosage:
-    #             lowest_dosage = usage.dosage
-    #
-    #         tmp_usages.append(usage)
-    #
-    #     if lowest_dosage == 10000:
-    #         lowest_dosage = highest_dosage
-    #
-    #     # sub, usages, total administered, number of usages, avg per usage, highest dose, lowest dose
-    #     sub_usages.append((sub, tmp_usages, total_dosage, usage_count, total_dosage / usage_count, highest_dosage,
-    #                        lowest_dosage))
-    #
-    #     tmp_usages = []
-
-    context = {'subs': subs, 'usages': sub_usage_stats_tuple,}     # subs isn't really necessary here any more, but does
-                                                                   # simplify the template a bit
+    # subs isn't really necessary here any more, but does simplify the template a bit
+    context = {'subs': subs, 'usages': sub_usage_stats_tuple,}
 
     return render(request, 'dataview/class_data_summary.html', MiscMethods.add_header_info(context))
 
