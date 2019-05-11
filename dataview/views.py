@@ -434,7 +434,8 @@ def class_data_summary(request, class_id):
         else:
             sub_usage_stats_tuple.append((subs[cntr], usages_list[cntr], sub_usage_stats[cntr]['total'],
                                           len(usages_list[cntr]), sub_usage_stats[cntr]['average'],
-                                          sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest']))
+                                          sub_usage_stats[cntr]['highest'], sub_usage_stats[cntr]['lowest'],
+                                          False))
 
         cntr += 1
 
