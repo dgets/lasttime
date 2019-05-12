@@ -73,6 +73,10 @@
                 <li>{{ use }}</li>
               {% endfor %}
             </ul>
+
+            <p>For individual substance graphing data, please see
+                <a href="{% url 'dataview:data_summary' use_group.0.id %}">the following individual stats page</a>.</p>
+
         {% endfor %}
   {% else %}
     <h3>No Usages to Report!</h3>
