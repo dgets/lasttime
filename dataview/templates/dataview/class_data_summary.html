@@ -19,7 +19,11 @@
         {% for use_group in usages %}
             <a name="{{ use_group.0 }}"><h4>{{ use_group.0 }}</h4></a>
 
+            {% if use_group.7 is not False %}
             <table summary="{{ use_group.0 }} Data Summary">
+             <tr><td>
+            {% endif %}
+              <table summary="Administration Stats">
                 <tr>
                     <td>Total Usages:</td>
                     <td>{{ use_group.3 }}</td>
@@ -38,13 +42,41 @@
                     <td>Lowest Dosage:</td>
                     <td>{{ use_group.6 }}</td>
                 </tr>
+              </table>
+            {% if use_group.7 is not False %}
+             </td>
+             <td>
+                 <table summary="Interval Stats">
+                     <tr>
+                         <td>Total Duration:</td>
+                         <td>{{ use_group.7.total }}</td>
+                     </tr>
+                     <tr>
+                         <td>Average Duration:</td>
+                         <td>{{ use_group.7.average }}</td>
+                     </tr>
+                     <tr>
+                         <td>Longest Duration:</td>
+                         <td>{{ use_group.7.longest }}</td>
+                     </tr>
+                     <tr>
+                         <td>Shortest Duration:</td>
+                         <td>{{ use_group.7.shortest }}</td>
+                     </tr>
+                 </table>
+             </td></tr>
             </table>
+            {% endif %}
 
             <ul>
               {% for use in use_group.1 %}
                 <li>{{ use }}</li>
               {% endfor %}
             </ul>
+
+            <p>For individual substance graphing data, please see
+                <a href="{% url 'dataview:data_summary' use_group.0.id %}">the following individual stats page</a>.</p>
+
         {% endfor %}
   {% else %}
     <h3>No Usages to Report!</h3>
