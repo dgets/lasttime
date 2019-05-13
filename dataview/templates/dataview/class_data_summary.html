@@ -161,6 +161,8 @@
 
        </script>
 
+       <div id="graph_dosage_{{ use_group.0.id }}_2">&nbsp;</div>
+
             <!-- between dosage interval graph -->
      <div class="interval_chart"></div>
      <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
@@ -184,7 +186,7 @@ var yAxis2 = d3.svg.axis()
     .orient("left")
     .ticks(10);
 
-var svg2 = d3.select("#graph_dosage_{{ use_group.0.id }}").append("svg")
+var svg2 = d3.select("#graph_dosage_{{ use_group.0.id }}_2").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
