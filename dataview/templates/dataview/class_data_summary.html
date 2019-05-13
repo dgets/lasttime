@@ -43,6 +43,7 @@
                     <td>{{ use_group.6 }}</td>
                 </tr>
               </table>
+
             {% if use_group.7 is not False %}
              </td>
              <td>
@@ -73,6 +74,174 @@
                 <li>{{ use }}</li>
               {% endfor %}
             </ul>
+
+            <div id="graph_dosage_{{ use_group.0.id }}"></div>
+            <!-- dosage graph -->
+     <div class="dose_chart"></div>
+     <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+     <script type="text/javascript">
+        let json_src_{{ use_group.0.id }} = '{% url 'dataview:dump_dose_graph_data' use_group.0.id %}';
+
+        var margin = {top: 20, right: 20, bottom: 70, left: 40},
+        width = 600 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+        var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+        var y = d3.scale.linear().range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            .ticks(5);
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .ticks(10);
+
+        var svg = d3.select("#graph_dosage_{{ use_group.0.id }}").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        d3.json(json_src_{{ use_group.0.id }}, function(error, data) {
+          var ouah = []
+          var ouah2 = []
+          var ouah3 = []
+          for (var cntr = 0; cntr < data.dosages.length; cntr++) {
+            ouah[cntr] = {}
+            ouah2[cntr] = (cntr + 1);
+            ouah3[cntr] = data.dosages[cntr];
+            ouah[cntr].date = ouah2[cntr]
+            ouah[cntr].value = ouah3[cntr]
+          }
+
+          console.log(ouah);
+
+          ouah.forEach(function(d) {
+              d.date = d.date;
+              d.value = +d.value;
+          });
+
+          x.domain(ouah.map(function(d) { return d.date; }));
+          y.domain([0, d3.max(ouah3)]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis)
+            .selectAll("text")
+              .style("text-anchor", "end")
+              .attr("dx", "-.8em")
+              .attr("dy", "-.55em")
+              .attr("transform", "rotate(-90)" );
+
+          svg.append("g")
+              .attr("class", "y axis")
+              .call(yAxis)
+            .append("text")
+              .attr("transform", "rotate(-90)")
+              .attr("y", 6)
+              .attr("dy", ".71em")
+              .style("text-anchor", "end")
+              .text("Dosage in {{ sub_dosage_units }}");
+
+          svg.selectAll("bar")
+              .data(ouah)
+            .enter().append("rect")
+              .style("fill", "steelblue")
+              .attr("x", function(d) { return x(d.date); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.value); })
+              .attr("height", function(d) { return height - y(d.value); });
+
+        });
+
+       </script>
+
+            <!-- between dosage interval graph -->
+     <div class="interval_chart"></div>
+     <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
+     <script type="text/javascript">
+let json_src_{{ use_group.0.id }}_2 = '{% url 'dataview:dump_interval_graph_data' use_group.0.id %}';
+
+var margin = {top: 20, right: 20, bottom: 70, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+var x2 = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+var y2 = d3.scale.linear().range([height, 0]);
+
+var xAxis2 = d3.svg.axis()
+    .scale(x2)
+    .orient("bottom")
+    .ticks(10);
+
+var yAxis2 = d3.svg.axis()
+    .scale(y2)
+    .orient("left")
+    .ticks(10);
+
+var svg2 = d3.select("#graph_dosage_{{ use_group.0.id }}").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json(json_src_{{ use_group.0.id }}_2, function(error, data) {
+
+    var ouah_interval = [];
+    for (var cntr = 0; cntr < data.timespans.length; cntr++) {
+        ouah_interval[cntr] = {}
+        ouah_interval[cntr].num = cntr + 1;
+        ouah_interval[cntr].value = data.timespans[cntr];
+    };
+
+    ouah_interval.forEach(function(d) {
+        d.num = d.num;
+        d.value = +d.value;
+    });
+
+    //debugging
+    //console.log(ouah_interval);
+
+  x2.domain(ouah_interval.map(function(d) { return d.num; }));
+  y2.domain([0, d3.max(ouah_interval, function(d) { return d.value; })]);
+
+  svg2.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis2)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", "-.55em")
+      .attr("transform", "rotate(-90)" );
+
+  svg2.append("g")
+      .attr("class", "y axis")
+      .call(yAxis2)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y2", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Timespan in Hours");
+
+  svg2.selectAll("bar")
+      .data(ouah_interval)
+    .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d) { return x2(d.num); })
+      .attr("width", x2.rangeBand())
+      .attr("y", function(d) { return y2(d.value); })
+      .attr("height", function(d) { return height - y2(d.value); });
+
+});
+       </script>
 
             <p>For individual substance graphing data, please see
                 <a href="{% url 'dataview:data_summary' use_group.0.id %}">the following individual stats page</a>.</p>
