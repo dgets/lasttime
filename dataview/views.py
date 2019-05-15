@@ -125,10 +125,10 @@ def day_constrained_summary(request, sub_id):
     # there weren't enough this should've prevented the user from getting this
     # far in the first place
 
-    OneDay = datetime.timedelta(days=1)
+    one_day = datetime.timedelta(days=1)
     usage_data = {}
-    admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - OneDay)
-    admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + OneDay)
+    admins_start = MiscMethods.localize_timestamp(datetime.datetime.max - one_day)
+    admins_end = MiscMethods.localize_timestamp(datetime.datetime.min + one_day)
 
     for use in usages:
         if MiscMethods.is_localization_needed(use.timestamp):
