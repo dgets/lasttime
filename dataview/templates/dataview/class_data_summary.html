@@ -99,7 +99,7 @@
             .orient("left")
             .ticks(10);
 
-        var svg = d3.select("#graph_dosage_{{ use_group.0.id }}").append("svg")
+        var svg_{{ use_group.0.id }} = d3.select("#graph_dosage_{{ use_group.0.id }}").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
           .append("g")
@@ -128,7 +128,7 @@
           x.domain(ouah.map(function(d) { return d.date; }));
           y.domain([0, d3.max(ouah3)]);
 
-          svg.append("g")
+          svg_{{ use_group.0.id }}.append("g")
               .attr("class", "x axis")
               .attr("transform", "translate(0," + height + ")")
               .call(xAxis)
@@ -138,7 +138,7 @@
               .attr("dy", "-.55em")
               .attr("transform", "rotate(-90)" );
 
-          svg.append("g")
+          svg_{{ use_group.0.id }}.append("g")
               .attr("class", "y axis")
               .call(yAxis)
             .append("text")
@@ -148,7 +148,7 @@
               .style("text-anchor", "end")
               .text("Dosage in {{ sub_dosage_units }}");
 
-          svg.selectAll("bar")
+          svg_{{ use_group.0.id }}.selectAll("bar")
               .data(ouah)
             .enter().append("rect")
               .style("fill", "steelblue")
@@ -186,7 +186,7 @@ var yAxis2 = d3.svg.axis()
     .orient("left")
     .ticks(10);
 
-var svg2 = d3.select("#graph_dosage_{{ use_group.0.id }}_2").append("svg")
+var svg2_{{ use_group.0.id }} = d3.select("#graph_dosage_{{ use_group.0.id }}_2").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -213,7 +213,7 @@ d3.json(json_src_{{ use_group.0.id }}_2, function(error, data) {
   x2.domain(ouah_interval.map(function(d) { return d.num; }));
   y2.domain([0, d3.max(ouah_interval, function(d) { return d.value; })]);
 
-  svg2.append("g")
+  svg2_{{ use_group.0.id }}.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis2)
@@ -223,7 +223,7 @@ d3.json(json_src_{{ use_group.0.id }}_2, function(error, data) {
       .attr("dy", "-.55em")
       .attr("transform", "rotate(-90)" );
 
-  svg2.append("g")
+  svg2_{{ use_group.0.id }}.append("g")
       .attr("class", "y axis")
       .call(yAxis2)
     .append("text")
@@ -233,7 +233,7 @@ d3.json(json_src_{{ use_group.0.id }}_2, function(error, data) {
       .style("text-anchor", "end")
       .text("Timespan in Hours");
 
-  svg2.selectAll("bar")
+  svg2_{{ use_group.0.id }}.selectAll("bar")
       .data(ouah_interval)
     .enter().append("rect")
       .style("fill", "steelblue")
@@ -245,9 +245,9 @@ d3.json(json_src_{{ use_group.0.id }}_2, function(error, data) {
 });
        </script>
 
-            <p>For individual substance graphing data, please see
+            <!-- <p>For individual substance graphing data, please see
                 <a href="{% url 'dataview:data_summary' use_group.0.id %}">the following individual stats page</a>.</p>
-
+              -->
         {% endfor %}
   {% else %}
     <h3>No Usages to Report!</h3>
