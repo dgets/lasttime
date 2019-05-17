@@ -399,12 +399,20 @@ def prune_database_by_date(request):
         context['user_message'] = "Please verify pruning the database prior to " + request.POST['prune_prior_to_date'] \
             + ", as this is irreversible!"
         context['prune_prior_to_date'] = prune_prior_to_date
+        context['sub_to_prune'] = request.POST['sub_to_prune']
 
         return render(request, 'recadm/prune_database_by_date.html',
                       MiscMethods.add_pagination_info(MiscMethods.add_header_info(context), administrations))
 
     elif 'verified' in request.POST:
-        context['user_message'] = "Entries prior to " + request.POST['prune_prior_to_date'] + " have been deleted."
+        prune_prior_to_date = datetime.strptime(request.POST['prune_prior_to_date'], '%Y-%m-%d %H:%M:%S')
+
+        usages = Usage.objects.filter(
+            user=request.user, sub=request.POST['sub_to_prune'], timestamp__gte=prune_prior_to_date). \
+            order_by('-timestamp')
+
+        context['user_message'] = str(len(usages)) + " entries prior to " + request.POST['prune_prior_to_date'] + \
+                                  " have been deleted."
         context['verified'] = True
 
     return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
