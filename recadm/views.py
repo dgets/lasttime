@@ -377,9 +377,17 @@ def prune_database_by_date(request):
     if request.method != 'POST':
         context['all_subs'] = Substance.objects.all()
 
-    elif request.POST['prune_prior_to_date'] == "YYYY-mm-dd HH:MM:SS":
+    elif 'need_verification' in request.POST:
         context['all_subs'] = Substance.objects.all()
-        context['error_message'] = "You must enter a date in the proper format to prune administrations!"
+        try:
+            prune_prior_to_date = datetime.strptime(request.POST['prune_prior_to_date'], '%Y-%m-%d %H:%M:%S')
+        except Exception as e:
+            context['error_message'] = "Could not parse date: " + str(e)
+            return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
+
+        context['need_verification'] = True
+        context['user_message'] = "Please verify pruning the database prior to " + request.POST['prune_prior_to_date'] \
+            + ", as this is irreversible!"
 
     return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 
