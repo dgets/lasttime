@@ -386,7 +386,7 @@ def prune_database_by_date(request):
             return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 
         admins = Usage.objects.filter(
-            user=request.user, sub=request.POST['sub_to_prune'], timestamp__gte=prune_prior_to_date).\
+            user=request.user, sub=request.POST['sub_to_prune'], timestamp__lte=prune_prior_to_date).\
             order_by('-timestamp')
 
         paginator = Paginator(admins, 15)  # 15 admins per page
@@ -398,7 +398,7 @@ def prune_database_by_date(request):
         context['need_verification'] = True
         context['user_message'] = "Please verify pruning the database prior to " + request.POST['prune_prior_to_date'] \
             + ", as this is irreversible!"
-        context['prune_prior_to_date'] = prune_prior_to_date
+        context['prune_prior_to_date'] = str(prune_prior_to_date)
         context['sub_to_prune'] = request.POST['sub_to_prune']
 
         return render(request, 'recadm/prune_database_by_date.html',
@@ -408,8 +408,7 @@ def prune_database_by_date(request):
         prune_prior_to_date = datetime.strptime(request.POST['prune_prior_to_date'], '%Y-%m-%d %H:%M:%S')
 
         usages = Usage.objects.filter(
-            user=request.user, sub=request.POST['sub_to_prune'], timestamp__gte=prune_prior_to_date). \
-            order_by('-timestamp')
+            user=request.user, sub=request.POST['sub_to_prune'], timestamp__lte=prune_prior_to_date).delete()
 
         context['user_message'] = str(len(usages)) + " entries prior to " + request.POST['prune_prior_to_date'] + \
                                   " have been deleted."
