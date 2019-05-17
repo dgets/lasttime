@@ -385,9 +385,27 @@ def prune_database_by_date(request):
             context['error_message'] = "Could not parse date: " + str(e)
             return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 
+        admins = Usage.objects.filter(
+            user=request.user, sub=request.POST['sub_to_prune'], timestamp__gte=prune_prior_to_date).\
+            order_by('-timestamp')
+
+        paginator = Paginator(admins, 15)  # 15 admins per page
+
+        page = request.GET.get('page')
+        administrations = paginator.get_page(page)
+
+        context['administrations'] = administrations
         context['need_verification'] = True
         context['user_message'] = "Please verify pruning the database prior to " + request.POST['prune_prior_to_date'] \
             + ", as this is irreversible!"
+        context['prune_prior_to_date'] = prune_prior_to_date
+
+        return render(request, 'recadm/prune_database_by_date.html',
+                      MiscMethods.add_pagination_info(MiscMethods.add_header_info(context), administrations))
+
+    elif 'verified' in request.POST:
+        context['user_message'] = "Entries prior to " + request.POST['prune_prior_to_date'] + " have been deleted."
+        context['verified'] = True
 
     return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 
