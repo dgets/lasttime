@@ -359,3 +359,27 @@ def delete_admin(request):
         context['error_message'] = "Whayit?"
 
     return render(request, 'recadm/delete_admin.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def prune_database_by_date(request):
+    """
+    Provides capability for deleting the administrations from the database that
+    are older than a specified date/time.  Only for the current user, of
+    course.
+
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    if request.method != 'POST':
+        context['all_subs'] = Substance.objects.all()
+
+    elif request.POST['prune_prior_to_date'] == "YYYY-mm-dd HH:MM:SS":
+        context['all_subs'] = Substance.objects.all()
+        context['error_message'] = "You must enter a date in the proper format to prune administrations!"
+
+    return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
+
