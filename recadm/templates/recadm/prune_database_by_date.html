@@ -1,0 +1,67 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  {% if not need_verification and not verified %}
+    <h2>Prune Database</h2>
+
+    <p>Here you can remove or archive your older administration entries from the database.</p>
+
+    <br>
+
+    <form action="{% url 'recadm:prune_database_by_date' %}" method="post">
+        {% csrf_token %}
+
+        <table>
+            <tr>
+                <td>Substance:</td>
+                <td>
+                  {% for sub in all_subs %}
+                    <input type="radio" name="sub_to_prune" value="{{ sub.id }}">{{ sub.common_name }}</input><br>
+                  {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>Date to remove admins prior to:</td>
+                <td><input type="text" name="prune_prior_to_date" placeholder="YYYY-mm-dd HH:MM:SS" maxlength="20" /></td>
+            </tr>
+        </table>
+
+        <input type="hidden" name="need_verification" value="True" />
+        <p><input type="submit" name="Wipe Administrations" />
+    </form>
+
+  {% elif need_verification %}
+
+    {% if administrations %}
+      <ol>
+        {% for admin in administrations %}
+          <li>{{ admin }}</li>
+        {% endfor %}
+      </ol>
+    {% endif %}
+
+    <br>
+    <form action="{% url 'recadm:prune_database_by_date' %}" method="post">
+      {% csrf_token %}
+      <br>Verify that you want to purge the database irreversibly of these entries by checking here:
+        <input type="checkbox" name="verified" /><br>
+        <input type="hidden" name="prune_prior_to_date" value="{{ prune_prior_to_date }}" />
+        <input type="hidden" name="sub_to_prune" value="{{ sub_to_prune }}" />
+      <p><input type="submit" name="Purge database irreversibly!" />
+    </form>
+
+  {% endif %}
+
+{% endblock main_page_content %}
+{% block default_trailer %}
+  <div class="botnav">
+      <a href="{% url 'recadm:add' %}">Add Administration</a>
+      <a href="{% url 'recadm:delete_admin' %}">Delete Administration(s)</a>
+      <a href="{% url 'recadm:add_usual_suspect' %}">Add Usual Suspect</a>
+      <a href="{% url 'recadm:prune_database_by_date' %}">Prune Database</a>
+      <a href="/accounts/logout">Log out</a>
+  </div>
+
+ </body>
+</html>
+{% endblock default_trailer %}
