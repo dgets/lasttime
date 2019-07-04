@@ -108,12 +108,15 @@ def edit_sub(request):
     :return:
     """
 
-    if request.method != 'POST':
-        # substance = Substance.objects.get(pk=substance_id)
-        substance_form = Substance.objects.get(pk=request.POST['substance_id'])     # SubstanceForm
+    context = {}
+
+    if request.method == 'POST':
+        # print(request.POST['sub_to_edit'])
+        substance_to_edit = Substance.objects.get(id=request.POST['sub_to_edit'])     # SubstanceForm
 
         # substance_form = substance
-        context['substance_form'] = substance_form
+        context['substance_form'] = SubstanceForm(instance=substance_to_edit)
+        context['sub_id'] = request.POST['sub_to_edit']
 
         return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
 
@@ -121,6 +124,23 @@ def edit_sub(request):
         context['substances'] = Substance.objects.all()
 
         return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def edited_sub(request, sub_id):
+    """
+    View saves the [presumably] changed information from the previous edit_sub
+    view's Substance record.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
+
+    context = {}
+
+    edited_substance = Substance.objects.get(id=sub_id)
+    edited_substance =
 
 
 @login_required
