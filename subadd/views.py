@@ -99,6 +99,31 @@ def addentry(request):
 
 
 @login_required
+def edit_sub(request):
+    """
+    View provides the capability to edit a substance's details.
+
+    :param request:
+    :param substance_id:
+    :return:
+    """
+
+    if request.method != 'POST':
+        # substance = Substance.objects.get(pk=substance_id)
+        substance_form = Substance.objects.get(pk=request.POST['substance_id'])     # SubstanceForm
+
+        # substance_form = substance
+        context['substance_form'] = substance_form
+
+        return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+    else:
+        context['substances'] = Substance.objects.all()
+
+        return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+
+@login_required
 def detail(request, substance_id):
     """
     View provides details on any particular substance record.  Hands things
