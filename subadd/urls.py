@@ -11,5 +11,6 @@ urlpatterns = [
     path('add_class', views.add_sub_class, name='add_sub_class'),
     path('class_details/<int:class_id>/', views.sub_class_details, name='sub_class_details'),
     path('edit', views.edit_sub, name='edit_sub'),
+    path('edited_sub/<int:sub_id>/', views.edited_sub, name='edited_sub'),
 ]
 

@@ -118,7 +118,7 @@ def edit_sub(request):
         except Exception as ex:
             context['substances'] = Substance.objects.all()
             context['error_message'] = "No substance selected for editing!"
-            
+
             return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
 
         # substance_form = substance
@@ -147,11 +147,34 @@ def edited_sub(request, sub_id):
     context = {}
 
     edited_substance = Substance.objects.get(id=sub_id)
+
+    # print(str(edited_substance))
+    # print("\n---\n")
+
     edited_substance.common_name = request.POST['common_name']
     edited_substance.sci_name = request.POST['sci_name']
     edited_substance.half_life = request.POST['half_life']
     edited_substance.active_half_life = request.POST['active_half_life']
-    edited_substance.lipid_solubility = request.POST['lipid_solubility']
+    # edited_substance.lipid_solubility = request.POST['lipid_solubility']
+    edited_substance.lipid_solubility = request.POST.get('lipid_solubility', False)
+    # don't forget to check the measurement value, detc
+
+    # if edited_substance.lipid_solubility != False:
+    #     edited_substance.lipid_solubility = True
+
+    context['edited_substance'] = edited_substance
+
+    try:
+        edited_substance.save()
+
+        context['user_message'] = "Saved this record for " + edited_substance.common_name + "."
+
+    except Exception as ex:
+        context['error_message'] = "Unable to save record for " + edited_substance.common_name + ": " + str(ex)
+    
+    # print(str(edited_substance))
+
+    return render(request, 'subadd/edited.html', MiscMethods.add_header_info(context))
 
 
 @login_required
