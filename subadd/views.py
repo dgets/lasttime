@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 
 from lasttime.myglobals import MiscMethods
 
-from .forms import Substance, SubstanceForm, SubstanceClass, SubstanceClassForm
+from .forms import Substance, SubstanceClass, SubstanceClassForm, SubstanceForm
 
 
 @login_required
@@ -112,7 +112,14 @@ def edit_sub(request):
 
     if request.method == 'POST':
         # print(request.POST['sub_to_edit'])
-        substance_to_edit = Substance.objects.get(id=request.POST['sub_to_edit'])     # SubstanceForm
+        try:
+            substance_to_edit = Substance.objects.get(id=request.POST['sub_to_edit'])     # SubstanceForm
+
+        except Exception as ex:
+            context['substances'] = Substance.objects.all()
+            context['error_message'] = "No substance selected for editing!"
+            
+            return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
 
         # substance_form = substance
         context['substance_form'] = SubstanceForm(instance=substance_to_edit)
@@ -140,7 +147,11 @@ def edited_sub(request, sub_id):
     context = {}
 
     edited_substance = Substance.objects.get(id=sub_id)
-    edited_substance =
+    edited_substance.common_name = request.POST['common_name']
+    edited_substance.sci_name = request.POST['sci_name']
+    edited_substance.half_life = request.POST['half_life']
+    edited_substance.active_half_life = request.POST['active_half_life']
+    edited_substance.lipid_solubility = request.POST['lipid_solubility']
 
 
 @login_required
