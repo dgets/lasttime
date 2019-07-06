@@ -1,0 +1,43 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Edit Substance</h2>
+
+  {% if substance_form %}
+
+    <form action="{% url 'subadd:edited_sub' sub_id %}" method="post">
+
+      {% csrf_token %}
+
+      <table>
+
+        {{ substance_form.as_table }}
+
+      </table>
+
+      <br><p>
+      <input type="submit" value="Submit Changes" />
+
+    </form>
+
+  {% else %}
+
+    <form action="{% url 'subadd:edit_sub' %}" method="post">
+
+    {% csrf_token %}
+
+    <ul>
+
+      {% for sub in substances %}
+        <li><input type="radio" name="sub_to_edit" value="{{ sub.id }}">{{ sub.common_name }}</input></li>
+      {% endfor %}
+
+    </ul>
+
+    <br><p>
+    <input type="submit" value="Select Substance to Edit" />
+
+    </form>
+
+  {% endif %}
+{% endblock main_page_content %}

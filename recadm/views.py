@@ -378,7 +378,8 @@ def prune_database_by_date(request):
         context['all_subs'] = Substance.objects.all()
 
     elif 'need_verification' in request.POST:
-        context['all_subs'] = Substance.objects.all()
+        # context['all_subs'] = Substance.objects.all()
+
         try:
             prune_prior_to_date = datetime.strptime(request.POST['prune_prior_to_date'], '%Y-%m-%d %H:%M:%S')
         except Exception as e:
@@ -411,8 +412,12 @@ def prune_database_by_date(request):
             user=request.user, sub=request.POST['sub_to_prune'], timestamp__lte=prune_prior_to_date).delete()
 
         context['user_message'] = str(len(usages)) + " entries prior to " + request.POST['prune_prior_to_date'] + \
-                                  " have been deleted."
+            " have been deleted."
         context['verified'] = True
+
+    else:
+        context['all_subs'] = Substance.objects.all()
+        context['error_message'] = "You did not verify deleting the database entries for pruning!"
 
     return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 

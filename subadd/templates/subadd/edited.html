@@ -1,0 +1,13 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  <h2>Edited Substance</h2>
+
+  <p>
+      Common name: {{ edited_substance.common_name }}<br>
+      Scientific name: {{ edited_substance.sci_name }}<br>
+      Detectable half-life: {{ edited_substance.half_life }}<br>
+      Active half-life: {{ edited_substance.active_half_life }}<br>
+      Lipid soluble: {% if edited_substance.lipid_solubility %} True {% else %} False {% endif %}<br>
+
+{% endblock main_page_content %}
