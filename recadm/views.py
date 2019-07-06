@@ -436,9 +436,10 @@ def consolidate_database(request):
 
     context = {}
 
-    if request.METHOD != "POST":
+    if request.method != 'POST':
         # initial landing page; still need to select substance and interval
         context['all_subs'] = Substance.objects.all()
-
+        context['mins'] = range(0, 60)
+        context['hrs'] = range(0, 24)
 
     return render(request, 'recadm/consolidate_database.html', MiscMethods.add_header_info(context))

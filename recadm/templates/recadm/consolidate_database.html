@@ -20,8 +20,21 @@
                 </td>
             </tr>
             <tr>
-                <td>Interval within intervals should be consolidated:</td>
-                <td></td>
+                <td>Interval within entries should be consolidated:</td>
+                <td>
+                    Hours:&nbsp;
+                    <select name="hours">
+                        {% for hr in hrs %}
+                          <option value="{{ hr }}">{{ hr }}</option>
+                        {% endfor %}
+                    </select>
+                    &nbsp;Minutes:&nbsp;
+                    <select name="minutes">
+                        {% for min in mins %}
+                          <option value="{{ min }}">{{ min }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
             </tr>
         </table>
 
@@ -30,6 +43,8 @@
 
   {% else %}
 
-    
+
+
+  {% endif %}
 
 {% endblock main_page_content %}

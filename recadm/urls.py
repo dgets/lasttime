@@ -13,5 +13,6 @@ urlpatterns = [
     path('save_usual_suspect_admin', views.save_usual_suspect_admin, name='save_usual_suspect_admin'),
     path('delete_admin', views.delete_admin, name='delete_admin'),
     path('prune_database_by_date', views.prune_database_by_date, name='prune_database_by_date'),
+    path('consolidate_database', views.consolidate_database, name='consolidate_database'),
 ]
 
