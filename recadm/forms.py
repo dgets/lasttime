@@ -18,6 +18,7 @@ class Usage(models.Model):
     dosage = models.DecimalField(max_digits=7, decimal_places=3)
     timestamp = models.DateTimeField('time administered', default=timezone.now)
     notes = models.CharField(max_length=512, blank=True)
+    valid_entry = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.sub) + " (" + str(self.dosage) + ") administered to: " + self.user.username + \

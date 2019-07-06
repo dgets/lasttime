@@ -1,0 +1,35 @@
+{% extends 'home/lasttime_head.html' %}
+
+{% block main_page_content %}
+  {% if all_subs %}
+    <h2>Consolidate Database</h2>
+
+    <p>Here you can select a substance and an interval period in order to consolidate multiple entries within your
+    specified interval into one record.</p>
+
+    <form action="{% url 'recadm:consolidate_database' %}" method="post">
+        {% csrf_token %}
+
+        <table>
+            <tr>
+                <td>Substance:</td>
+                <td>
+                  {% for sub in all_subs %}
+                    <input type="radio" name="sub_to_prune" value="{{ sub.id }}">{{ sub.common_name }}</input><br>
+                  {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td>Interval within intervals should be consolidated:</td>
+                <td></td>
+            </tr>
+        </table>
+
+        <p><input type="submit" name="Consolidate Entries" />
+    </form>
+
+  {% else %}
+
+    
+
+{% endblock main_page_content %}

@@ -421,3 +421,24 @@ def prune_database_by_date(request):
 
     return render(request, 'recadm/prune_database_by_date.html', MiscMethods.add_header_info(context))
 
+
+@login_required
+def consolidate_database(request):
+    """
+    Provides the capability for consolidating entries within a specified time-
+    span into single entries, in order to keep the number of entries to a more
+    reasonable number and avoid too many duplicated records within short
+    intervals.
+
+    :param request:
+    :return:
+    """
+
+    context = {}
+
+    if request.METHOD != "POST":
+        # initial landing page; still need to select substance and interval
+        context['all_subs'] = Substance.objects.all()
+
+
+    return render(request, 'recadm/consolidate_database.html', MiscMethods.add_header_info(context))
