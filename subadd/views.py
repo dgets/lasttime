@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 
 from lasttime.myglobals import MiscMethods
 
-from .forms import Substance, SubstanceForm, SubstanceClass, SubstanceClassForm
+from .forms import Substance, SubstanceClass, SubstanceClassForm, SubstanceForm
 
 
 @login_required
@@ -96,6 +96,85 @@ def addentry(request):
         return render(request, 'subadd/add.html', MiscMethods.add_header_info(context))
 
     return render(request, 'subadd/index.html', MiscMethods.add_header_info({'all_subs': Substance.objects.all()}))
+
+
+@login_required
+def edit_sub(request):
+    """
+    View provides the capability to edit a substance's details.
+
+    :param request:
+    :param substance_id:
+    :return:
+    """
+
+    context = {}
+
+    if request.method == 'POST':
+        # print(request.POST['sub_to_edit'])
+        try:
+            substance_to_edit = Substance.objects.get(id=request.POST['sub_to_edit'])     # SubstanceForm
+
+        except Exception as ex:
+            context['substances'] = Substance.objects.all()
+            context['error_message'] = "No substance selected for editing!"
+
+            return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+        # substance_form = substance
+        context['substance_form'] = SubstanceForm(instance=substance_to_edit)
+        context['sub_id'] = request.POST['sub_to_edit']
+
+        return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+    else:
+        context['substances'] = Substance.objects.all()
+
+        return render(request, 'subadd/edit_sub.html', MiscMethods.add_header_info(context))
+
+
+@login_required
+def edited_sub(request, sub_id):
+    """
+    View saves the [presumably] changed information from the previous edit_sub
+    view's Substance record.
+
+    :param request:
+    :param sub_id:
+    :return:
+    """
+
+    context = {}
+
+    edited_substance = Substance.objects.get(id=sub_id)
+
+    # print(str(edited_substance))
+    # print("\n---\n")
+
+    edited_substance.common_name = request.POST['common_name']
+    edited_substance.sci_name = request.POST['sci_name']
+    edited_substance.half_life = request.POST['half_life']
+    edited_substance.active_half_life = request.POST['active_half_life']
+    # edited_substance.lipid_solubility = request.POST['lipid_solubility']
+    edited_substance.lipid_solubility = request.POST.get('lipid_solubility', False)
+    # don't forget to check the measurement value, detc
+
+    # if edited_substance.lipid_solubility != False:
+    #     edited_substance.lipid_solubility = True
+
+    context['edited_substance'] = edited_substance
+
+    try:
+        edited_substance.save()
+
+        context['user_message'] = "Saved this record for " + edited_substance.common_name + "."
+
+    except Exception as ex:
+        context['error_message'] = "Unable to save record for " + edited_substance.common_name + ": " + str(ex)
+    
+    # print(str(edited_substance))
+
+    return render(request, 'subadd/edited.html', MiscMethods.add_header_info(context))
 
 
 @login_required
