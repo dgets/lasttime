@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 
 from lasttime.myglobals import MiscMethods, Const
@@ -446,16 +446,16 @@ def consolidate_database(request):
     else:
         # validate the selection
 
-        max_delta = request.POST['hrs'] * 60^2 + request.POST['mins'] * 60
-        applicable_usages = Usage.objects.filter(user=request.user, sub=request.POST['sub_to_consolidate']).\
-            order_by('-timestamp')
+        max_delta = timedelta(seconds=int(request.POST['hours']) * 60**2 + int(request.POST['minutes']) * 60)
+        applicable_usages = Usage.objects.filter(
+            user=request.user, sub=request.POST['sub_to_consolidate'], valid_entry=True).order_by('-timestamp')
 
         for cntr in range(0, len(applicable_usages)):
             if cntr > 0 and cntr < len(applicable_usages) - 1:
                 # here we're going to have to test for both cases and the tertiary case of consolidating 3 entries
 
                 if consolidation_debugging:
-                    print("Current delta: " + str(current_delta))
+                    print("\nCurrent delta: " + str(current_delta))
 
                 if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2:
                     # consolidate the three
@@ -464,7 +464,7 @@ def consolidate_database(request):
                     new_usage.user = applicable_usages[cntr - 1].user
                     new_usage.sub = applicable_usages[cntr - 1].sub
                     new_usage.dosage = (applicable_usages[cntr - 1].dosage + applicable_usages[cntr].dosage +
-                                        applicable_usages[cntr + 1].dosage) / 3
+                                        applicable_usages[cntr + 1].dosage)
                     new_usage.timestamp = (applicable_usages[cntr - 1].timestamp + applicable_usages[cntr].timestamp +
                                            applicable_usages[cntr + 1].timestamp) / 3
                     new_usage.notes = "Consolidated entry"  # should be compiled from the previous usages' notes & a
@@ -473,17 +473,10 @@ def consolidate_database(request):
 
                     if consolidation_debugging:
                         # print what we'd do
-                        print("Saving: " + str(new_usage))
+                        print("\nCondition 1:\nSaving: " + str(new_usage))
                         print("Marking invalid: " + str(applicable_usages[cntr - 1]) + ", " +
                               str(applicable_usages[cntr]) + ", " + str(applicable_usages[cntr + 1]))
                     else:
-                        # not a dry run, save & mark the others invalid
-                        # applicable_usages[cntr - 1].valid_entry = False
-                        # applicable_usages[cntr].valid_entry = False
-                        # applicable_usages[cntr + 1].valid_entry = False
-                        # applicable_usages[cntr - 1].save()
-                        # applicable_usages[cntr].save()
-                        # applicable_usages[cntr + 1].save()
                         mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], applicable_usages[cntr + 1])
 
                         new_usage.save()
@@ -492,10 +485,6 @@ def consolidate_database(request):
                     # consolidate the two
                     new_usage = consolidate_two(applicable_usages[cntr - 1], applicable_usages[cntr])
 
-                    # applicable_usages[cntr - 1].valid_entry = False
-                    # applicable_usages[cntr].valid_entry = False
-                    # applicable_usages[cntr - 1].save()
-                    # applicable_usages[cntr].save()
                     mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], None)
 
                     new_usage.save()
@@ -503,10 +492,6 @@ def consolidate_database(request):
                 elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta:
                     new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
 
-                    # applicable_usages[cntr].valid_entry = False
-                    # applicable_usages[cntr + 1].valid_entry = False
-                    # applicable_usages[cntr].save()
-                    # applicable_usages[cntr + 1].save()
                     mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
 
                     new_usage.save()
@@ -521,7 +506,7 @@ def consolidate_database(request):
                     new_usage = consolidate_two(applicable_usages[cntr - 1], applicable_usages[cntr])
 
                     if consolidation_debugging:
-                        print("Saving: " + str(new_usage))
+                        print("\nCondition 2:\nSaving: " + str(new_usage))
                         print("Marking invalid: " + str(applicable_usages[cntr - 1]) + ", " +
                               str(applicable_usages[cntr]))
                     else:
@@ -536,7 +521,7 @@ def consolidate_database(request):
                     new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
 
                     if consolidation_debugging:
-                        print("Saving: " + str(new_usage))
+                        print("\nCondition 3:\nSaving: " + str(new_usage))
                         print("Marking invalid: " + str(applicable_usages[cntr]) + ", " +
                               str(applicable_usages[cntr + 1]))
                     else:
@@ -546,7 +531,7 @@ def consolidate_database(request):
 
             else:
                 # no idea wtf happened here
-                print("Something unexpected happened here!")
+                print("\nSomething unexpected happened here!")
 
     return render(request, 'recadm/consolidate_database.html', MiscMethods.add_header_info(context))
 
@@ -560,12 +545,22 @@ def consolidate_two(first_usage, second_usage):
     :param second_usage:
     :return:
     """
+
+    consolidation_debugging = True
+
     new_usage = Usage()
 
     new_usage.user = first_usage.user
     new_usage.sub = first_usage.sub
-    new_usage.dosage = (first_usage.dosage + second_usage.dosage) / 2
-    new_usage.timestamp = (first_usage.timestamp + second_usage.timestamp) / 2
+    new_usage.dosage = (first_usage.dosage + second_usage.dosage)
+    tmp_offset = first_usage.timestamp - second_usage.timestamp
+    new_usage.timestamp = second_usage.timestamp + (tmp_offset / 2)
+
+    if consolidation_debugging:
+        print("\nTS1: " + str(first_usage.timestamp))
+        print("TS2: " + str(second_usage.timestamp))
+        print("New TS: " + str(new_usage.timestamp))
+
     new_usage.notes = "Consolidated entry"  # this should later be turned into that plus whatever will fit of the
                                             # first and second entry's notes; I'm just too lazy right now
     new_usage.valid_entry = True
