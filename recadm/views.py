@@ -474,8 +474,8 @@ def consolidate_database(request):
                     if consolidation_debugging:
                         # print what we'd do
                         print("\nCondition 1:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + ", " +
-                              str(applicable_usages[cntr]) + ", " + str(applicable_usages[cntr + 1]))
+                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + "\n" +
+                              str(applicable_usages[cntr]) + "\n" + str(applicable_usages[cntr + 1]))
                     else:
                         mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], applicable_usages[cntr + 1])
 
@@ -507,7 +507,7 @@ def consolidate_database(request):
 
                     if consolidation_debugging:
                         print("\nCondition 2:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + ", " +
+                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + "\n" +
                               str(applicable_usages[cntr]))
                     else:
                         # mark invalid and save the new one for realz
@@ -522,7 +522,7 @@ def consolidate_database(request):
 
                     if consolidation_debugging:
                         print("\nCondition 3:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr]) + ", " +
+                        print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
                               str(applicable_usages[cntr + 1]))
                     else:
                         mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
