@@ -436,6 +436,8 @@ def consolidate_database(request):
 
     consolidation_debugging = True
     context = {}
+    wiped_entries = []
+    new_entries = []
 
     if request.method != 'POST':
         # initial landing page; still need to select substance and interval
@@ -454,9 +456,6 @@ def consolidate_database(request):
             if cntr > 0 and cntr < len(applicable_usages) - 1:
                 # here we're going to have to test for both cases and the tertiary case of consolidating 3 entries
 
-                if consolidation_debugging:
-                    print("\nCurrent delta: " + str(current_delta))
-
                 if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2:
                     # consolidate the three
                     new_usage = Usage()
@@ -465,8 +464,10 @@ def consolidate_database(request):
                     new_usage.sub = applicable_usages[cntr - 1].sub
                     new_usage.dosage = (applicable_usages[cntr - 1].dosage + applicable_usages[cntr].dosage +
                                         applicable_usages[cntr + 1].dosage)
-                    new_usage.timestamp = (applicable_usages[cntr - 1].timestamp + applicable_usages[cntr].timestamp +
-                                           applicable_usages[cntr + 1].timestamp) / 3
+
+                    # tmp_offset = applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp
+                    new_usage.timestamp = applicable_usages[cntr].timestamp
+
                     new_usage.notes = "Consolidated entry"  # should be compiled from the previous usages' notes & a
                                                             # note regarding the consolidation
                     new_usage.valid_entry = True
@@ -481,39 +482,36 @@ def consolidate_database(request):
 
                         new_usage.save()
 
-                elif (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr].timestamp) <= max_delta:
-                    # consolidate the two
-                    new_usage = consolidate_two(applicable_usages[cntr - 1], applicable_usages[cntr])
+                    wiped_entries.append(applicable_usages[cntr - 1])
+                    wiped_entries.append(applicable_usages[cntr])
+                    wiped_entries.append(applicable_usages[cntr - 1])
 
-                    mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], None)
+                    new_entries.append(new_usage)
 
-                    new_usage.save()
+                    cntr += 1
 
                 elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta:
-                    new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
+                    # CHECK IF DEBUGGING AND DON'T SAVE CHANGES IF SO
+                    if consolidation_debugging:
+                        print("\nCondition 1b:\nSaving: " + str(new_usage))
+                        print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
+                              str(applicable_usages[cntr + 1]))
+                    else:
+                        new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
 
-                    mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
+                        mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
+                        new_usage.save()
 
-                    new_usage.save()
+                    wiped_entries.append(applicable_usages[cntr])
+                    wiped_entries.append(applicable_usages[cntr + 1])
+
+                    new_entries.append(new_usage)
+
+                    cntr += 1
 
                 else:
                     if consolidation_debugging:
                         print("Nothing to consolidate here")
-
-            elif cntr == len(applicable_usages) - 1:
-                # check these two and consolidate if necessary
-                if applicable_usages[cntr - 1].timestamp - applicable_usages[cntr].timestamp <= max_delta:
-                    new_usage = consolidate_two(applicable_usages[cntr - 1], applicable_usages[cntr])
-
-                    if consolidation_debugging:
-                        print("\nCondition 2:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + "\n" +
-                              str(applicable_usages[cntr]))
-                    else:
-                        # mark invalid and save the new one for realz
-                        mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], None)
-
-                        new_usage.save()
 
             elif cntr == 0:
                 # check the two and consolidate if necessary
@@ -526,12 +524,25 @@ def consolidate_database(request):
                               str(applicable_usages[cntr + 1]))
                     else:
                         mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
-
                         new_usage.save()
+
+                    wiped_entries.append(applicable_usages[cntr])
+                    wiped_entries.append(applicable_usages[cntr + 1])
+
+                    new_entries.append(new_usage)
+
+                    cntr += 1
 
             else:
                 # no idea wtf happened here
                 print("\nSomething unexpected happened here!")
+
+        if consolidation_debugging:
+            print("\nWiped: " + str(wiped_entries))
+            print("New: " + str(new_entries))
+
+        context['wiped_entries'] = wiped_entries
+        context['new_entries'] = new_entries
 
     return render(request, 'recadm/consolidate_database.html', MiscMethods.add_header_info(context))
 

@@ -21,8 +21,8 @@ class Usage(models.Model):
     valid_entry = models.BooleanField(default=True)
 
     def __str__(self):
-        return str(self.sub) + " (" + str(self.dosage) + ") administered to: " + self.user.username + \
-               " at " + str(self.timestamp)
+        return str(self.id) + ": " + str(self.sub) + " (" + str(self.dosage) + ") administered to: " + \
+               self.user.username + " at " + str(self.timestamp)
 
 
 class UsageForm(ModelForm):

@@ -43,7 +43,23 @@
 
   {% else %}
 
+    <h2>Consolidated Database Results</h2>
 
+    <h3>New Consolidated Records</h3>
+
+    <ol>
+    {% for new_entry in new_entries %}
+        <li>{{ new_entry }}</li>
+    {% endfor %}
+    </ol>
+
+    <h3>Old Invalid Entries</h3>
+
+    <ol>
+    {% for wiped_entry in wiped_entries %}
+        <li>{{ wiped_entry }}</li>
+    {% endfor %}
+    </ol>
 
   {% endif %}
 
