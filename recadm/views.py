@@ -434,7 +434,7 @@ def consolidate_database(request):
     :return:
     """
 
-    consolidation_debugging = True
+    consolidation_debugging = False
     context = {}
     wiped_entries = []
     new_entries = []
@@ -449,98 +449,106 @@ def consolidate_database(request):
         # validate the selection
 
         max_delta = timedelta(seconds=int(request.POST['hours']) * 60**2 + int(request.POST['minutes']) * 60)
-        applicable_usages = Usage.objects.filter(
-            user=request.user, sub=request.POST['sub_to_consolidate'], valid_entry=True).order_by('-timestamp')
+        consolidated_records = True
 
-        for cntr in range(0, len(applicable_usages)):
-            if cntr > 0 and cntr < len(applicable_usages) - 1:
-                # here we're going to have to test for both cases and the tertiary case of consolidating 3 entries
+        while consolidated_records:     # probably not the best structure with the boolean flag here
+            consolidated_records = False
+            applicable_usages = Usage.objects.filter(
+                user=request.user, sub=request.POST['sub_to_consolidate'], valid_entry=True).order_by('-timestamp')
 
-                if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2 and\
-                    (applicable_usages[cntr - 1].valid_entry and applicable_usages[cntr].valid_entry and
-                     applicable_usages[cntr + 1].valid_entry):
-                    # consolidate the three
-                    new_usage = Usage()
+            for cntr in range(0, len(applicable_usages)):
+                if cntr > 0 and cntr < len(applicable_usages) - 1:
+                    # here we're going to have to test for both cases and the tertiary case of consolidating 3 entries
 
-                    new_usage.user = applicable_usages[cntr - 1].user
-                    new_usage.sub = applicable_usages[cntr - 1].sub
-                    new_usage.dosage = (applicable_usages[cntr - 1].dosage + applicable_usages[cntr].dosage +
-                                        applicable_usages[cntr + 1].dosage)
+                    if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2\
+                            and (applicable_usages[cntr - 1].valid_entry and applicable_usages[cntr].valid_entry and
+                                 applicable_usages[cntr + 1].valid_entry):
+                        # consolidate the three
+                        new_usage = Usage()
 
-                    # tmp_offset = applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp
-                    new_usage.timestamp = applicable_usages[cntr].timestamp
+                        new_usage.user = applicable_usages[cntr - 1].user
+                        new_usage.sub = applicable_usages[cntr - 1].sub
+                        new_usage.dosage = (applicable_usages[cntr - 1].dosage + applicable_usages[cntr].dosage +
+                                            applicable_usages[cntr + 1].dosage)
 
-                    new_usage.notes = "Consolidated entry"  # should be compiled from the previous usages' notes & a
-                                                            # note regarding the consolidation
-                    new_usage.valid_entry = True
+                        # tmp_offset = applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp
+                        new_usage.timestamp = applicable_usages[cntr].timestamp
 
-                    if consolidation_debugging:
-                        # print what we'd do
-                        print("\nCondition 1:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr - 1]) + "\n" +
-                              str(applicable_usages[cntr]) + "\n" + str(applicable_usages[cntr + 1]))
+                        new_usage.notes = "Consolidated entry"  # should be compiled from the previous usages' notes & a
+                        # note regarding the consolidation
+                        new_usage.valid_entry = True
+
+                        if consolidation_debugging:
+                            # print what we'd do
+                            print("\nCondition 1:\nSaving: " + str(new_usage))
+                            print("Marking invalid: " + str(applicable_usages[cntr - 1]) + "\n" +
+                                  str(applicable_usages[cntr]) + "\n" + str(applicable_usages[cntr + 1]))
+                        else:
+                            mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr],
+                                         applicable_usages[cntr + 1])
+
+                            new_usage.save()
+
+                        wiped_entries.append(applicable_usages[cntr - 1])
+                        applicable_usages[cntr - 1].valid_entry = False
+                        wiped_entries.append(applicable_usages[cntr])
+                        applicable_usages[cntr].valid_entry = False
+                        wiped_entries.append(applicable_usages[cntr + 1])
+                        applicable_usages[cntr + 1].valid_entry = False
+
+                        new_entries.append(new_usage)
+                        consolidated_records = True
+
+                    elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta and \
+                            (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
+                        # CHECK IF DEBUGGING AND DON'T SAVE CHANGES IF SO
+                        if consolidation_debugging:
+                            print("\nCondition 1b:\nSaving: " + str(new_usage))
+                            print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
+                                  str(applicable_usages[cntr + 1]))
+                        else:
+                            new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
+
+                            mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
+                            new_usage.save()
+
+                        wiped_entries.append(applicable_usages[cntr])
+                        applicable_usages[cntr].valid_entry = False
+                        wiped_entries.append(applicable_usages[cntr + 1])
+                        applicable_usages[cntr + 1].valid_entry = False
+
+                        new_entries.append(new_usage)
+                        consolidated_records = True
+
                     else:
-                        mark_invalid(applicable_usages[cntr - 1], applicable_usages[cntr], applicable_usages[cntr + 1])
+                        if consolidation_debugging:
+                            print("Nothing to consolidate here")
 
-                        new_usage.save()
-
-                    wiped_entries.append(applicable_usages[cntr - 1])
-                    applicable_usages[cntr - 1].valid_entry = False
-                    wiped_entries.append(applicable_usages[cntr])
-                    applicable_usages[cntr].valid_entry = False
-                    wiped_entries.append(applicable_usages[cntr + 1])
-                    applicable_usages[cntr + 1].valid_entry = False
-
-                    new_entries.append(new_usage)
-
-                elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta and\
-                        (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
-                    # CHECK IF DEBUGGING AND DON'T SAVE CHANGES IF SO
-                    if consolidation_debugging:
-                        print("\nCondition 1b:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
-                              str(applicable_usages[cntr + 1]))
-                    else:
+                elif cntr == 0:
+                    # check the two and consolidate if necessary
+                    if applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp <= max_delta and \
+                            (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
                         new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
 
-                        mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
-                        new_usage.save()
+                        if consolidation_debugging:
+                            print("\nCondition 3:\nSaving: " + str(new_usage))
+                            print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
+                                  str(applicable_usages[cntr + 1]))
+                        else:
+                            mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
+                            new_usage.save()
 
-                    wiped_entries.append(applicable_usages[cntr])
-                    applicable_usages[cntr].valid_entry = False
-                    wiped_entries.append(applicable_usages[cntr + 1])
-                    applicable_usages[cntr + 1].valid_entry = False
+                        wiped_entries.append(applicable_usages[cntr])
+                        applicable_usages[cntr].valid_entry = False
+                        wiped_entries.append(applicable_usages[cntr + 1])
+                        applicable_usages[cntr + 1].valid_entry = False
 
-                    new_entries.append(new_usage)
+                        new_entries.append(new_usage)
+                        consolidated_records = True
 
                 else:
-                    if consolidation_debugging:
-                        print("Nothing to consolidate here")
-
-            elif cntr == 0:
-                # check the two and consolidate if necessary
-                if applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp <= max_delta and \
-                        (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
-                    new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
-
-                    if consolidation_debugging:
-                        print("\nCondition 3:\nSaving: " + str(new_usage))
-                        print("Marking invalid: " + str(applicable_usages[cntr]) + "\n" +
-                              str(applicable_usages[cntr + 1]))
-                    else:
-                        mark_invalid(applicable_usages[cntr], applicable_usages[cntr + 1], None)
-                        new_usage.save()
-
-                    wiped_entries.append(applicable_usages[cntr])
-                    applicable_usages[cntr].valid_entry = False
-                    wiped_entries.append(applicable_usages[cntr + 1])
-                    applicable_usages[cntr + 1].valid_entry = False
-
-                    new_entries.append(new_usage)
-
-            else:
-                # no idea wtf happened here
-                print("\nSomething unexpected happened here!")
+                    # no idea wtf happened here
+                    print("\nSomething unexpected happened here!")
 
         if consolidation_debugging:
             print("\nWiped: " + str(wiped_entries))
