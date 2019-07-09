@@ -456,7 +456,9 @@ def consolidate_database(request):
             if cntr > 0 and cntr < len(applicable_usages) - 1:
                 # here we're going to have to test for both cases and the tertiary case of consolidating 3 entries
 
-                if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2:
+                if (applicable_usages[cntr - 1].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta * 2 and\
+                    (applicable_usages[cntr - 1].valid_entry and applicable_usages[cntr].valid_entry and
+                     applicable_usages[cntr + 1].valid_entry):
                     # consolidate the three
                     new_usage = Usage()
 
@@ -483,14 +485,16 @@ def consolidate_database(request):
                         new_usage.save()
 
                     wiped_entries.append(applicable_usages[cntr - 1])
+                    applicable_usages[cntr - 1].valid_entry = False
                     wiped_entries.append(applicable_usages[cntr])
-                    wiped_entries.append(applicable_usages[cntr - 1])
+                    applicable_usages[cntr].valid_entry = False
+                    wiped_entries.append(applicable_usages[cntr + 1])
+                    applicable_usages[cntr + 1].valid_entry = False
 
                     new_entries.append(new_usage)
 
-                    cntr += 1
-
-                elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta:
+                elif (applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp) <= max_delta and\
+                        (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
                     # CHECK IF DEBUGGING AND DON'T SAVE CHANGES IF SO
                     if consolidation_debugging:
                         print("\nCondition 1b:\nSaving: " + str(new_usage))
@@ -503,11 +507,11 @@ def consolidate_database(request):
                         new_usage.save()
 
                     wiped_entries.append(applicable_usages[cntr])
+                    applicable_usages[cntr].valid_entry = False
                     wiped_entries.append(applicable_usages[cntr + 1])
+                    applicable_usages[cntr + 1].valid_entry = False
 
                     new_entries.append(new_usage)
-
-                    cntr += 1
 
                 else:
                     if consolidation_debugging:
@@ -515,7 +519,8 @@ def consolidate_database(request):
 
             elif cntr == 0:
                 # check the two and consolidate if necessary
-                if applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp <= max_delta:
+                if applicable_usages[cntr].timestamp - applicable_usages[cntr + 1].timestamp <= max_delta and \
+                        (applicable_usages[cntr].valid_entry and applicable_usages[cntr + 1].valid_entry):
                     new_usage = consolidate_two(applicable_usages[cntr], applicable_usages[cntr + 1])
 
                     if consolidation_debugging:
@@ -527,11 +532,11 @@ def consolidate_database(request):
                         new_usage.save()
 
                     wiped_entries.append(applicable_usages[cntr])
+                    applicable_usages[cntr].valid_entry = False
                     wiped_entries.append(applicable_usages[cntr + 1])
+                    applicable_usages[cntr + 1].valid_entry = False
 
                     new_entries.append(new_usage)
-
-                    cntr += 1
 
             else:
                 # no idea wtf happened here
